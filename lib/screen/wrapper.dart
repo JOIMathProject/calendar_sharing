@@ -8,19 +8,6 @@ class Wrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show a loading spinner while waiting for the user data
-        } else {
-          if (snapshot.hasData) {
-            return Home(); // Show the home screen if the user is logged in
-          } else {
-            return Authenticate(); // Show the authenticate screen if the user is not logged in
-          }
-        }
-      },
-    );
+      return Authenticate(); // Show the authenticate screen if the user is not logged in
   }
 }

@@ -9,11 +9,7 @@ class AuthService {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? gUser = await GoogleSignIn(
-        scopes: <String>[
-          googleAPI.CalendarApi.calendarScope,
-        ]
-      ).signIn();
+      final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
       if (gUser == null) {
         // The user canceled the sign-in
         return null;
