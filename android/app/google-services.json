@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "213698548031",
+    "project_id": "calendar-sharing-634a4",
+    "storage_bucket": "calendar-sharing-634a4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213698548031:android:fd95648c2410765208438a",
+        "android_client_info": {
+          "package_name": "com.calendar_share.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "213698548031-3d7imnc8dnkllv68vntdgkbnotrajcnv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.calendar_share.app",
+            "certificate_hash": "6ae6f1842312ba3a1c12a337b31d14e7f8c5c1aa"
+          }
+        },
+        {
+          "client_id": "213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGdPfqhFIZRdy-Y8-_QOJ072rSwnCTcxo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213698548031-1gclpn16i2g1ucgihorr68du9h9bc45g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "213698548031-79s8hhigaolp5urbmbnso47q1m0h1pcv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.calendarSharing"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
