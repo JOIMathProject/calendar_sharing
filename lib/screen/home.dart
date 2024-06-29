@@ -29,12 +29,6 @@ class _HomeState extends State<Home> {
     super.initState();
     _getCalendarEvents();
   }
-
-  void prompt(String url) {
-    print("Please go to the following URL and grant access:");
-    print("  => $url");
-    print("");
-  }
   Future<void> _getCalendarEvents() async {
     if(widget.gUser == null) return;
     try{

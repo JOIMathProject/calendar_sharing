@@ -14,9 +14,21 @@ class AuthService {
 
   Future<GoogleSignIn?> signInWithGoogle(BuildContext context) async {
     try {
-      await _googleSignIn.signIn();
+      await _googleSignIn.signIn().then((result) {
+        result?.authentication.then((googleKey) {
+          print(googleKey.accessToken);
+          print(googleKey.idToken);
+          print(_googleSignIn.currentUser);
+        }).catchError((err) {
+          print('inner error');
+        });
+      }).catchError((err) {
+        print('error occured');
+      });
+
       await _googleSignIn.authenticatedClient();
       Provider.of<UserData>(context, listen: false).updateGoogleUser(_googleSignIn);
+
       return _googleSignIn;
     } catch (e) {
       print(e.toString());
