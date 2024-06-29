@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:googleapis/chat/v1.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:googleapis/calendar/v3.dart' as cal;
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import '../services/auth.dart';
 
 class Home extends StatefulWidget {
-  @override
+
+
+  final GoogleSignIn? gUser;
+  Home({required this.gUser});
+
+@override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  var httpClientO = null;
+  var googleCalendarApiO = null;
   List<cal.Event> _events = [];
   final AuthService _auth = AuthService();
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     _getCalendarEvents();
   }
@@ -29,19 +34,42 @@ class _HomeState extends State<Home> {
     print("  => $url");
     print("");
   }
-
   Future<void> _getCalendarEvents() async {
-    var _clientID = ClientId('213698548031-3d7imnc8dnkllv68vntdgkbnotrajcnv.apps.googleusercontent.com', '');
-    var _scopes = [cal.CalendarApi.calendarScope];
-    await clientViaUserConsent(_clientID, _scopes, prompt)
-        .then((AuthClient client) {
-      var calendar = cal.CalendarApi(client);
-      calendar.events.list('primary', singleEvents: true).then((value) {
+    if(widget.gUser == null) return;
+    try{
+      httpClientO = (await widget.gUser?.authenticatedClient())!;
+    }catch(e){
+      print(e.toString());
+      await _auth.signOut(context);
+      return;
+    }
+    googleCalendarApiO = cal.CalendarApi(httpClientO);
+
+    String calenderId = "primary";
+
+    // Set timeMin to a date far in the past and timeMax to a date far in the future
+    DateTime timeMin = DateTime(2000, 4, 1);
+    DateTime timeMax = DateTime(2100, 12, 31);
+
+    try{
+      var events = await googleCalendarApiO.events.list(calenderId, timeMin: timeMin, timeMax: timeMax,maxResults: 2500);
+      if(events.items != null && events.items!.isNotEmpty){
         setState(() {
-          _events = value.items!;
+          _events = events.items!;
         });
-      });
-    });
+      }
+    }catch(e){
+      print(e.toString());
+    }
+    //print all the event's list
+    for (var event in _events) {
+      //print(event.start!.dateTime);
+    }
+    if (_events == null) {
+      print('_events is null');
+    } else {
+      print('Number of events: ${_events.length}');
+    }
   }
 
   @override
@@ -54,36 +82,42 @@ class _HomeState extends State<Home> {
             icon: Icon(Icons.person),
             label: Text('logout'),
             onPressed: () async {
-              await _auth.signOut();
+              await _auth.signOut(context);
             },
           ),
         ],
       ),
-      body: SfCalendar(
-        view: CalendarView.month,
-        dataSource: _getCalendarDataSource(),
-      ),
+      body:
+        Column(
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: _getCalendarEvents,
+              child: Text('Fetch Calendar Events'),
+            ),
+            SfCalendar(
+              view: CalendarView.week,
+              dataSource: MeetingDataSource(getAppointments()),
+            ),
+          ]
+        ),
     );
   }
-
-  _getCalendarDataSource() {
-    List<Appointment> appointments = <Appointment>[];
+  List<Appointment> getAppointments(){
+    List<Appointment> meetings = <Appointment>[];
     for (var event in _events) {
-      DateTime start = event.start!.dateTime!.toLocal();
-      DateTime end = event.end!.dateTime!.toLocal();
-      appointments.add(Appointment(
-        startTime: start,
-        endTime: end,
+      if(event.start?.dateTime == null || event.end?.dateTime == null) continue;
+      meetings.add(Appointment(
+        startTime: event.start!.dateTime!,
+        endTime: event.end!.dateTime!,
         subject: event.summary!,
         color: Colors.blue,
       ));
     }
-    return _AppointmentDataSource(appointments);
+    return meetings;
   }
 }
-
-class _AppointmentDataSource extends CalendarDataSource {
-  _AppointmentDataSource(List<Appointment> source) {
+class MeetingDataSource extends CalendarDataSource {
+  MeetingDataSource(List<Appointment> source) {
     appointments = source;
   }
 }

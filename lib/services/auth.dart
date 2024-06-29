@@ -1,41 +1,33 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/calendar/v3.dart' as googleAPI;
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:provider/provider.dart';
+import 'UserData.dart';
+import 'package:flutter/material.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: <String>[
+      googleAPI.CalendarApi.calendarScope,
+    ],
+  );
 
-  Stream<User?> get user => _auth.authStateChanges();
-
-  Future<UserCredential?> signInWithGoogle() async {
+  Future<GoogleSignIn?> signInWithGoogle(BuildContext context) async {
     try {
-      final GoogleSignInAccount? gUser = await GoogleSignIn(
-        scopes: <String>[
-          googleAPI.CalendarApi.calendarScope,
-        ]
-      ).signIn();
-      if (gUser == null) {
-        // The user canceled the sign-in
-        return null;
-      }
-
-      final GoogleSignInAuthentication gAuth = await gUser.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: gAuth.accessToken,
-        idToken: gAuth.idToken,
-      );
-
-      return await _auth.signInWithCredential(credential);
+      await _googleSignIn.signIn();
+      await _googleSignIn.authenticatedClient();
+      Provider.of<UserData>(context, listen: false).updateGoogleUser(_googleSignIn);
+      return _googleSignIn;
     } catch (e) {
       print(e.toString());
       return null;
     }
   }
 
-  Future signOut() async {
+  Future signOut(BuildContext context) async {
     try {
-      return await _auth.signOut();
+      await _googleSignIn.signOut();
+      Provider.of<UserData>(context, listen: false).updateGoogleUser(null);
     } catch (e) {
       print(e.toString());
     }
