@@ -46,7 +46,7 @@ dependencies:
   googleapis: ^13.2.0
   url_launcher: ^6.3.0
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
-
+  rrule: ^0.2.16
 dev_dependencies:
   flutter_test:
     sdk: flutter
