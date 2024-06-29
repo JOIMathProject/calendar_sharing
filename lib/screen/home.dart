@@ -24,6 +24,8 @@ class _HomeState extends State<Home> {
   List<cal.Event> _events = [];
   final AuthService _auth = AuthService();
 
+  final CalendarController _calendarController = CalendarController();
+
   @override
   void initState(){
     super.initState();
@@ -89,9 +91,62 @@ class _HomeState extends State<Home> {
               child: Text('Fetch Calendar Events'),
             ),
             Expanded(
-              child: SfCalendar(
-                view: CalendarView.week,
-                dataSource: MeetingDataSource(getAppointments()),
+              child:Stack(
+                children: <Widget>[
+                  SfCalendar(
+                    view: CalendarView.week,
+                    dataSource: MeetingDataSource(getAppointments()),
+                    controller: _calendarController, // Assign the controller
+                    appointmentBuilder: (BuildContext context, CalendarAppointmentDetails details) {
+                      return Container(
+                        width: details.bounds.width,
+                        height: details.bounds.height,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.blue,
+                            width: 2.0,
+                          ),
+                        ),
+                      );
+                    },
+                    todayHighlightColor: Colors.transparent,
+                    todayTextStyle: TextStyle(
+                      color: Colors.transparent, // Set the today text color to transparent
+                    ),
+                    cellBorderColor: Colors.transparent,
+                    timeSlotViewSettings: TimeSlotViewSettings(
+                      timeInterval: Duration(hours: 2),
+                      timeTextStyle: TextStyle(
+                        color: Colors.transparent, // Set the time text color to transparent
+                      ),
+                    ),
+                    headerStyle: CalendarHeaderStyle(
+                      textAlign: TextAlign.left,
+                      textStyle: TextStyle(
+                        color: Colors.transparent, // Set the text color to transparent
+                      ),
+                    ),
+                    viewHeaderStyle: ViewHeaderStyle(
+                      dateTextStyle: TextStyle(
+                        color: Colors.transparent, // Set the date text color to transparent
+                      ),
+                      dayTextStyle: TextStyle(
+                        color: Colors.transparent, // Set the day text color to transparent
+                      ),
+                    ),
+                  ),
+                  IgnorePointer(
+                    ignoring: true,
+                    child:SfCalendar(
+                      view: CalendarView.week,
+                      dataSource: MeetingDataSource(getAppointments()),
+                      controller: _calendarController,
+                      timeSlotViewSettings: TimeSlotViewSettings(
+                        timeInterval: Duration(hours: 2),
+                      ),
+                    )
+                  ),
+                ],
               ),
             ),
           ]
@@ -124,7 +179,7 @@ class _HomeState extends State<Home> {
           meetings.add(Appointment(
             startTime: date,
             endTime: date.add(event.end!.dateTime!.difference(event.start!.dateTime!)),
-            color: Colors.blue,
+            color: Color(0x2800FF70),
           ));
         }
       } else {
