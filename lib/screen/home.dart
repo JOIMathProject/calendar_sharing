@@ -109,6 +109,13 @@ class _HomeState extends State<Home> {
                         ),
                       );
                     },
+                    selectionDecoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(
+                        color: Colors.transparent,
+                        width: 0,
+                      ),
+                    ),
                     todayHighlightColor: Colors.transparent,
                     todayTextStyle: TextStyle(
                       color: Colors.transparent, // Set the today text color to transparent
@@ -141,6 +148,14 @@ class _HomeState extends State<Home> {
                       view: CalendarView.week,
                       dataSource: MeetingDataSource(getAppointments()),
                       controller: _calendarController,
+
+                      selectionDecoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border.all(
+                          color: Colors.transparent,
+                          width: 0,
+                        ),
+                      ),
                       timeSlotViewSettings: TimeSlotViewSettings(
                         timeInterval: Duration(hours: 2),
                       ),
