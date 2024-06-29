@@ -88,19 +88,20 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body:
-        Column(
+      body: Column(
           children: <Widget>[
             ElevatedButton(
               onPressed: _getCalendarEvents,
               child: Text('Fetch Calendar Events'),
             ),
-            SfCalendar(
-              view: CalendarView.week,
-              dataSource: MeetingDataSource(getAppointments()),
+            Expanded(
+              child: SfCalendar(
+                view: CalendarView.week,
+                dataSource: MeetingDataSource(getAppointments()),
+              ),
             ),
           ]
-        ),
+      ),
     );
   }
   List<Appointment> getAppointments(){
@@ -108,7 +109,6 @@ class _HomeState extends State<Home> {
     for (var event in _events) {
       if(event.start?.dateTime == null || event.end?.dateTime == null) continue;
 
-      // Check if the event is a recurring event
       // Check if the event is a recurring event
       if (event.recurrence != null && event.recurrence!.isNotEmpty) {
         // Parse the recurrence rule
