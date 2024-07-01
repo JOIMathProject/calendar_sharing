@@ -47,6 +47,9 @@ dependencies:
   url_launcher: ^6.3.0
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
   rrule: ^0.2.16
+  syncfusion_localizations: ^26.1.39
+  flutter_localization: ^0.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

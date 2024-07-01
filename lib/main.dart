@@ -5,6 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'setting/color.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +29,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        SfGlobalLocalizations.delegate
+      ],
+      supportedLocales: [
+        const Locale('zh'),
+        const Locale('ar'),
+        const Locale('ja'),
+      ],
+      locale: const Locale('ja'),
       theme: appTheme,
       home: Wrapper(),
     );
