@@ -12,7 +12,7 @@ class AuthService {
     scopes: <String>[
       googleAPI.CalendarApi.calendarScope,
     ],
-    clientId: '213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com',
+    serverClientId: '213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com',
   );
 
   Future<GoogleSignIn?> signInWithGoogle(BuildContext context) async {
@@ -22,7 +22,6 @@ class AuthService {
         print('Google Sign-In aborted');
         return null;
       }
-
       final googleKey = await result.authentication;
       final url = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=AIzaSyDGdPfqhFIZRdy-Y8-_QOJ072rSwnCTcxo');
 
@@ -31,7 +30,7 @@ class AuthService {
         headers: {'Content-type': 'application/json'},
         body: jsonEncode({
           'postBody': 'id_token=${googleKey.idToken}&providerId=google.com',
-          'requestUri': 'http://localhost',
+          'requestUri': 'https://calendar-api.woody1227.com/',
           'returnIdpCredential': true,
           'returnSecureToken': true
         }),
