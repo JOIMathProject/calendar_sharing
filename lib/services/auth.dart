@@ -12,6 +12,7 @@ class AuthService {
     scopes: <String>[
       googleAPI.CalendarApi.calendarScope,
     ],
+    forceCodeForRefreshToken: true,
     serverClientId: '213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com',
   );
 
@@ -23,33 +24,34 @@ class AuthService {
         return null;
       }
       final googleKey = await result.authentication;
-      final url = Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=AIzaSyDGdPfqhFIZRdy-Y8-_QOJ072rSwnCTcxo');
+      final url = Uri.parse('https://oauth2.googleapis.com/token');
 
       final response = await http.post(
         url,
-        headers: {'Content-type': 'application/json'},
-        body: jsonEncode({
-          'postBody': 'id_token=${googleKey.idToken}&providerId=google.com',
-          'requestUri': 'https://calendar-api.woody1227.com/',
-          'returnIdpCredential': true,
-          'returnSecureToken': true
-        }),
+        headers: {'Content-type': 'application/x-www-form-urlencoded'},
+        body: {
+          'code': result.serverAuthCode!,
+          'client_id': '213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com',
+          'client_secret': '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',
+          'redirect_uri': 'https://calendar-api.woody1227.com/',
+          'grant_type': 'authorization_code',
+        },
       );
 
       if (response.statusCode != 200) {
-        throw 'Refresh token request failed: ${response.statusCode}';
+        throw 'Token exchange failed: ${response.statusCode}';
       }
 
-      final data = Map<String, dynamic>.of(jsonDecode(response.body));
-      if (data.containsKey('refreshToken')) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (data.containsKey('refresh_token')) {
         // Here is your refresh token, store it in a secure way
-        print('Refresh Token: ${data['refreshToken']}');
+        print('Refresh Token: ${data['refresh_token']}');
       } else {
         throw 'No refresh token in response';
       }
 
-      print('Access Token: ${googleKey.accessToken}');
-      print('ID Token: ${googleKey.idToken}');
+      print('Access Token: ${data['access_token']}');
+      print('ID Token: ${data['id_token']}');
       print('Current User: ${_googleSignIn.currentUser}');
 
       await _googleSignIn.authenticatedClient();
@@ -57,7 +59,7 @@ class AuthService {
 
       return _googleSignIn;
     } catch (e) {
-      print(e.toString());
+      print('Error: $e');
       return null;
     }
   }
@@ -67,7 +69,7 @@ class AuthService {
       await _googleSignIn.signOut();
       Provider.of<UserData>(context, listen: false).updateGoogleUser(null);
     } catch (e) {
-      print(e.toString());
+      print('Error: $e');
     }
   }
 }
