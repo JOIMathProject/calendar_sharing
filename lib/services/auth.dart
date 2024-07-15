@@ -37,6 +37,7 @@ class AuthService {
           'grant_type': 'authorization_code',
         },
       );
+      print(result.id);
 
       if (response.statusCode != 200) {
         throw 'Token exchange failed: ${response.statusCode}';

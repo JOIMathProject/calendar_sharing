@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -25,6 +28,8 @@ class _HomeState extends State<Home> {
   List<cal.Event> _events = [];
   final AuthService _auth = AuthService();
   final CalendarController _calendarController = CalendarController();
+
+  get http => null;
   @override
   void initState() {
     super.initState();
@@ -87,8 +92,12 @@ class _HomeState extends State<Home> {
       ),
       body: Column(children: <Widget>[
         ElevatedButton(
-          onPressed: _getCalendarEvents,
-          child: Text('Fetch Calendar Events'),
+          onPressed: () async {
+            CreateUser createUser = CreateUser();
+            await createUser.createUser('example@example.com', 'password123');
+          },
+        child: Text('Fetch Calendar Events'),
+
         ),
         Expanded(
           child:Stack(
