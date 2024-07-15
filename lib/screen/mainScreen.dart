@@ -19,7 +19,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
     _children = [
       PlaceholderWidget(), // Replace with your actual widgets
       ContentsManage(), // Access gUser through Provider

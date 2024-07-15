@@ -1,4 +1,10 @@
+import 'package:calendar_sharing/screen/createContents.dart';
+import 'package:calendar_sharing/screen/home.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+
+import '../services/UserData.dart';
 
 class ContentsManage extends StatefulWidget {
   @override
@@ -30,7 +36,7 @@ class _ContentsManageState extends State<ContentsManage> {
           IconButton(
             icon: Icon(Icons.group_add),
             onPressed: () {
-              // Handle your logic here for "AddGroup"
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateContents()));
             },
           ),
         ],
@@ -65,9 +71,8 @@ class _ContentsManageState extends State<ContentsManage> {
                 var filteredContents = currentLabel == 'All' ? contents : contents.where((content) => content.label == currentLabel).toList();
                 return ElevatedButton(
                   onPressed: () {
-                    // Handle your navigation logic here
-                    // For example, you can use Navigator.push to navigate to the content
-                    // Navigator.push(context, MaterialPageRoute(builder: (context) => ContentScreen(content: filteredContents[index])));
+                    GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Home(gUser: gUser)));
                   },
                   child: Text(filteredContents[index].name), // Display the name of the content
                 );
