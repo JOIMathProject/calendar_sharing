@@ -94,7 +94,7 @@ class _HomeState extends State<Home> {
         ElevatedButton(
           onPressed: () async {
             CreateUser createUser = CreateUser();
-            await createUser.createUser('example@example.com', 'password123');
+            await createUser.createUser({'example@example.com', 'password123','a','1'});
           },
         child: Text('Fetch Calendar Events'),
 

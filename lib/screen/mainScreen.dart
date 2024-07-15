@@ -1,4 +1,5 @@
 import 'package:calendar_sharing/screen/ContentsManage.dart';
+import 'package:calendar_sharing/screen/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:calendar_sharing/screen/authenticate.dart';
@@ -22,7 +23,7 @@ class _MainScreenState extends State<MainScreen> {
     _children = [
       PlaceholderWidget(), // Replace with your actual widgets
       ContentsManage(), // Access gUser through Provider
-      PlaceholderWidget(),
+      Profile(),
       PlaceholderWidget(),
     ];
   }

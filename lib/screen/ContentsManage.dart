@@ -72,6 +72,7 @@ class _ContentsManageState extends State<ContentsManage> {
                 return ElevatedButton(
                   onPressed: () {
                     GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
+                    print(gUser?.currentUser?.id);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => Home(gUser: gUser)));
                   },
                   child: Text(filteredContents[index].name), // Display the name of the content
