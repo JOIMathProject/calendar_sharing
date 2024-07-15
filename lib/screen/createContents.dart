@@ -15,13 +15,7 @@ class _CreateContentsState extends State<CreateContents> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('グループの作成'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.arrow_back_outlined),
-              onPressed: () {
-              },
-            ),],
+          title: Text('グループの作成')
         ),
         body: Container(
           padding: EdgeInsets.all(20),
