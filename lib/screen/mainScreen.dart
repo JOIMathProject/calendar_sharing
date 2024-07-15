@@ -1,3 +1,4 @@
+import 'package:calendar_sharing/screen/ContentsManage.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:calendar_sharing/screen/authenticate.dart';
@@ -21,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
     GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
     _children = [
       PlaceholderWidget(), // Replace with your actual widgets
-      Home(gUser: gUser), // Access gUser through Provider
+      ContentsManage(), // Access gUser through Provider
       PlaceholderWidget(),
       PlaceholderWidget(),
     ];
