@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:calendar_sharing/screen/authenticate.dart';
 import 'package:calendar_sharing/screen/home.dart';
+import 'package:calendar_sharing/screen/friendsScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'createContents.dart';
@@ -21,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _children = [
-      PlaceholderWidget(), // Replace with your actual widgets
+      FriendsScreen(), // Replace with your actual widgets
       ContentsManage(), // Access gUser through Provider
       Profile(),
       PlaceholderWidget(),

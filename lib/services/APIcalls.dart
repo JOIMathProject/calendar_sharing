@@ -67,3 +67,17 @@ class GetUser{
     return UserInformation.fromJson(jsonDecode(response.body));
   }
 }
+
+class GetFriends{
+  Future<List<UserInformation>> getFriends(String? uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get friends: ${response.statusCode}';
+    }
+
+    List<dynamic> friends = jsonDecode(response.body);
+    return friends.map((friend) => UserInformation.fromJson(friend)).toList();
+  }
+}
