@@ -44,7 +44,6 @@ class _WrapperState extends State<Wrapper> {
   Widget build(BuildContext context) {
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
     if (gUser != null && gUser.currentUser != null) {
-      return
       return MainScreen(); // Show the main screen if the user is logged in
     } else {
       return Authenticate(); // Show the authenticate screen if the user is not logged in
