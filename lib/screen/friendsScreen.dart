@@ -10,7 +10,7 @@ class FriendsScreen extends StatefulWidget {
 }
 
 class _FriendsScreenState extends State<FriendsScreen> {
-  Future<List<String>>? friends;
+  Future<List<FriendInformation>>? friends;
   @override
   void initState() {
     super.initState();
@@ -37,11 +37,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
         ],
       ),
       body: Container(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(30),
         child: Column(
           children: [
             //フレンド一覧を表示する
-            FutureBuilder<List<String>>(
+            FutureBuilder<List<FriendInformation>>(
               future: friends,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting){
@@ -49,17 +49,28 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 }else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 }else if (snapshot.hasData){
+                  print(snapshot.data);
                   return Container(
                     child: Expanded(
                       child:ListView.builder(
                             itemCount: snapshot.data!.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return ListTile(
-                                title: Text(
-                                  snapshot.data![index],
-                                  style: TextStyle(fontSize: 25),
-                                ),
+                              return Row(
+                                children: [
+                                  //アイコン(本当はここに画像を代入?)
+                                  Icon(Icons.person),
+                                  SizedBox(width: 25),
+                                  //名前
+                                  Text(
+                                    snapshot.data![index].uname,
+                                    style: TextStyle(fontSize: 25),
+                                  ),
+                                ],
                               );
+                              /*return ListTile(
+                                leading: Icon(Icons.person),
+                                title: Text(snapshot.data![index]),
+                              );*/
                             }
                         ),
                     ),
