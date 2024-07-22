@@ -19,6 +19,14 @@ class UserInformation {
   }
 }
 
+class FriendInformation {
+  final String uid;
+  final String uname;
+  final String uicon;
+  final String gid;
+  FriendInformation({required this.uid, required this.uname, required this.uicon, required this.gid});
+}
+
 class CreateUser{
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -69,7 +77,7 @@ class GetUser{
 }
 
 class GetFriends{
-  Future<List<String>> getFriends(String? uid) async {
+  Future<List<FriendInformation>> getFriends(String? uid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid');
     final response = await http.get(url);
 
@@ -78,9 +86,14 @@ class GetFriends{
     }
 
     //responseの中のdataの中のuidだけをListにして返す
-    List<String> friends = [];
+    List<FriendInformation> friends = [];
     for (var friend in jsonDecode(response.body)['data']) {
-      friends.add(friend['uid']);
+      friends.add(FriendInformation(
+        uid: friend['uid'],
+        uname: friend['uname'],
+        uicon: friend['uicon'],
+        gid: friend['gid'],
+      ));
     }
     return friends;
   }
