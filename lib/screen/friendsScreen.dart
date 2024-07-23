@@ -49,22 +49,26 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 }else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 }else if (snapshot.hasData){
-                  print(snapshot.data);
                   return Container(
                     child: Expanded(
                       child:ListView.builder(
                             itemCount: snapshot.data!.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return Row(
+                              return Column(
                                 children: [
-                                  //アイコン(本当はここに画像を代入?)
-                                  Icon(Icons.person),
-                                  SizedBox(width: 25),
-                                  //名前
-                                  Text(
-                                    snapshot.data![index].uname,
-                                    style: TextStyle(fontSize: 25),
+                                  Row(
+                                    children: [
+                                      //アイコン(本当はここに画像を代入?)
+                                      Icon(Icons.person),
+                                      SizedBox(width: 25),
+                                      //名前
+                                      Text(
+                                        snapshot.data![index].uname,
+                                        style: TextStyle(fontSize: 25),
+                                      ),
+                                    ],
                                   ),
+                                  SizedBox(height: 30)
                                 ],
                               );
                               /*return ListTile(
