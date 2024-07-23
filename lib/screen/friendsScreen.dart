@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
+import 'friendProfile.dart';
 
 class FriendsScreen extends StatefulWidget {
   @override
@@ -11,10 +12,12 @@ class FriendsScreen extends StatefulWidget {
 
 class _FriendsScreenState extends State<FriendsScreen> {
   Future<List<FriendInformation>>? friends;
+
   @override
   void initState() {
     super.initState();
-    GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
+    GoogleSignIn? gUser =
+        Provider.of<UserData>(context, listen: false).googleUser;
     if (gUser?.currentUser != null) {
       //ここでフレンド一覧を取得する
       friends = GetFriends().getFriends("kuroinusan");
@@ -36,31 +39,36 @@ class _FriendsScreenState extends State<FriendsScreen> {
           ),
         ],
       ),
-      body: Container(
-        padding: EdgeInsets.all(30),
-        child: Column(
-          children: [
-            //フレンド一覧を表示する
-            FutureBuilder<List<FriendInformation>>(
-              future: friends,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting){
-                  return CircularProgressIndicator();
-                }else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }else if (snapshot.hasData){
-                  return Container(
-                    child: Expanded(
-                      child:ListView.builder(
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Column(
+      body: Column(
+        children: [
+          //フレンド一覧を表示する
+          SizedBox(height: 20),
+          FutureBuilder<List<FriendInformation>>(
+            future: friends,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (snapshot.hasData) {
+                return Container(
+                  child: Expanded(
+                    child: ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return GestureDetector(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
                                 children: [
                                   Row(
                                     children: [
                                       //アイコン(本当はここに画像を代入?)
-                                      Icon(Icons.person),
-                                      SizedBox(width: 25),
+                                      Icon(
+                                        Icons.person,
+                                        size: 30,
+                                      ),
+                                      SizedBox(width: 20),
                                       //名前
                                       Text(
                                         snapshot.data![index].uname,
@@ -68,24 +76,24 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 30)
                                 ],
-                              );
-                              /*return ListTile(
-                                leading: Icon(Icons.person),
-                                title: Text(snapshot.data![index]),
-                              );*/
-                            }
-                        ),
-                    ),
-                  );
-                }else{
-                  return Text('No data');
-                }
-              },
-            ),
-          ],
-        ),
+                              ),
+                            ),
+                            onTap: () {
+                              //フレンドのプロフィールに飛ばす
+                              print(snapshot.data![index].uid);
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => FriendProfile(friend: snapshot.data![index])));
+                            },
+                          );
+                        }),
+                  ),
+                );
+              } else {
+                return Text('No data');
+              }
+            },
+          ),
+        ],
       ),
     );
   }
