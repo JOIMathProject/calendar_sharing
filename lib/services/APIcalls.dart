@@ -88,6 +88,9 @@ class GetFriends{
     //responseの中のdataの中のuidだけをListにして返す
     List<FriendInformation> friends = [];
     for (var friend in jsonDecode(response.body)['data']) {
+      if (friend['uicon'] == null) {
+        friend['uicon'] = 'https://calendar-api.woody1227.com/user_icon/default.png';
+      }
       friends.add(FriendInformation(
         uid: friend['uid'],
         uname: friend['uname'],

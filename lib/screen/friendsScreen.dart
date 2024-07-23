@@ -17,7 +17,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
     if (gUser?.currentUser != null) {
       //ここでフレンド一覧を取得する
-      friends = GetFriends().getFriends("woody_1227");
+      friends = GetFriends().getFriends("kuroinusan");
       //friends = GetFriends().getFriends(gUser?.currentUser!.id);
     }
   }
