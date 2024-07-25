@@ -33,27 +33,28 @@ class _FriendProfileState extends State<FriendProfile> {
           //真ん中に寄せる
           children: [
             //アイコン
-            SizedBox(height: 20),
+            SizedBox(height: 80),
             CircleAvatar(
-              radius: 50,
+              radius: 100,
               backgroundColor: Colors.grey,
             ),
             //名前
-            SizedBox(height: 20),
+            SizedBox(height: 30),
             Text(
               widget.friend.uname,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 30,
               ),
             ),
             //uid
-            SizedBox(height: 20),
+            //SizedBox(height: 20),
             Text(
               "uid:"+widget.friend.uid,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 25,
               ),
             ),
+            SizedBox(height: 20),
             Row(
               //ボタンを横に並べる
               mainAxisAlignment: MainAxisAlignment.center,
@@ -63,14 +64,28 @@ class _FriendProfileState extends State<FriendProfile> {
                   onPressed: () {
                     //コンテンツのボタンのアクション
                   },
-                  child: Icon(Icons.content_copy),
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(30),
+                  ),
+                  child: Icon(
+                    Icons.calendar_today,
+                    size: 40,
+                  ),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 50),
                 ElevatedButton(
                   onPressed: () {
                     //メッセージのボタンのアクション
                   },
-                  child: Icon(Icons.message),
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(30),
+                  ),
+                  child: Icon(
+                    Icons.message,
+                    size: 40,
+                  ),
                 ),
               ],
             )
