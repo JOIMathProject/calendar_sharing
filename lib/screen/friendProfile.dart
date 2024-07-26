@@ -34,9 +34,15 @@ class _FriendProfileState extends State<FriendProfile> {
           children: [
             //アイコン
             SizedBox(height: 80),
+            // CircleAvatar(
+            //   radius: 100,
+            //   backgroundColor: Colors.grey,
+            // ),
+            //画像
             CircleAvatar(
               radius: 100,
-              backgroundColor: Colors.grey,
+              backgroundColor: Colors.white,
+              backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/"+widget.friend.uicon),
             ),
             //名前
             SizedBox(height: 30),

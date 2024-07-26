@@ -20,8 +20,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
         Provider.of<UserData>(context, listen: false).googleUser;
     if (gUser?.currentUser != null) {
       //ここでフレンド一覧を取得する
+      //FIXME uidを適用させる
       friends = GetFriends().getFriends("kuroinusan");
-      //friends = GetFriends().getFriends(gUser?.currentUser!.id);
     }
   }
 
@@ -48,7 +48,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
+              } else if (snapshot.hasError &&
+                  snapshot.error != "Failed to get friends: 404") {
                 return Text('Error: ${snapshot.error}');
               } else if (snapshot.hasData) {
                 return Container(
@@ -63,10 +64,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      //アイコン(本当はここに画像を代入?)
-                                      Icon(
-                                        Icons.person,
-                                        size: 30,
+                                      //アイコン
+                                      CircleAvatar(
+                                        radius: 25,
+                                        backgroundColor: Colors.white,
+                                        backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/"+snapshot.data![index].uicon),
                                       ),
                                       SizedBox(width: 20),
                                       //名前
@@ -82,14 +84,35 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             onTap: () {
                               //フレンドのプロフィールに飛ばす
                               print(snapshot.data![index].uid);
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => FriendProfile(friend: snapshot.data![index])));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => FriendProfile(
+                                          friend: snapshot.data![index])));
                             },
                           );
                         }),
                   ),
                 );
               } else {
-                return Text('No data');
+                return Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.no_accounts,
+                        size: 200,
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                      Text(
+                        'フレンドなし',
+                        style: TextStyle(
+                          fontSize: 30,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      )
+                    ],
+                  ),
+                );
               }
             },
           ),
