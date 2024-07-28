@@ -3,7 +3,7 @@ import 'package:calendar_sharing/screen/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:calendar_sharing/screen/authenticate.dart';
-import 'package:calendar_sharing/screen/home.dart';
+import 'package:calendar_sharing/screen/Content.dart';
 import 'package:calendar_sharing/screen/friendsScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';

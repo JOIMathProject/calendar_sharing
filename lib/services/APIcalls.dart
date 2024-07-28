@@ -2,17 +2,21 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class UserInformation {
+  final String google_uid;
   final String uid;
   final String uname;
+  final String uicon;
   final String refreshToken;
   final String mailAddress;
 
-  UserInformation({required this.uid, required this.uname, required this.refreshToken, required this.mailAddress});
+  UserInformation({required this.google_uid, required this.uid, required this.uname, required this.uicon, required this.refreshToken, required this.mailAddress});
 
   factory UserInformation.fromJson(Map<String, dynamic> json) {
     return UserInformation(
+      google_uid: json['google_uid'],
       uid: json['uid'],
       uname: json['uname'],
+      uicon: json['uicon'],
       refreshToken: json['refresh_token'],
       mailAddress: json['mail_address'],
     );
@@ -34,8 +38,10 @@ class CreateUser{
       url,
       headers: {'Content-type': 'application/json'},
       body: jsonEncode({
+        "google_uid": UserInformation.google_uid,
         "uid": UserInformation.uid,
         "uname": UserInformation.uname,
+        "uicon": UserInformation.uicon,
         "refresh_token":UserInformation.refreshToken,
         "mail_address":UserInformation.mailAddress
       }),

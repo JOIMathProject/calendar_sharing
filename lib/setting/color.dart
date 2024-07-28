@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-Color Calendar_icon_color = Color(0xFFFF974D);
-Color Calendar_outline_color = Color(0xFFEBFF39);
+Color Calendar_icon_color = Color(0xCFFF974D);
+Color Calendar_outline_color = Color(0xFFFF9C39);
 Color Calendar_grid_color = Color(0xFF000000);
 
 final appTheme = ThemeData(

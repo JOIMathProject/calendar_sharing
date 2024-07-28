@@ -56,19 +56,21 @@ class AuthService {
       print('ID Token: ${data['id_token']}');
       print('Current User: ${_googleSignIn.currentUser}');
 
-      //try {
-      //  await GetUser().getUser(result.id);
-      //} catch (e) {
-      //  // If the user does not exist (i.e., a 404 error is returned), create the user
-      //  if (e.toString().contains('404')) {
-      //    await CreateUser().createUser(UserInformation(
-      //      uid: result.id,
-      //      uname: result.email,
-      //      refreshToken: data['refresh_token'],
-      //      mailAddress: result.email,
-      //    ));
-      //  }
-      //}
+      try {
+        await GetUser().getUser(result.id);
+      } catch (e) {
+        // If the user does not exist (i.e., a 404 error is returned), create the user
+        if (e.toString().contains('404')) {
+          await CreateUser().createUser(UserInformation(
+            google_uid: result.id,
+            uid: result.id,
+            uname: result.email,
+            uicon: 'default.png',
+            refreshToken: data['refresh_token'],
+            mailAddress: result.email,
+          ));
+        }
+      }
 
       await _googleSignIn.authenticatedClient();
       Provider.of<UserData>(context, listen: false).updateGoogleUser(_googleSignIn);

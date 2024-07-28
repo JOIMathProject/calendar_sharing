@@ -17,6 +17,7 @@ class _ProfileState extends State<Profile> {
     super.initState();
     GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
     if (gUser?.currentUser != null) {
+      print('UID: ${gUser?.currentUser!.id}'); // Debugging
       _userDataFuture = GetUser().getUser(gUser?.currentUser!.id);
     }
   }

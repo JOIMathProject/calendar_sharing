@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:calendar_sharing/screen/ChatScreen.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,6 @@ class _HomeState extends State<Home> {
   var googleCalendarApiO = null;
   List<cal.Event> _events = [];
   final AuthService _auth = AuthService();
-  final CalendarController _calendarController = CalendarController();
 
   get http => null;
   @override
@@ -80,115 +80,73 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Google Calendar Events'),
-        actions: <Widget>[
-          ElevatedButton.icon(
-            icon: Icon(Icons.person),
-            label: Text('logout'),
-            onPressed: () async {
-              await _auth.signOut(context);
-            },
-          ),
-        ],
       ),
-      body: Column(children: <Widget>[
-        ElevatedButton(
-          onPressed: () async {
-            CreateUser createUser = CreateUser();
-            await createUser.createUser({'example@example.com', 'password123','a','1'});
-          },
-        child: Text('Fetch Calendar Events'),
-
-        ),
-        Expanded(
-          child:Stack(
-              children: <Widget>[
-                IgnorePointer(
-                    ignoring: true,
-                    child: SfCalendar(
-                      view: CalendarView.week,
-                      timeZone: 'Japan',
-                      headerHeight: 50,
-                      dataSource: MeetingDataSource(getAppointments()),
-                      controller: _calendarController,
-                      viewNavigationMode: ViewNavigationMode.none,
-                      headerDateFormat: 'yyyy MMMM',
-                      selectionDecoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      cellBorderColor: global_colors.Calendar_grid_color,
-                      timeSlotViewSettings: TimeSlotViewSettings(
-                        timeFormat: 'H:mm',
-                        timeInterval: Duration(hours: 1),
-                        timeIntervalHeight: -1,
-                      ),
-                    )),
-                SfCalendar(
-                    //own schedule
-                    view: CalendarView.week,
-                    dataSource: MeetingDataSource(getAppointments()),
-                    controller: _calendarController, // Assign the controller
-                    timeZone: 'Japan',
-                    showNavigationArrow: true,
-                    onTap: calendarTapped,
-                    headerHeight: 50,
-                    appointmentBuilder: (BuildContext context,
-                        CalendarAppointmentDetails details) {
-                      return Container(
-                        width: details.bounds.width,
-                        height: details.bounds.height,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: global_colors.Calendar_outline_color,
-                            width: 2.0,
-                          ),
-                        ),
-                      );
-                    },
-                    selectionDecoration: BoxDecoration(
-                      color: Colors.transparent,
-                      border: Border.all(
-                        color: Colors.transparent,
-                        width: 0,
-                      ),
-                    ),
-                    todayHighlightColor: Colors.transparent,
-                    headerDateFormat: 'yyyy MMMM',
-                    todayTextStyle: TextStyle(
-                      color: Colors
-                          .transparent, // Set the today text color to transparent
-                    ),
-                    cellBorderColor: Colors.transparent,
-                    timeSlotViewSettings: TimeSlotViewSettings(
-                      timeInterval: Duration(hours: 1),
-                      timeIntervalHeight: -1,
-                      timeTextStyle: TextStyle(
-                        color: Colors
-                            .transparent, // Set the time text color to transparent
-                      ),
-                    ),
-                    headerStyle: CalendarHeaderStyle(
-                      textAlign: TextAlign.center,
-                    ),
-                    viewHeaderStyle: ViewHeaderStyle(
-                      dateTextStyle: TextStyle(
-                        color: Colors
-                            .transparent, // Set the date text color to transparent
-                      ),
-                      dayTextStyle: TextStyle(
-                        color: Colors
-                            .transparent, // Set the day text color to transparent
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+      body: SfCalendar(
+        view: CalendarView.week,
+        timeZone: 'Japan',
+        headerHeight: 50,
+        dataSource: MeetingDataSource(getAppointments()),
+        headerDateFormat: 'yyyy MMMM',
+        selectionDecoration: BoxDecoration(
+          color: Colors.transparent,
+          border: Border.all(
+            color: Colors.transparent,
+            width: 0,
           ),
-      ]),
+        ),
+        appointmentBuilder:
+            (BuildContext context, CalendarAppointmentDetails details) {
+          return Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: global_colors.Calendar_outline_color,
+                width: 3.0,
+              ),
+            ),
+          );
+        },
+        cellBorderColor: global_colors.Calendar_grid_color,
+        timeSlotViewSettings: TimeSlotViewSettings(
+          timeFormat: 'H:mm',
+        ),
+        specialRegions: _getTimeRegions(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  ChatScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                var begin = Offset(1.0, 0.0);
+                var end = Offset.zero;
+                var tween = Tween(begin: begin, end: end);
+                var offsetAnimation = animation.drive(tween);
+
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        },
+        child: Icon(Icons.message),
+      ),
     );
+  }
+
+  List<TimeRegion> _getTimeRegions() {
+    final List<TimeRegion> regions = <TimeRegion>[];
+    regions.add(TimeRegion(
+      startTime: DateTime(2024, 07, 28, 14, 0, 0),
+      endTime: DateTime(2024, 07, 29, 15, 0, 0),
+      color: Colors.grey.withOpacity(0.6),
+    ));
+
+    return regions;
   }
 
   List<Appointment> getAppointments() {
@@ -235,6 +193,7 @@ class _HomeState extends State<Home> {
     }
     return meetings;
   }
+
   String? _subjectText = '',
       _startTimeText = '',
       _endTimeText = '',

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/UserData.dart';
 import 'authenticate.dart';
-import 'home.dart';
+import 'Content.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'mainScreen.dart';
