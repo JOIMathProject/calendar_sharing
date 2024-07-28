@@ -58,6 +58,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         itemCount: snapshot.data!.length,
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
+                            behavior: HitTestBehavior.translucent,
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Column(

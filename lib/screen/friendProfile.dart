@@ -55,7 +55,7 @@ class _FriendProfileState extends State<FriendProfile> {
             //uid
             //SizedBox(height: 20),
             Text(
-              "uid:"+widget.friend.uid,
+              "@"+widget.friend.uid,
               style: TextStyle(
                 fontSize: 25,
               ),
