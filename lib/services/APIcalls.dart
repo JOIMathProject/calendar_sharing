@@ -107,3 +107,20 @@ class GetFriends{
     return friends;
   }
 }
+
+class AddFriendRequest{
+  Future<void> addFriend(String uid, String friend_uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uid1": uid,
+        "uid2": friend_uid,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add friend: ${response.statusCode}';
+    }
+  }
+}
