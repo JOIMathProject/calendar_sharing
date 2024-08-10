@@ -40,25 +40,28 @@ class _WrapperState extends State<Wrapper> {
       print('Error: $e');
     }
   }
-  Future<UserInformation>? _userDataFuture;
+
+  Future<void> _loadUserData() async {
+    GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
+    if (gUser != null && gUser.currentUser != null) {
+      try {
+        UserInformation userInfo = await GetUserGoogleUid().getUserGoogleUid(gUser.currentUser!.id);
+        Provider.of<UserData>(context, listen: false).updateUserInfo(userInfo);
+
+        List<FriendInformation> friends = await GetFriends().getFriends(userInfo.uid);
+        Provider.of<UserData>(context, listen: false).updateFriends(friends);
+      } catch (e) {
+        print('Error loading user data: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
     if (gUser != null && gUser.currentUser != null) {
-      _userDataFuture = GetUserGoogleUid().getUserGoogleUid(gUser.currentUser!.id);
-      return FutureBuilder<UserInformation>(
-        future: _userDataFuture,
-        builder: (BuildContext context, AsyncSnapshot<UserInformation> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // Show loading indicator while waiting
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}'); // Show error message if something went wrong
-          } else {
-            Provider.of<UserData>(context, listen: false).updateUserInfo(snapshot.data!);
-            return MainScreen(); // Show the main screen if the user is logged in
-          }
-        },
-      );
+      _loadUserData(); // Load the user data asynchronously
+      return MainScreen(); // Show the main screen if the user is logged in
     } else {
       return Authenticate(); // Show the authenticate screen if the user is not logged in
     }
