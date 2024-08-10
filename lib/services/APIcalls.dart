@@ -140,6 +140,7 @@ class AddDeviceID {
 
     final response = await http.post(
       url,
+      headers: {'Content-type': 'application/json'},
       body: jsonEncode({
         "google_uid": google_uid,
         "device_id": deviceID,
