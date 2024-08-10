@@ -1,3 +1,4 @@
+import 'package:calendar_sharing/screen/addFriends.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +35,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
           IconButton(
             icon: Icon(Icons.person_add_alt),
             onPressed: () {
-              //フレンド追加のクラスに飛ばす
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddFriend())
+              );
             },
           ),
         ],

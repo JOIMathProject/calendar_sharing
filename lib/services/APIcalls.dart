@@ -9,7 +9,13 @@ class UserInformation {
   final String refreshToken;
   final String mailAddress;
 
-  UserInformation({required this.google_uid, required this.uid, required this.uname, required this.uicon, required this.refreshToken, required this.mailAddress});
+  UserInformation(
+      {required this.google_uid,
+      required this.uid,
+      required this.uname,
+      required this.uicon,
+      required this.refreshToken,
+      required this.mailAddress});
 
   factory UserInformation.fromJson(Map<String, dynamic> json) {
     return UserInformation(
@@ -28,10 +34,14 @@ class FriendInformation {
   final String uname;
   final String uicon;
   final String gid;
-  FriendInformation({required this.uid, required this.uname, required this.uicon, required this.gid});
+  FriendInformation(
+      {required this.uid,
+      required this.uname,
+      required this.uicon,
+      required this.gid});
 }
 
-class CreateUser{
+class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
     final response = await http.post(
@@ -42,8 +52,8 @@ class CreateUser{
         "uid": UserInformation.uid,
         "uname": UserInformation.uname,
         "uicon": UserInformation.uicon,
-        "refresh_token":UserInformation.refreshToken,
-        "mail_address":UserInformation.mailAddress
+        "refresh_token": UserInformation.refreshToken,
+        "mail_address": UserInformation.mailAddress
       }),
     );
 
@@ -52,7 +62,8 @@ class CreateUser{
     }
   }
 }
-class ChangeUserProfile{
+
+class ChangeUserProfile {
   Future<void> changeUserProfile(String uid, String uname) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid');
     final response = await http.put(
@@ -69,7 +80,7 @@ class ChangeUserProfile{
   }
 }
 
-class GetUser{
+class GetUser {
   Future<UserInformation> getUser(String? uid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid');
     final response = await http.get(url);
@@ -81,9 +92,11 @@ class GetUser{
     return UserInformation.fromJson(jsonDecode(response.body));
   }
 }
-class GetUserGoogleUid{
+
+class GetUserGoogleUid {
   Future<UserInformation> getUserGoogleUid(String? google_uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$google_uid/google_uid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$google_uid/google_uid');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -92,10 +105,9 @@ class GetUserGoogleUid{
 
     return UserInformation.fromJson(jsonDecode(response.body));
   }
-
 }
 
-class GetFriends{
+class GetFriends {
   Future<List<FriendInformation>> getFriends(String? uid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid');
     final response = await http.get(url);
@@ -108,7 +120,8 @@ class GetFriends{
     List<FriendInformation> friends = [];
     for (var friend in jsonDecode(response.body)['data']) {
       if (friend['uicon'] == null) {
-        friend['uicon'] = 'https://calendar-api.woody1227.com/user_icon/default.png';
+        friend['uicon'] =
+            'https://calendar-api.woody1227.com/user_icon/default.png';
       }
       friends.add(FriendInformation(
         uid: friend['uid'],
@@ -121,21 +134,37 @@ class GetFriends{
   }
 }
 
-
-class AddDeviceID{
+class AddDeviceID {
   Future<void> addDeviceID(String google_uid, String deviceID) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/device');
+
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
       body: jsonEncode({
         "google_uid": google_uid,
         "device_id": deviceID,
       }),
     );
-
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to add deviceID: ${response.statusCode}';
+    }
+  }
+}
+
+class AddFriendRequest {
+  Future<void> addFriend(String uid, String friend_uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uid1": uid,
+        "uid2": friend_uid,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add friend: ${response.statusCode}';
     }
   }
 }
