@@ -7,13 +7,21 @@ import 'firebase_options.dart';
 import 'setting/color.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await Firebase.initializeApp();
+  final messagingInstance = FirebaseMessaging.instance;
+  messagingInstance.requestPermission();
+  final fcmToken = await messagingInstance.getToken();
+  debugPrint('FCM TOKEN: $fcmToken');
+
   runApp(
       ChangeNotifierProvider(create: (context) => UserData(),
           child: const MyApp(),

@@ -81,6 +81,19 @@ class GetUser{
     return UserInformation.fromJson(jsonDecode(response.body));
   }
 }
+class GetUserGoogleUid{
+  Future<UserInformation> getUserGoogleUid(String? google_uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$google_uid/google_uid');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get user: ${response.statusCode}';
+    }
+
+    return UserInformation.fromJson(jsonDecode(response.body));
+  }
+
+}
 
 class GetFriends{
   Future<List<FriendInformation>> getFriends(String? uid) async {
@@ -105,5 +118,24 @@ class GetFriends{
       ));
     }
     return friends;
+  }
+}
+
+
+class AddDeviceID{
+  Future<void> addDeviceID(String google_uid, String deviceID) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/device');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "google_uid": google_uid,
+        "device_id": deviceID,
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add deviceID: ${response.statusCode}';
+    }
   }
 }

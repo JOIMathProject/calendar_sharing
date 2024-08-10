@@ -11,45 +11,28 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   Future<UserInformation>? _userDataFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
-    if (gUser?.currentUser != null) {
-      print('UID: ${gUser?.currentUser!.id}'); // Debugging
-      _userDataFuture = GetUser().getUser(gUser?.currentUser!.id);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    UserData userData = Provider.of<UserData>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<UserInformation>(
-          future: _userDataFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else if (snapshot.hasData) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('UID: ${snapshot.data!.uid}', style: TextStyle(fontSize: 20)),
-                  SizedBox(height: 10),
-                  Text('Username: ${snapshot.data!.uname}', style: TextStyle(fontSize: 20)),
-                ],
-              );
-            } else {
-              return Text('No data');
-            }
-          },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text('google_uid: ${userData.google_uid}', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 10),
+            Text('UID: ${userData.uid}', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 10),
+            Text('Username: ${userData.uname}', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 10),
+            Image.network("https://calendar-files.woody1227.com/user_icon/${userData.uicon}"),
+            SizedBox(height: 10),
+            Text('Email: ${userData.mailAddress}', style: TextStyle(fontSize: 20)),
+          ],
         ),
       ),
     );

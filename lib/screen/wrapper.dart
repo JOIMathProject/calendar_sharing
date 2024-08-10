@@ -1,3 +1,4 @@
+import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
 import '../services/UserData.dart';
 import 'authenticate.dart';
@@ -39,12 +40,25 @@ class _WrapperState extends State<Wrapper> {
       print('Error: $e');
     }
   }
-
+  Future<UserInformation>? _userDataFuture;
   @override
   Widget build(BuildContext context) {
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
     if (gUser != null && gUser.currentUser != null) {
-      return MainScreen(); // Show the main screen if the user is logged in
+      _userDataFuture = GetUserGoogleUid().getUserGoogleUid(gUser.currentUser!.id);
+      return FutureBuilder<UserInformation>(
+        future: _userDataFuture,
+        builder: (BuildContext context, AsyncSnapshot<UserInformation> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Show loading indicator while waiting
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}'); // Show error message if something went wrong
+          } else {
+            Provider.of<UserData>(context, listen: false).updateUserInfo(snapshot.data!);
+            return MainScreen(); // Show the main screen if the user is logged in
+          }
+        },
+      );
     } else {
       return Authenticate(); // Show the authenticate screen if the user is not logged in
     }
