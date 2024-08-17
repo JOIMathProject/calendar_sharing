@@ -154,7 +154,7 @@ class AddFriendsSearch extends StatelessWidget {
           FutureBuilder<void>(
             future: addFriend,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.connectionState != ConnectionState.waiting) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
