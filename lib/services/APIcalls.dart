@@ -1,3 +1,4 @@
+import 'package:googleapis/calendar/v3.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -40,7 +41,30 @@ class FriendInformation {
       required this.uicon,
       required this.gid});
 }
-
+class GroupInformation {
+  final int id;
+  final String gid;
+  final String gname;
+  final String gicon;
+  final String is_friends;
+  GroupInformation(
+      {required this.id,
+      required this.gid,
+      required this.gname,
+      required this.gicon,
+      required this.is_friends});
+}
+class EventInformation{
+  final int id;
+  final String start_dateTime;
+  final String end_dateTime;
+  final String count;
+  EventInformation(
+      {required this.id,
+        required this.start_dateTime,
+        required this.end_dateTime,
+        required this.count});
+}
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -168,4 +192,71 @@ class AddFriendRequest {
       throw 'Failed to add friend: ${response.statusCode}';
     }
   }
+}
+class GetGroupInfo{
+  Future<List<GroupInformation>> getGroupInfo(String? uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+
+    //responseの中のdataの中のuidだけをListにして返す
+    List<GroupInformation> groups = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      groups.add(GroupInformation(
+        id: group['id'] ?? 0,
+        gid: group['gid'] ?? 'default',
+        gname: group['gname'] ?? 'default',
+        gicon: group['gicon'] ?? 'default_icon.png',
+        is_friends: group['is_friends'] ?? 1,
+      ));
+    }
+    //print everything
+    print("ghe");
+    return groups;
+  }
+}
+class UpdateUser{
+  Future<void> updateUser(UserInformation) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/${UserInformation.uid}');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uid": UserInformation.uid,
+        "uname": UserInformation.uname,
+        "uicon": UserInformation.uicon,
+        "refresh_token": UserInformation.refreshToken
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create user: ${response.statusCode}';
+    }
+  }
+}
+class GetGroupCalendar{
+  Future<List<EventInformation>> getGroupCalendar(String? gid,String? from, String? to) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content/events/$from/$to');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    List<EventInformation> events = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      events.add(EventInformation(
+        id: group['id'] ?? 0,
+        start_dateTime: group['start_dateTime'] ?? 'default',
+        end_dateTime: group['end_dateTime'] ?? 'default',
+        count: group['count'] ?? 'default',
+      ));
+    }
+    //print everything
+    print(events[0].start_dateTime);
+    return events;
+  }
+
 }

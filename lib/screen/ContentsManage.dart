@@ -1,31 +1,36 @@
 import 'package:calendar_sharing/screen/createContents.dart';
 import 'package:calendar_sharing/screen/Content.dart';
+import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/admin/directory_v1.dart';
 import 'package:provider/provider.dart';
 
 import '../services/UserData.dart';
+
 
 class ContentsManage extends StatefulWidget {
   @override
   _ContentsManageState createState() => _ContentsManageState();
 }
-class Content {
-  final String name;
-  final String label;
-
-  Content({required this.name, required this.label});
+List<GroupInformation> contents = [];
+Future<void> _getGroupContents(String uid) async {
+  contents = await GetGroupInfo().getGroupInfo(uid);
 }
 class _ContentsManageState extends State<ContentsManage> {
-  // This is just a placeholder. Replace it with your actual list of contents.
-  List<Content> contents = [
-    Content(name: 'Content 1', label: 'Personal'),
-    Content(name: 'Content 2', label: 'Group'),
-    Content(name: 'Content 3', label: 'MyContents'),
-  ];
-
-  // This will hold the current selected label
   String currentLabel = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    _getGroupContents(uid!);
+  }
+
+  Future<void> _getGroupContents(String uid) async {
+    contents = await GetGroupInfo().getGroupInfo(uid);
+    setState(() {}); // Trigger a rebuild once the content is loaded
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +52,7 @@ class _ContentsManageState extends State<ContentsManage> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <String>['All', 'Personal', 'Group', 'MyContents']
+              children: <String>['All', 'Personal', 'Group']
                   .map((String value) {
                 return ElevatedButton(
                   onPressed: () {
@@ -66,16 +71,28 @@ class _ContentsManageState extends State<ContentsManage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: currentLabel == 'All' ? contents.length : contents.where((content) => content.label == currentLabel).length,
+              itemCount: currentLabel == 'All' ? contents.length : contents.where((content) => content.is_friends == currentLabel).length,
               itemBuilder: (context, index) {
-                var filteredContents = currentLabel == 'All' ? contents : contents.where((content) => content.label == currentLabel).toList();
-                return ElevatedButton(
-                  onPressed: () {
+                var filteredContents = currentLabel == 'All' ? contents : contents.where((content) => content.is_friends == currentLabel).toList();
+                return ListTile(
+                  leading: CircleAvatar(
+                    child: Image.network("https://calendar-files.woody1227.com/user_icon/${filteredContents[index].gicon}"), // Display the icon
+                    backgroundColor: Colors.blue, // Set the background color of the avatar
+                  ),
+                  title: Text(filteredContents[index].gname), // Display the name of the content
+                  subtitle: Text('Last message...'), // Display the last message or other details
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text('12:34 PM'), // Display the time of the last message
+                      Icon(Icons.check_circle, color: Colors.blue), // Display the message status icon
+                    ],
+                  ),
+                  onTap: () {
                     GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
                     print(gUser?.currentUser?.id);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Home(gUser: gUser)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Home(groupId: filteredContents[index].gid,)));
                   },
-                  child: Text(filteredContents[index].name), // Display the name of the content
                 );
               },
             ),

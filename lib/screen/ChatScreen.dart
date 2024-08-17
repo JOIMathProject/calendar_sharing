@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
+  final String? gid;
+  ChatScreen({required this.gid});
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -13,7 +15,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat Screen'),
+        title: Text('Chat'),
       ),
       body: Column(
         children: <Widget>[

@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:calendar_sharing/screen/ChatScreen.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
+import 'package:calendar_sharing/services/UserData.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:rrule/rrule.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:googleapis_auth/auth_io.dart';
@@ -16,8 +18,8 @@ import '../services/auth.dart';
 import 'package:calendar_sharing/setting/color.dart' as global_colors;
 
 class Home extends StatefulWidget {
-  final GoogleSignIn? gUser;
-  Home({required this.gUser});
+  final String? groupId;
+  Home({required this.groupId});
 
   @override
   _HomeState createState() => _HomeState();
@@ -28,31 +30,24 @@ class _HomeState extends State<Home> {
   var googleCalendarApiO = null;
   List<cal.Event> _events = [];
   final AuthService _auth = AuthService();
+  final PageController _pageController = PageController(initialPage: 0);
+  bool _showFab = true;  // Flag to control the visibility of the FloatingActionButton
 
   get http => null;
-  @override
-  void initState() {
-    super.initState();
-    _getCalendarEvents();
-  }
 
-  Future<void> _getCalendarEvents() async {
-    if (widget.gUser == null) return;
+  Future<void> _getSelfCalendarEvents(GoogleSignIn? gUser) async {
+    if (gUser == null) return;
     try {
-      httpClientO = (await widget.gUser?.authenticatedClient())!;
+      httpClientO = (await gUser?.authenticatedClient())!;
     } catch (e) {
       print(e.toString());
       await _auth.signOut(context);
       return;
     }
     googleCalendarApiO = cal.CalendarApi(httpClientO);
-
     String calenderId = "primary";
-
-    // Set timeMin to a date far in the past and timeMax to a date far in the future
     DateTime timeMin = DateTime(2000, 4, 1);
     DateTime timeMax = DateTime(2100, 12, 31);
-
     try {
       var events = await googleCalendarApiO.events.list(calenderId,
           timeMin: timeMin, timeMax: timeMax, maxResults: 2500);
@@ -64,77 +59,71 @@ class _HomeState extends State<Home> {
     } catch (e) {
       print(e.toString());
     }
-    //print all the event's list
-    for (var event in _events) {
-      //print(event.start!.dateTime);
-    }
-    if (_events == null) {
-      print('_events is null');
-    } else {
-      print('Number of events: ${_events.length}');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
+    _getSelfCalendarEvents(gUser);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Google Calendar Events'),
+        title: Text('Google Calendar & Chat'),
       ),
-      body: SfCalendar(
-        view: CalendarView.week,
-        timeZone: 'Japan',
-        headerHeight: 50,
-        dataSource: MeetingDataSource(getAppointments()),
-        headerDateFormat: 'yyyy MMMM',
-        selectionDecoration: BoxDecoration(
-          color: Colors.transparent,
-          border: Border.all(
-            color: Colors.transparent,
-            width: 0,
-          ),
-        ),
-        appointmentBuilder:
-            (BuildContext context, CalendarAppointmentDetails details) {
-          return Container(
-            decoration: BoxDecoration(
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _showFab = index == 0;  // Show the FAB only on the calendar page
+          });
+        },
+        children: [
+          // Google Calendar Screen
+          SfCalendar(
+            view: CalendarView.week,
+            timeZone: 'Japan',
+            headerHeight: 50,
+            dataSource: MeetingDataSource(getAppointments()),
+            headerDateFormat: 'yyyy MMMM',
+            selectionDecoration: BoxDecoration(
+              color: Colors.transparent,
               border: Border.all(
-                color: global_colors.Calendar_outline_color,
-                width: 3.0,
+                color: Colors.transparent,
+                width: 0,
               ),
             ),
-          );
-        },
-        cellBorderColor: global_colors.Calendar_grid_color,
-        timeSlotViewSettings: TimeSlotViewSettings(
-          timeFormat: 'H:mm',
-        ),
-        specialRegions: _getTimeRegions(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  ChatScreen(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                var begin = Offset(1.0, 0.0);
-                var end = Offset.zero;
-                var tween = Tween(begin: begin, end: end);
-                var offsetAnimation = animation.drive(tween);
-
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
+            appointmentBuilder:
+                (BuildContext context, CalendarAppointmentDetails details) {
+              return Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: global_colors.Calendar_outline_color,
+                    width: 3.0,
+                  ),
+                ),
+              );
+            },
+            cellBorderColor: global_colors.Calendar_grid_color,
+            timeSlotViewSettings: TimeSlotViewSettings(
+              timeFormat: 'H:mm',
             ),
-          );
+            specialRegions: _getTimeRegions(),
+          ),
+
+          // Chat Screen
+          ChatScreen(gid: widget.groupId),
+        ],
+      ),
+      floatingActionButton: _showFab
+          ? FloatingActionButton(
+        onPressed: () {
+          // Switch to the chat screen
+          _pageController.nextPage(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut);
         },
         child: Icon(Icons.message),
-      ),
+      )
+          : null, // Set FAB to null when it's not supposed to be shown
     );
   }
 
@@ -192,76 +181,6 @@ class _HomeState extends State<Home> {
       }
     }
     return meetings;
-  }
-
-  String? _subjectText = '',
-      _startTimeText = '',
-      _endTimeText = '',
-      _dateText = '',
-      _timeDetails = '';
-  Color? _headerColor, _viewHeaderColor, _calendarColor;
-  void calendarTapped(CalendarTapDetails details) {
-    if (details.targetElement == CalendarElement.appointment ||
-        details.targetElement == CalendarElement.agenda) {
-      final Appointment appointmentDetails = details.appointments![0];
-      _subjectText = appointmentDetails.subject;
-      _dateText = DateFormat('MMMM dd, yyyy')
-          .format(appointmentDetails.startTime)
-          .toString();
-      _startTimeText =
-          DateFormat('hh:mm a').format(appointmentDetails.startTime).toString();
-      _endTimeText =
-          DateFormat('hh:mm a').format(appointmentDetails.endTime).toString();
-      if (appointmentDetails.isAllDay) {
-        _timeDetails = 'All day';
-      } else {
-        _timeDetails = '$_startTimeText - $_endTimeText';
-      }
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Container(child: new Text('$_subjectText')),
-              content: Container(
-                height: 100,
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Text(
-                          '$_dateText',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Text(''),
-                      ],
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Text(_timeDetails!,
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400, fontSize: 15)),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                new ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: new Text('close'))
-              ],
-            );
-          });
-    }
   }
 }
 
