@@ -178,8 +178,7 @@ class AddDeviceID {
 
 class AddFriendRequest {
   Future<void> addFriend(String uid, String friend_uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid');
-
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
