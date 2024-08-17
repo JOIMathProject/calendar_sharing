@@ -8,15 +8,16 @@ import 'setting/color.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'services/PushNotification.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-
-
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  PushNotificationService().init();
+
+  FirebaseMessaging.instance.requestPermission();
   final messagingInstance = FirebaseMessaging.instance;
   messagingInstance.requestPermission();
   final fcmToken = await messagingInstance.getToken();

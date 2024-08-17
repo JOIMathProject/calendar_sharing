@@ -1,4 +1,5 @@
 import 'package:calendar_sharing/services/APIcalls.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../services/UserData.dart';
 import 'authenticate.dart';
@@ -25,7 +26,7 @@ class _WrapperState extends State<Wrapper> {
   );
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     _signInSilently();
   }
@@ -55,12 +56,23 @@ class _WrapperState extends State<Wrapper> {
       }
     }
   }
-
+  Future<void> _getDeviceId() async {
+    try {
+      FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+      String? deviceId = await _firebaseMessaging.getToken();
+      if (deviceId != null) {
+        AddDeviceID().addDeviceID(Provider.of<UserData>(context, listen: false).uid, deviceId);
+      }
+    } catch (e) {
+      print('Error getting device ID: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
+    _loadUserData();
+    _getDeviceId();
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
     if (gUser != null && gUser.currentUser != null) {
-      _loadUserData(); // Load the user data asynchronously
       return MainScreen(); // Show the main screen if the user is logged in
     } else {
       return Authenticate(); // Show the authenticate screen if the user is not logged in

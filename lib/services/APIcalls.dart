@@ -159,14 +159,13 @@ class GetFriends {
 }
 
 class AddDeviceID {
-  Future<void> addDeviceID(String google_uid, String deviceID) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/device');
+  Future<void> addDeviceID(String? uid, String? deviceID) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/deviceids');
 
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
       body: jsonEncode({
-        "google_uid": google_uid,
         "device_id": deviceID,
       }),
     );
@@ -283,5 +282,4 @@ class GetGroupCalendar{
     print(events[0].start_dateTime);
     return events;
   }
-
 }
