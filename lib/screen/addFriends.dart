@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
+import 'package:calendar_sharing/services/UserData.dart';
+import 'package:provider/provider.dart';
+
 class AddFriend extends StatefulWidget {
   @override
   _AddFriendState createState() => _AddFriendState();
@@ -7,8 +10,10 @@ class AddFriend extends StatefulWidget {
 
 class _AddFriendState extends State<AddFriend> {
   String addFriendID = "";
+
   @override
   Widget build(BuildContext context) {
+    UserData userData = Provider.of<UserData>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('フレンドを追加する'),
@@ -38,60 +43,183 @@ class _AddFriendState extends State<AddFriend> {
             //追加ボタン
             ElevatedButton(
               onPressed: () {
-                //APIを叩く
-                //FIXME uidを適用させる
-                Future<void> result = AddFriendRequest().addFriend("kuroinusan", addFriendID);
-
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('フレンド追加'),
-                        content: FutureBuilder<void>(
-                          future: result,
-                          builder: (context,snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return Text("処理中...");
-                            } else if (snapshot.hasError) {
-                              //FIXME uidに対応させる
-                              if (snapshot.error ==
-                                  'Failed to add friend: 500' &&
-                                  addFriendID != 'kuroinusan') {
-                                return Text('ユーザーが見つかりません');
-                              } else if (addFriendID == 'kuroinusan' &&
-                                  snapshot.error ==
-                                      'Failed to add friend: 500') {
-                                return Text(
-                                    '自分自身を追加することはできません');
-                              } else if (snapshot.error ==
-                                  'Failed to add friend: 409') {
-                                return Text('既にフレンド登録されています');
-                              } else {
-                                return Text('エラーが発生しました');
-                              }
-                            }else{
-                              return Text("フレンド追加が完了しました");
-                            }
-                          },
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                //});
+                //フレンドを検索→追加ボタンをそのウィンドウに配置
+                Future<UserInformation> user = GetUser().getUser(addFriendID);
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      insetPadding: EdgeInsets.all(10),
+                      title: Text('フレンドの追加'),
+                      content: AddFriendsSearch(
+                        user: user,
+                        userData: userData,
+                      ),
+                    );
+                  },
+                );
               },
-              child: Text('追加'),
+              child: Text('検索'),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class AddFriendsSearch extends StatelessWidget {
+  const AddFriendsSearch({
+    super.key,
+    required this.user,
+    required this.userData,
+  });
+
+  final Future<UserInformation> user;
+  final UserData userData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      FutureBuilder<UserInformation>(
+        future: user,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Column(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.white,
+                  backgroundImage: NetworkImage(
+                      "https://calendar-files.woody1227.com/user_icon/" +
+                          snapshot.data!.uicon),
+                ),
+                Text(snapshot.data!.uname),
+                Text("@${snapshot.data!.uid}"),
+                Row(
+                  //真ん中に配置
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('キャンセル'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        //フレンドを追加
+                        Navigator.of(context).pop();
+                        Future<void> addFriend = AddFriendRequest()
+                            .addFriend(userData.uid!, snapshot.data!.uid);
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return buildAlertDialog(addFriend);
+                          },
+                        );
+                      },
+                      child: Text('追加'),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return Column(
+              children: [
+                Text('ユーザーが見つかりませんでした'),
+                closeButton(),
+              ],
+            );
+          }
+          // return CircularProgressIndicator();
+          return Column(
+            children: [
+              CircularProgressIndicator(),
+              Text('検索中...'),
+            ],
+          );
+        },
+      ),
+    ]);
+  }
+
+  AlertDialog buildAlertDialog(Future<void> addFriend) {
+    return AlertDialog(
+      title: Text('フレンドの追加'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FutureBuilder<void>(
+            future: addFriend,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 50,
+                    ),
+                    Text('フレンド申請を送信しました'),
+                  ],
+                );
+              } else if (snapshot.hasError) {
+                if (snapshot.error == 'Failed to add friend: 409') {
+                  return Column(
+                    children: [
+                      Icon(
+                        Icons.error,
+                        color: Colors.red,
+                        size: 50,
+                      ),
+                      Text('すでにフレンドです', style: TextStyle(fontSize: 20)),
+                    ],
+                  );
+                }else{
+                  return Column(
+                    children: [
+                      Icon(
+                        Icons.error,
+                        color: Colors.red,
+                        size: 50,
+                      ),
+                      Text('エラーが発生しました'),
+                      Text(
+                        snapshot.error.toString(),
+                        style: TextStyle(color: Colors.grey, fontSize: 10),
+                      )
+                    ],
+                  );
+
+                }
+              }
+              return CircularProgressIndicator();
+            },
+          ),
+        ],
+      ),
+      actions: [
+        closeButton(),
+      ],
+    );
+  }
+}
+
+class closeButton extends StatelessWidget {
+  const closeButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+      child: Text('閉じる'),
     );
   }
 }
