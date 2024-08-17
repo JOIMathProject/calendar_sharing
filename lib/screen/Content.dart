@@ -129,6 +129,7 @@ class _HomeState extends State<Home> {
 
   List<TimeRegion> _getTimeRegions() {
     final List<TimeRegion> regions = <TimeRegion>[];
+    //await GetGroupCalendarp().getGroupCalendar(widget.groupId,2024-07-01,2025-07-01);
     regions.add(TimeRegion(
       startTime: DateTime(2024, 07, 28, 14, 0, 0),
       endTime: DateTime(2024, 07, 29, 15, 0, 0),

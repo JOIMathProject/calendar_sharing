@@ -217,20 +217,46 @@ class GetGroupInfo{
     return groups;
   }
 }
-class UpdateUser{
-  Future<void> updateUser(UserInformation) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/${UserInformation.uid}');
+class UpdateUserID{
+  Future<void> updateUserID(String? OldUid,String?NewUid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/${OldUid}');
     final response = await http.put(
       url,
       headers: {'Content-type': 'application/json'},
       body: jsonEncode({
-        "uid": UserInformation.uid,
-        "uname": UserInformation.uname,
-        "uicon": UserInformation.uicon,
-        "refresh_token": UserInformation.refreshToken
+        "uid": NewUid,
       }),
     );
-
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create user: ${response.statusCode}';
+    }
+  }
+}
+class UpdateUserName{
+  Future<void> updateUserName(String?uid, String? uname) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/${uid}');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uname": uname,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create user: ${response.statusCode}';
+    }
+  }
+}
+class UpdateUserImage{
+  Future<void> updateUserImage(String?uid, String? uicon) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/${uid}');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uicon": uicon,
+      }),
+    );
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to create user: ${response.statusCode}';
     }
