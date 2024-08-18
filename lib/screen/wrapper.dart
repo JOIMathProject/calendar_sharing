@@ -24,10 +24,6 @@ class _WrapperState extends State<Wrapper> {
     forceCodeForRefreshToken: false,
     serverClientId: '213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com',
   );
-
-  bool _isLoading = true; // Track loading state
-  bool _hasError = false; // Track if there's an error
-
   @override
   void initState() {
     super.initState();
@@ -38,14 +34,7 @@ class _WrapperState extends State<Wrapper> {
     try {
       await _signInSilently();
     } catch (e) {
-      setState(() {
-        _hasError = true;
-      });
       print('Error during initialization: $e');
-    } finally {
-      setState(() {
-        _isLoading = false; // Stop loading when initialization is done
-      });
     }
   }
 
