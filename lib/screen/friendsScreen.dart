@@ -12,7 +12,6 @@ class FriendsScreen extends StatefulWidget {
 }
 
 class _FriendsScreenState extends State<FriendsScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -21,8 +20,18 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
     if (gUser?.currentUser != null) {
       // フレンド一覧を取得するロジックをここに追加
-      // FIXME uidを適用させる
-      // Provider.of<UserData>(context, listen: false).fetchFriends("kuroinusan");
+      _fetchFriends();
+    }
+  }
+
+  Future<void> _fetchFriends() async {
+    try {
+      UserData userData = Provider.of<UserData>(context);
+      String? uid = userData.uid;
+      List<FriendInformation> friends = await GetFriends().getFriends(userData.uid);
+      Provider.of<UserData>(context, listen: false).updateFriends(friends);
+    } catch (e) {
+      print("Error fetching friends: $e");
     }
   }
 
@@ -51,46 +60,49 @@ class _FriendsScreenState extends State<FriendsScreen> {
           SizedBox(height: 20),
           if (friends.isNotEmpty)
             Expanded(
-              child: ListView.builder(
-                itemCount: friends.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              // アイコン
-                              CircleAvatar(
-                                radius: 25,
-                                backgroundColor: Colors.white,
-                                backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/"+friends[index].uicon),
-                              ),
-                              SizedBox(width: 20),
-                              // 名前
-                              Text(
-                                friends[index].uname,
-                                style: TextStyle(fontSize: 25),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                      // フレンドのプロフィールに飛ばす
-                      print(friends[index].uid);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FriendProfile(friend: friends[index]),
+              child: RefreshIndicator(
+                onRefresh: _fetchFriends, // The function to reload friends
+                child: ListView.builder(
+                  itemCount: friends.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                // アイコン
+                                CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor: Colors.white,
+                                  backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/"+friends[index].uicon),
+                                ),
+                                SizedBox(width: 20),
+                                // 名前
+                                Text(
+                                  friends[index].uname,
+                                  style: TextStyle(fontSize: 25),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                  );
-                },
+                      ),
+                      onTap: () {
+                        // フレンドのプロフィールに飛ばす
+                        print(friends[index].uid);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FriendProfile(friend: friends[index]),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             )
           else
