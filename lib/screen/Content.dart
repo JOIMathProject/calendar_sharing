@@ -33,7 +33,13 @@ class _HomeState extends State<Home> {
   final PageController _pageController = PageController(initialPage: 0);
   bool _showFab = true;  // Flag to control the visibility of the FloatingActionButton
 
-  get http => null;
+  List<TimeRegion> GroupCal = []; // Initialize the list as empty
+
+  @override
+  void initState() {
+    super.initState();
+    _getTimeRegions();
+  }
 
   Future<void> _getSelfCalendarEvents(GoogleSignIn? gUser) async {
     if (gUser == null) return;
@@ -106,7 +112,7 @@ class _HomeState extends State<Home> {
             timeSlotViewSettings: TimeSlotViewSettings(
               timeFormat: 'H:mm',
             ),
-            specialRegions: _getTimeRegions(),
+            specialRegions: GroupCal,  // Use the initialized list here
           ),
 
           // Chat Screen
@@ -127,16 +133,11 @@ class _HomeState extends State<Home> {
     );
   }
 
-  List<TimeRegion> _getTimeRegions() {
-    final List<TimeRegion> regions = <TimeRegion>[];
-    //await GetGroupCalendarp().getGroupCalendar(widget.groupId,2024-07-01,2025-07-01);
-    regions.add(TimeRegion(
-      startTime: DateTime(2024, 07, 28, 14, 0, 0),
-      endTime: DateTime(2024, 07, 29, 15, 0, 0),
-      color: Colors.grey.withOpacity(0.6),
-    ));
-
-    return regions;
+  Future<void> _getTimeRegions() async {
+    var fetchedRegions = await GetGroupCalendar().getGroupCalendar(widget.groupId, '2023-01-00', '2025-12-11');
+    setState(() {
+      GroupCal = fetchedRegions;  // Set the fetched data and update the UI
+    });
   }
 
   List<Appointment> getAppointments() {

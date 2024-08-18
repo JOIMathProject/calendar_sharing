@@ -75,13 +75,9 @@ class _ContentsManageState extends State<ContentsManage> {
             child: RefreshIndicator(
               onRefresh: _reloadContents, // The function that will be called on pull-to-refresh
               child: ListView.builder(
-                itemCount: currentLabel == 'All'
-                    ? contents.length
-                    : contents.where((content) => content.is_friends == currentLabel).length,
+                itemCount: _filteredContents().length,
                 itemBuilder: (context, index) {
-                  var filteredContents = currentLabel == 'All'
-                      ? contents
-                      : contents.where((content) => content.is_friends == currentLabel).toList();
+                  var filteredContents = _filteredContents();
                   return ListTile(
                     leading: CircleAvatar(
                       child: Image.network(
@@ -115,5 +111,15 @@ class _ContentsManageState extends State<ContentsManage> {
         ],
       ),
     );
+  }
+
+  List<GroupInformation> _filteredContents() {
+    if (currentLabel == 'Personal') {
+      return contents.where((content) => content.is_friends == '1').toList();
+    } else if (currentLabel == 'Group') {
+      return contents.where((content) => content.is_friends == '0').toList();
+    } else {
+      return contents; // Show all contents if "All" is selected
+    }
   }
 }

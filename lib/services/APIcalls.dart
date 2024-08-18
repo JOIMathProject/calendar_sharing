@@ -1,6 +1,11 @@
+import 'dart:ui';
+
 import 'package:googleapis/calendar/v3.dart';
+import 'package:googleapis/cloudsearch/v1.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class UserInformation {
   final String google_uid;
@@ -54,16 +59,13 @@ class GroupInformation {
       required this.gicon,
       required this.is_friends});
 }
-class EventInformation{
-  final int id;
-  final String start_dateTime;
-  final String end_dateTime;
-  final String count;
-  EventInformation(
-      {required this.id,
-        required this.start_dateTime,
-        required this.end_dateTime,
-        required this.count});
+class MyContentsInformation {
+  final String cid;
+  final String cname;
+  MyContentsInformation({
+    required this.cid,
+    required this.cname,
+  });
 }
 class CreateUser {
   Future<void> createUser(UserInformation) async {
@@ -208,7 +210,7 @@ class GetGroupInfo{
         gid: group['gid'] ?? 'default',
         gname: group['gname'] ?? 'default',
         gicon: group['gicon'] ?? 'default_icon.png',
-        is_friends: group['is_friends'] ?? 1,
+        is_friends: group['is_friends'] ?? '0',
       ));
     }
     //print everything
@@ -262,24 +264,51 @@ class UpdateUserImage{
   }
 }
 class GetGroupCalendar{
-  Future<List<EventInformation>> getGroupCalendar(String? gid,String? from, String? to) async {
+  Future<List<TimeRegion>> getGroupCalendar(String? gid,String? from, String? to) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content/events/$from/$to');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
       throw 'Failed to get group: ${response.statusCode}';
     }
-    List<EventInformation> events = [];
+    List<TimeRegion> events = [];
     for (var group in jsonDecode(response.body)['data']) {
-      events.add(EventInformation(
-        id: group['id'] ?? 0,
-        start_dateTime: group['start_dateTime'] ?? 'default',
-        end_dateTime: group['end_dateTime'] ?? 'default',
-        count: group['count'] ?? 'default',
+      int count = group['count'];
+      // Ensure count is capped between 0 and 5
+      count = count.clamp(0, 5);
+
+      // Calculate the blue intensity
+      int blueIntensity = (255 - (count * 51)); // 51 = 255 / 5
+
+      // Create the color based on blueIntensity
+      Color color = Color.fromARGB(255, 0, 0, blueIntensity);
+
+      events.add(TimeRegion(
+        startTime: DateTime.parse(group['start_dateTime']),
+        endTime: DateTime.parse(group['end_dateTime']),
+        color: color,
       ));
     }
-    //print everything
-    print(events[0].start_dateTime);
+
     return events;
+  }
+}
+class GetMyContents{
+  Future<List<MyContentsInformation>> getMyContents(String? uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    List<MyContentsInformation> contents = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      contents.add(MyContentsInformation(
+        cid: group['cid'],
+        cname: group['cname'],
+      ));
+    }
+
+    return contents;
   }
 }

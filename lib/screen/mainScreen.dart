@@ -1,4 +1,5 @@
 import 'package:calendar_sharing/screen/ContentsManage.dart';
+import 'package:calendar_sharing/screen/MyContentsManage.dart';
 import 'package:calendar_sharing/screen/profile.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
       FriendsScreen(), // Replace with your actual widgets
       ContentsManage(), // Access gUser through Provider
       Profile(),
-      PlaceholderWidget(),
+      MyContentsManage(),
     ];
   }
   Future<void> _initializeApp() async {
@@ -97,8 +98,8 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notification',
+            icon: Icon(Icons.calendar_month),
+            label: 'MyContents',
           ),
         ],
       ),
