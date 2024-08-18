@@ -57,7 +57,7 @@ class AuthService {
       print('Current User: ${_googleSignIn.currentUser}');
 
       try {
-        await GetUser().getUser(result.id);
+        await GetUserGoogleUid().getUserGoogleUid(result.id);
       } catch (e) {
         // If the user does not exist (i.e., a 404 error is returned), create the user
         if (e.toString().contains('404')) {

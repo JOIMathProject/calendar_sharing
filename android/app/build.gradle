@@ -62,5 +62,6 @@ flutter {
 }
 dependencies {
     // Add this line
-    implementation 'com.google.firebase:firebase-messaging:22.0.0'
+    implementation 'com.google.firebase:firebase-bom:30.2.0'
+    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.6'
 }

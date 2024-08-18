@@ -15,7 +15,14 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-
+buildscript {
+    dependencies {
+        classpath 'com.google.gms:google-services:4.3.13'
+    }
+    repositories {
+        google()
+    }
+}
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
     id "com.android.application" version "7.3.0" apply false

@@ -25,10 +25,28 @@ class _WrapperState extends State<Wrapper> {
     serverClientId: '213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com',
   );
 
+  bool _isLoading = true; // Track loading state
+  bool _hasError = false; // Track if there's an error
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _signInSilently();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    try {
+      await _signInSilently();
+    } catch (e) {
+      setState(() {
+        _hasError = true;
+      });
+      print('Error during initialization: $e');
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading when initialization is done
+      });
+    }
   }
 
   Future<void> _signInSilently() async {
@@ -38,39 +56,12 @@ class _WrapperState extends State<Wrapper> {
         Provider.of<UserData>(context, listen: false).updateGoogleUser(_googleSignIn);
       }
     } catch (e) {
-      print('Error: $e');
+      print('Error signing in silently: $e');
     }
   }
 
-  Future<void> _loadUserData() async {
-    GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
-    if (gUser != null && gUser.currentUser != null) {
-      try {
-        UserInformation userInfo = await GetUserGoogleUid().getUserGoogleUid(gUser.currentUser!.id);
-        Provider.of<UserData>(context, listen: false).updateUserInfo(userInfo);
-
-        List<FriendInformation> friends = await GetFriends().getFriends(userInfo.uid);
-        Provider.of<UserData>(context, listen: false).updateFriends(friends);
-      } catch (e) {
-        print('Error loading user data: $e');
-      }
-    }
-  }
-  Future<void> _getDeviceId() async {
-    try {
-      FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-      String? deviceId = await _firebaseMessaging.getToken();
-      if (deviceId != null) {
-        AddDeviceID().addDeviceID(Provider.of<UserData>(context, listen: false).uid, deviceId);
-      }
-    } catch (e) {
-      print('Error getting device ID: $e');
-    }
-  }
   @override
   Widget build(BuildContext context) {
-    _loadUserData();
-    _getDeviceId();
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
     if (gUser != null && gUser.currentUser != null) {
       return MainScreen(); // Show the main screen if the user is logged in
