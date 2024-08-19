@@ -51,7 +51,7 @@ class _AddFriendState extends State<AddFriend> {
                     return AlertDialog(
                       insetPadding: EdgeInsets.all(10),
                       title: Text('フレンドの追加'),
-                      content: AddFriendsSearch(
+                      content: AddFriendsSearchDialog(
                         user: user,
                         userData: userData,
                       ),
@@ -68,8 +68,8 @@ class _AddFriendState extends State<AddFriend> {
   }
 }
 
-class AddFriendsSearch extends StatelessWidget {
-  const AddFriendsSearch({
+class AddFriendsSearchDialog extends StatelessWidget {
+  const AddFriendsSearchDialog({
     super.key,
     required this.user,
     required this.userData,
@@ -97,7 +97,6 @@ class AddFriendsSearch extends StatelessWidget {
                 Text(snapshot.data!.uname),
                 Text("@${snapshot.data!.uid}"),
                 Row(
-                  //真ん中に配置
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
@@ -115,7 +114,7 @@ class AddFriendsSearch extends StatelessWidget {
                         showDialog(
                           context: context,
                           builder: (context) {
-                            return buildAlertDialog(addFriend);
+                            return addFriendResultDialog(addFriend);
                           },
                         );
                       },
@@ -145,7 +144,7 @@ class AddFriendsSearch extends StatelessWidget {
     ]);
   }
 
-  AlertDialog buildAlertDialog(Future<void> addFriend) {
+  AlertDialog addFriendResultDialog(Future<void> addFriend) {
     return AlertDialog(
       title: Text('フレンドの追加'),
       content: Column(

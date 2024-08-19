@@ -55,77 +55,103 @@ class _FriendsScreenState extends State<FriendsScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 20),
-          if (friends.isNotEmpty)
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            TabBar(
+              tabs: [
+                Tab(text: 'フレンド'),
+                Tab(text: 'リクエスト'),
+              ],
+            ),
             Expanded(
-              child: RefreshIndicator(
-                onRefresh: _fetchFriends, // The function to reload friends
-                child: ListView.builder(
-                  itemCount: friends.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                // アイコン
-                                CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: Colors.white,
-                                  backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/"+friends[index].uicon),
-                                ),
-                                SizedBox(width: 20),
-                                // 名前
-                                Text(
-                                  friends[index].uname,
-                                  style: TextStyle(fontSize: 25),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      onTap: () {
-                        // フレンドのプロフィールに飛ばす
-                        print(friends[index].uid);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FriendProfile(friend: friends[index]),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            )
-          else
-            Center(
-              child: Column(
+              child: TabBarView(
                 children: [
-                  Icon(
-                    Icons.no_accounts,
-                    size: 200,
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                  Text(
-                    'フレンドなし',
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.black.withOpacity(0.5),
-                    ),
+                  Friends(friends),
+                  Center(
+                    child: Text('リクエスト'),
                   ),
                 ],
               ),
             ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Column Friends(List<FriendInformation> friends) {
+    return Column(
+      children: [
+        SizedBox(height: 20),
+        if (friends.isNotEmpty)
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _fetchFriends, // The function to reload friends
+              child: ListView.builder(
+                itemCount: friends.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              // アイコン
+                              CircleAvatar(
+                                radius: 25,
+                                backgroundColor: Colors.white,
+                                backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/"+friends[index].uicon),
+                              ),
+                              SizedBox(width: 20),
+                              // 名前
+                              Text(
+                                friends[index].uname,
+                                style: TextStyle(fontSize: 25),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      // フレンドのプロフィールに飛ばす
+                      print(friends[index].uid);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FriendProfile(friend: friends[index]),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          )
+        else
+          Center(
+            child: Column(
+              children: [
+                Icon(
+                  Icons.no_accounts,
+                  size: 200,
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                Text(
+                  'フレンドなし',
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
