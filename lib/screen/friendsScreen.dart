@@ -15,18 +15,23 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     GoogleSignIn? gUser =
         Provider.of<UserData>(context, listen: false).googleUser;
 
     if (gUser?.currentUser != null) {
-      // フレンド一覧を取得するロジックをここに追加
+      // Fetch friends after the widget is fully inserted into the widget tree
       _fetchFriends();
     }
   }
 
   Future<void> _fetchFriends() async {
     try {
-      UserData userData = Provider.of<UserData>(context);
+      UserData userData = Provider.of<UserData>(context, listen: false);
       String? uid = userData.uid;
       List<FriendInformation> friends = await GetFriends().getFriends(userData.uid);
       Provider.of<UserData>(context, listen: false).updateFriends(friends);
