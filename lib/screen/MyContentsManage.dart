@@ -65,7 +65,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => MyContent(
-                                  calendarId: contents[index].cid,
+                                  cid: contents[index].cid,
                                 )
                             )
                         );

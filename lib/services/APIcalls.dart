@@ -382,13 +382,20 @@ class CreateEmptyContents{
       url,
       headers: {'Content-type': 'application/json'},
       body: jsonEncode({
-        "cname": cname,
+        "cname": cname
       }),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Failed to create user: ${response.statusCode}';
+      throw 'Failed to create content: ${response.statusCode}';
     }
-    return response.body[0];
+    final responseBody = jsonDecode(response.body);
+
+    // Extract the 'cid' field
+    if (responseBody.containsKey('cid')) {
+      return responseBody['cid'];
+    } else {
+      throw 'cid not found in the response';
+    }
   }
 }
 class AddCalendarToContents{
@@ -398,11 +405,31 @@ class AddCalendarToContents{
       url,
       headers: {'Content-type': 'application/json'},
       body: jsonEncode({
-        "gid": calendar_id,
+        "calendar_id": calendar_id
       }),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Failed to create user: ${response.statusCode}';
+      throw 'Failed to add contents: ${response.statusCode}';
     }
+  }
+}
+class GetMyContentsSchedule{
+  Future<List<Appointment>> getMyContentsSchedule(String? uid,String? cid,String? from, String? to) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$from/$to');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get calendar: ${response.statusCode}';
+    }
+    List<Appointment> events = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      events.add(Appointment(
+        startTime: DateTime.parse(group['start_dateTime']),
+        endTime: DateTime.parse(group['end_dateTime']),
+        subject: group['summary']
+      ));
+    }
+
+    return events;
   }
 }

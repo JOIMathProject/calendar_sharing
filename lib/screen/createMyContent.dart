@@ -29,6 +29,7 @@ class _CreateMyContentsState extends State<CreateMyContents> {
 
   Future<void> _createEmptyContents(String uid, String title) async {
     cid = await CreateEmptyContents().createEmptyContents(uid, title);
+    print('$cid');
   }
 
   Future<void> _addCalendarToContents(String uid,String cid, String calendar_id) async {
@@ -104,15 +105,12 @@ class _CreateMyContentsState extends State<CreateMyContents> {
     );
   }
 
-  void _makeContent(List<CalendarInformation> selectedCalendars) {
-    // Your logic to make content with the selected calendars
-    // For example, you can print the selected calendar IDs:
-
+  void _makeContent(List<CalendarInformation> selectedCalendars) async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    _createEmptyContents(uid!, title);
+    await _createEmptyContents(uid!, title);
     for (var calendar in selectedCalendars) {
-      print('Selected Calendar: ${calendar.calendar_id}');
-      _addCalendarToContents(uid, cid, calendar.calendar_id);
+      print('cid is :${cid} Selected Calendar: ${calendar.calendar_id}');
+      await _addCalendarToContents(uid, cid, calendar.calendar_id);
     }
   }
 }
