@@ -67,6 +67,16 @@ class MyContentsInformation {
     required this.cname,
   });
 }
+class CalendarInformation{
+  final String calendar_id;
+  final String summary;
+  final String discription;
+  CalendarInformation({
+    required this.calendar_id,
+    required this.summary,
+    required this.discription,
+  });
+}
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -310,5 +320,57 @@ class GetMyContents{
     }
 
     return contents;
+  }
+}
+class GetMyCalendars{
+  Future<List<CalendarInformation>> getMyCalendars(String? uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/calendars');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    List<CalendarInformation> contents = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      contents.add(CalendarInformation(
+        calendar_id: group['calendar_id']?? 'default',
+        summary: group['summary']?? 'default',
+        discription: group['discription']?? 'default',
+      ));
+    }
+
+    return contents;
+  }
+
+}
+class CreateEmptyContents{
+  Future<String> createEmptyContents(String? uid, String? cname) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "cname": cname,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create user: ${response.statusCode}';
+    }
+    return response.body[0];
+  }
+}
+class AddCalendarToContents{
+  Future<void> addCalendarToContents(String? uid, String? cid, String? calendar_id) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "gid": calendar_id,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create user: ${response.statusCode}';
+    }
   }
 }

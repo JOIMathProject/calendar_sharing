@@ -1,5 +1,6 @@
 import 'package:calendar_sharing/screen/createContents.dart';
 import 'package:calendar_sharing/screen/Content.dart';
+import 'package:calendar_sharing/screen/createMyContent.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -43,7 +44,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
           IconButton(
             icon: Icon(Icons.edit_calendar),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateContents()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>  CreateMyContents()));
             },
           ),
         ],
