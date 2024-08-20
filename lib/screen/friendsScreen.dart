@@ -33,10 +33,24 @@ class _FriendsScreenState extends State<FriendsScreen> {
     try {
       UserData userData = Provider.of<UserData>(context, listen: false);
       String? uid = userData.uid;
-      List<FriendInformation> friends = await GetFriends().getFriends(userData.uid);
+      List<FriendInformation> friends =
+          await GetFriends().getFriends(userData.uid);
       Provider.of<UserData>(context, listen: false).updateFriends(friends);
     } catch (e) {
       print("Error fetching friends: $e");
+    }
+  }
+
+  Future<void> _fetchReceivedRequests() async {
+    try {
+      UserData userData = Provider.of<UserData>(context, listen: false);
+      String? uid = userData.uid;
+      List<FriendRequestInformation> requests =
+          await GetReceiveFriendRequest().getReceiveFriendRequest(userData.uid);
+      Provider.of<UserData>(context, listen: false)
+          .updateReceivedRequests(requests);
+    } catch (e) {
+      print("Error fetching requests: $e");
     }
   }
 
@@ -44,6 +58,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
     List<FriendInformation> friends = userData.friends;
+    List<FriendRequestInformation> requests = userData.receivedRequests;
 
     return Scaffold(
       appBar: AppBar(
@@ -52,10 +67,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
           IconButton(
             icon: Icon(Icons.person_add_alt),
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddFriend())
-              );
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddFriend()));
             },
           ),
         ],
@@ -74,9 +87,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
               child: TabBarView(
                 children: [
                   Friends(friends),
-                  Center(
-                    child: Text('リクエスト'),
-                  ),
+                  Requests(requests),
                 ],
               ),
             ),
@@ -86,77 +97,166 @@ class _FriendsScreenState extends State<FriendsScreen> {
     );
   }
 
-  Column Friends(List<FriendInformation> friends) {
+  Column Requests(List<FriendRequestInformation> requests) {
     return Column(
       children: [
         SizedBox(height: 20),
-        if (friends.isNotEmpty)
+        if (requests.isNotEmpty)
           Expanded(
             child: RefreshIndicator(
-              onRefresh: _fetchFriends, // The function to reload friends
+              onRefresh: _fetchReceivedRequests,
               child: ListView.builder(
-                itemCount: friends.length,
+                itemCount: requests.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              // アイコン
-                              CircleAvatar(
-                                radius: 25,
-                                backgroundColor: Colors.white,
-                                backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/"+friends[index].uicon),
-                              ),
-                              SizedBox(width: 20),
-                              // 名前
-                              Text(
-                                friends[index].uname,
-                                style: TextStyle(fontSize: 25),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                      // フレンドのプロフィールに飛ばす
-                      print(friends[index].uid);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FriendProfile(friend: friends[index]),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            // アイコン
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Colors.white,
+                              backgroundImage: NetworkImage(
+                                  "https://calendar-files.woody1227.com/user_icon/" +
+                                      requests[index].uicon),
+                            ),
+                            SizedBox(width: 20),
+                            // 名前
+                            Text(
+                              requests[index].uname,
+                              style: TextStyle(fontSize: 25),
+                            ),
+                            //申請許可ボタンと削除ボタン
+                          ],
                         ),
-                      );
-                    },
+                      ],
+                    ),
                   );
                 },
               ),
             ),
           )
         else
-          Center(
-            child: Column(
-              children: [
-                Icon(
-                  Icons.no_accounts,
-                  size: 200,
-                  color: Colors.black.withOpacity(0.5),
-                ),
-                Text(
-                  'フレンドなし',
-                  style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                ),
-              ],
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _fetchReceivedRequests,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.no_accounts,
+                            size: 200,
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                          Text(
+                            'リクエストなし',
+                            style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
       ],
     );
+  }
+
+  Column Friends(List<FriendInformation> friends) {
+    return Column(children: [
+      SizedBox(height: 20),
+      if (friends.isNotEmpty)
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: _fetchFriends, // The function to reload friends
+            child: ListView.builder(
+              itemCount: friends.length,
+              itemBuilder: (BuildContext context, int index) {
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            // アイコン
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Colors.white,
+                              backgroundImage: NetworkImage(
+                                  "https://calendar-files.woody1227.com/user_icon/" +
+                                      friends[index].uicon),
+                            ),
+                            SizedBox(width: 20),
+                            // 名前
+                            Text(
+                              friends[index].uname,
+                              style: TextStyle(fontSize: 25),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    // フレンドのプロフィールに飛ばす
+                    print(friends[index].uid);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            FriendProfile(friend: friends[index]),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        )
+      else
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: _fetchFriends,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.no_accounts,
+                          size: 200,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                        Text(
+                          'フレンドなし',
+                          style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        )
+    ]);
   }
 }

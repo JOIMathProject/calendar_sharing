@@ -67,6 +67,16 @@ class MyContentsInformation {
     required this.cname,
   });
 }
+class FriendRequestInformation {
+  final String uid;
+  final String uname;
+  final String uicon;
+  FriendRequestInformation({
+    required this.uid,
+    required this.uname,
+    required this.uicon
+  });
+}
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -138,7 +148,7 @@ class GetFriends {
     final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid');
     final response = await http.get(url);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get friends: ${response.statusCode}';
     }
 
@@ -310,5 +320,26 @@ class GetMyContents{
     }
 
     return contents;
+  }
+}
+
+class GetReceiveFriendRequest{
+  Future<List<FriendRequestInformation>> getReceiveFriendRequest(String? uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/$uid/receive');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    List<FriendRequestInformation> requests = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      requests.add(FriendRequestInformation(
+        uid: group['uid'],
+        uname: group['uname'],
+        uicon: group['uicon'],
+      ));
+    }
+
+    return requests;
   }
 }

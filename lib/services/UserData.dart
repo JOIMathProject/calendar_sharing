@@ -15,6 +15,7 @@ class UserData extends ChangeNotifier {
   String? refreshToken;
   String? mailAddress;
   List<FriendInformation> friends = [];
+  List<FriendRequestInformation> receivedRequests = [];
 
   void updateGoogleUser(GoogleSignIn? newGoogleUser) {
     googleUser = newGoogleUser;
@@ -34,6 +35,12 @@ class UserData extends ChangeNotifier {
     friends = newFriends;
     notifyListeners();
   }
+
+  void updateReceivedRequests(List<FriendRequestInformation> newRequests) {
+    receivedRequests = newRequests;
+    notifyListeners();
+  }
+
   void cacheUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('google_uid', google_uid ?? '');
