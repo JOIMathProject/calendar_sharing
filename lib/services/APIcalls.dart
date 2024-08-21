@@ -433,3 +433,13 @@ class GetMyContentsSchedule{
     return events;
   }
 }
+class DeleteMyContents{
+  Future<void> deleteMyContents(String? uid, String? cid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid');
+    final response = await http.delete(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to delete contents: ${response.statusCode}';
+    }
+  }
+}
