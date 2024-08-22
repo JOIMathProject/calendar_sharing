@@ -343,3 +343,31 @@ class GetReceiveFriendRequest{
     return requests;
   }
 }
+
+class AcceptFriendRequest{
+  Future<void> acceptFriendRequest(String? uid, String? friend_uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uid1": uid,
+        "uid2": friend_uid,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to accept friend request: ${response.statusCode}';
+    }
+  }
+}
+
+class DeleteFriendRequest{
+  Future<void> deleteFriendRequest(String? uid, String? friend_uid) async {
+    //フレンド申請拒否
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/$friend_uid/$uid');
+    final response = await http.delete(url);
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to delete friend request: ${response.statusCode}';
+    }
+  }
+}

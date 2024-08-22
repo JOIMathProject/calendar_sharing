@@ -87,7 +87,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
               child: TabBarView(
                 children: [
                   Friends(friends),
-                  Requests(requests),
+                  Requests(requests, userData),
                 ],
               ),
             ),
@@ -97,7 +97,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     );
   }
 
-  Column Requests(List<FriendRequestInformation> requests) {
+  Column Requests(List<FriendRequestInformation> requests ,UserData userData) {
     return Column(
       children: [
         SizedBox(height: 20),
@@ -129,6 +129,22 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               style: TextStyle(fontSize: 25),
                             ),
                             //申請許可ボタンと削除ボタン
+                            ElevatedButton(
+                              onPressed: () async {
+                                // 申請許可
+                                await AcceptFriendRequest().acceptFriendRequest(userData.uid, requests[index].uid);
+                                await _fetchReceivedRequests();
+                              },
+                              child: Icon(Icons.check),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                // 申請削除
+                                await DeleteFriendRequest().deleteFriendRequest(userData.uid, requests[index].uid);
+                                await _fetchReceivedRequests();
+                              },
+                              child: Icon(Icons.delete),
+                            ),
                           ],
                         ),
                       ],
