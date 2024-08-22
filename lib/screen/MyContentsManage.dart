@@ -1,11 +1,9 @@
-import 'package:calendar_sharing/screen/createContents.dart';
-import 'package:calendar_sharing/screen/Content.dart';
-import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
 import 'MyContent.dart';
+import 'package:calendar_sharing/services/APIcalls.dart';
+import 'createMyContent.dart';
 
 class MyContentsManage extends StatefulWidget {
   @override
@@ -34,6 +32,42 @@ class _MyContentsManageState extends State<MyContentsManage> {
     }
   }
 
+  Future<void> _deleteContent(String uid, String cid) async {
+    await DeleteMyContents().deleteMyContents(uid, cid);
+    _reloadContents(); // Refresh the contents after deletion
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context, String uid, String cid, String cname) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Content'),
+          content: Text('Are you sure you want to delete "$cname"? This action cannot be undone.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _reloadContents(); // Reload contents if deletion is canceled
+              },
+            ),
+            TextButton(
+              child: Text('Delete', style: TextStyle(color: Colors.red)),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _deleteContent(uid, cid);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$cname deleted')),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +77,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
           IconButton(
             icon: Icon(Icons.edit_calendar),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateContents()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateMyContents()));
             },
           ),
         ],
@@ -52,29 +86,50 @@ class _MyContentsManageState extends State<MyContentsManage> {
         children: <Widget>[
           Expanded(
             child: RefreshIndicator(
-              onRefresh: _reloadContents, // The function that will be called on pull-to-refresh
+              onRefresh: _reloadContents,
               child: ListView.builder(
-                itemCount: contents.length, // Add this line
+                itemCount: contents.length,
                 itemBuilder: (context, index) {
-                  if (contents.isNotEmpty) { // Check if contents is not empty
-                    return ListTile(
-                      title: Text(contents[index].cname),
-                      onTap: () {
-                        Navigator.push(
+                  if (contents.isNotEmpty) {
+                    return Dismissible(
+                      key: Key(contents[index].cid),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (direction) {
+                        // Handle the deletion logic
+                        String? uid = Provider.of<UserData>(context, listen: false).uid;
+                        _showDeleteConfirmationDialog(context, uid!, contents[index].cid, contents[index].cname);
+                        setState(() {
+                          contents.removeAt(index); // Immediately remove the item from the list
+                        });
+                      },
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
+                      ),
+                      child: ListTile(
+                        title: Text(contents[index].cname),
+                        onTap: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => MyContent(
-                                  calendarId: contents[index].cid,
-                                )
-                            )
-                        );
-                      },
+                              builder: (context) => MyContent(
+                                cid: contents[index].cid,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     );
                   } else {
-                    return Center(child: CircularProgressIndicator()); // Show a loading spinner if contents is empty
+                    return Center(child: CircularProgressIndicator());
                   }
                 },
-              )
+              ),
             ),
           ),
         ],

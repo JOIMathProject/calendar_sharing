@@ -18,8 +18,8 @@ import '../services/auth.dart';
 import 'package:calendar_sharing/setting/color.dart' as global_colors;
 
 class MyContent extends StatefulWidget {
-  final String? calendarId;
-  MyContent({required this.calendarId});
+  final String? cid;
+  MyContent({required this.cid});
 
   @override
   _MyContentState createState() => _MyContentState();
@@ -28,16 +28,18 @@ class MyContent extends StatefulWidget {
 class _MyContentState extends State<MyContent> {
   var httpClientO = null;
   var googleCalendarApiO = null;
-  List<cal.Event> _events = [];
-  final AuthService _auth = AuthService();
-  final PageController _pageController = PageController(initialPage: 0);
-  bool _showFab = true;  // Flag to control the visibility of the FloatingActionButton
-
-  List<TimeRegion> GroupCal = []; // Initialize the list as empty
+  List<Appointment> events = [];
 
   @override
   void initState() {
     super.initState();
+    _getCalendar();
+  }
+
+  Future<void> _getCalendar() async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    events = await GetMyContentsSchedule().getMyContentsSchedule(uid,widget.cid, '2024-01-00', '2025-12-11');
+    setState(() {});
   }
 
   @override
@@ -47,19 +49,13 @@ class _MyContentState extends State<MyContent> {
       appBar: AppBar(
         title: Text('Google Calendar & Chat'),
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _showFab = index == 0;  // Show the FAB only on the calendar page
-          });
-        },
-        children: [
+      body:
           // Google Calendar Screen
           SfCalendar(
             view: CalendarView.week,
             timeZone: 'Japan',
             headerHeight: 50,
+            dataSource: MeetingDataSource(events),
             headerDateFormat: 'yyyy MMMM',
             selectionDecoration: BoxDecoration(
               color: Colors.transparent,
@@ -83,10 +79,12 @@ class _MyContentState extends State<MyContent> {
             timeSlotViewSettings: TimeSlotViewSettings(
               timeFormat: 'H:mm',
             ),
-            specialRegions: GroupCal,  // Use the initialized list here
-          ),
-        ],
-      ),
+          )
     );
+  }
+}
+class MeetingDataSource extends CalendarDataSource {
+  MeetingDataSource(List<Appointment> source) {
+    appointments = source;
   }
 }

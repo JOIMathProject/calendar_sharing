@@ -19,7 +19,8 @@ import 'package:calendar_sharing/setting/color.dart' as global_colors;
 
 class Home extends StatefulWidget {
   final String? groupId;
-  Home({required this.groupId});
+  final String? groupName;
+  Home({required this.groupId, required this.groupName});
 
   @override
   _HomeState createState() => _HomeState();
@@ -73,7 +74,7 @@ class _HomeState extends State<Home> {
     _getSelfCalendarEvents(gUser);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Google Calendar & Chat'),
+        title: Text(widget.groupName!),
       ),
       body: PageView(
         controller: _pageController,

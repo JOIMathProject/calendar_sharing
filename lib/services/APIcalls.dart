@@ -67,6 +67,16 @@ class MyContentsInformation {
     required this.cname,
   });
 }
+class CalendarInformation{
+  final String calendar_id;
+  final String summary;
+  final String discription;
+  CalendarInformation({
+    required this.calendar_id,
+    required this.summary,
+    required this.discription,
+  });
+}
 class FriendRequestInformation {
   final String uid;
   final String uname;
@@ -322,10 +332,32 @@ class GetMyContents{
     return contents;
   }
 }
+class GetMyCalendars{
+  Future<List<CalendarInformation>> getMyCalendars(String? uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/calendars');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    List<CalendarInformation> contents = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      contents.add(CalendarInformation(
+        calendar_id: group['calendar_id']?? 'default',
+        summary: group['summary']?? 'default',
+        discription: group['discription']?? 'default',
+      ));
+    }
+
+    return contents;
+  }
+
+}
 
 class GetReceiveFriendRequest{
   Future<List<FriendRequestInformation>> getReceiveFriendRequest(String? uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/$uid/receive');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/friends_requests/$uid/receive');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -341,6 +373,74 @@ class GetReceiveFriendRequest{
     }
 
     return requests;
+  }
+}
+class CreateEmptyContents{
+  Future<String> createEmptyContents(String? uid, String? cname) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "cname": cname
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create content: ${response.statusCode}';
+    }
+    final responseBody = jsonDecode(response.body);
+
+    // Extract the 'cid' field
+    if (responseBody.containsKey('cid')) {
+      return responseBody['cid'];
+    } else {
+      throw 'cid not found in the response';
+    }
+  }
+}
+class AddCalendarToContents{
+  Future<void> addCalendarToContents(String? uid, String? cid, String? calendar_id) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "calendar_id": calendar_id
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add contents: ${response.statusCode}';
+    }
+  }
+}
+class GetMyContentsSchedule{
+  Future<List<Appointment>> getMyContentsSchedule(String? uid,String? cid,String? from, String? to) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$from/$to');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get calendar: ${response.statusCode}';
+    }
+    List<Appointment> events = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      events.add(Appointment(
+        startTime: DateTime.parse(group['start_dateTime']),
+        endTime: DateTime.parse(group['end_dateTime']),
+        subject: group['summary']
+      ));
+    }
+
+    return events;
+  }
+}
+class DeleteMyContents{
+  Future<void> deleteMyContents(String? uid, String? cid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid');
+    final response = await http.delete(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to delete contents: ${response.statusCode}';
+    }
   }
 }
 

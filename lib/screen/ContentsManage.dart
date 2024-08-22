@@ -100,7 +100,7 @@ class _ContentsManageState extends State<ContentsManage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => Home(
-                                groupId: filteredContents[index].gid,
+                                groupId: filteredContents[index].gid,groupName: filteredContents[index].gname,
                               )));
                     },
                   );
