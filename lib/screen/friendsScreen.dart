@@ -10,8 +10,9 @@ class FriendsScreen extends StatefulWidget {
   @override
   _FriendsScreenState createState() => _FriendsScreenState();
 }
-
 class _FriendsScreenState extends State<FriendsScreen> {
+  bool _isDataFetched = false;
+
   @override
   void initState() {
     super.initState();
@@ -20,13 +21,16 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    GoogleSignIn? gUser =
-        Provider.of<UserData>(context, listen: false).googleUser;
+    if (!_isDataFetched) {
+      GoogleSignIn? gUser =
+          Provider.of<UserData>(context, listen: false).googleUser;
 
-    if (gUser?.currentUser != null) {
-      // Fetch friends after the widget is fully inserted into the widget tree
-      _fetchFriends();
-      _fetchReceivedRequests();
+      if (gUser?.currentUser != null) {
+        // Fetch friends after the widget is fully inserted into the widget tree
+        _fetchFriends();
+        _fetchReceivedRequests();
+        _isDataFetched = true; // Mark the data as fetched
+      }
     }
   }
 
@@ -35,11 +39,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
       UserData userData = Provider.of<UserData>(context, listen: false);
       String? uid = userData.uid;
       List<FriendInformation> friends =
-          await GetFriends().getFriends(userData.uid);
+      await GetFriends().getFriends(userData.uid);
       Provider.of<UserData>(context, listen: false).updateFriends(friends);
     } catch (e) {
       print("Error fetching friends: $e");
     }
+    print('hey');
   }
 
   Future<void> _fetchReceivedRequests() async {
@@ -47,7 +52,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       UserData userData = Provider.of<UserData>(context, listen: false);
       String? uid = userData.uid;
       List<FriendRequestInformation> requests =
-          await GetReceiveFriendRequest().getReceiveFriendRequest(userData.uid);
+      await GetReceiveFriendRequest().getReceiveFriendRequest(userData.uid);
       Provider.of<UserData>(context, listen: false)
           .updateReceivedRequests(requests);
     } catch (e) {
@@ -136,7 +141,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               onPressed: () async {
                                 await AcceptFriendRequest()
                                     .acceptFriendRequest(
-                                        userData.uid, requests[index].uid);
+                                    userData.uid, requests[index].uid);
                                 _fetchReceivedRequests();
                                 _fetchFriends();
                               },
@@ -147,7 +152,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               onPressed: () async {
                                 await DeleteFriendRequest()
                                     .deleteFriendRequest(
-                                        userData.uid, requests[index].uid);
+                                    userData.uid, requests[index].uid);
                                 _fetchReceivedRequests();
                               },
                             ),
