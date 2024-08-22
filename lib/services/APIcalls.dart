@@ -181,7 +181,19 @@ class GetFriends {
     return friends;
   }
 }
+class CheckFriend{
+  Future<String> checkFriend(String? uid, String? friend_uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
+    final response = await http.get(url);
 
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to get friends: ${response.statusCode}';
+    }
+    final responseBody = jsonDecode(response.body);
+
+    return responseBody['gid'];
+  }
+}
 class AddDeviceID {
   Future<void> addDeviceID(String? uid, String? deviceID) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/deviceids');

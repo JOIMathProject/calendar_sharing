@@ -1,5 +1,8 @@
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/UserData.dart';
+import 'Content.dart';
 
 class FriendProfile extends StatefulWidget {
   final FriendInformation friend;
@@ -10,6 +13,10 @@ class FriendProfile extends StatefulWidget {
 }
 
 class _FriendProfileState extends State<FriendProfile> {
+  Future<String?> _checkFriend(String uid, String friendUid) async {
+    return await CheckFriend().checkFriend(uid, friendUid);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,11 +41,6 @@ class _FriendProfileState extends State<FriendProfile> {
           children: [
             //アイコン
             SizedBox(height: 80),
-            // CircleAvatar(
-            //   radius: 100,
-            //   backgroundColor: Colors.grey,
-            // ),
-            //画像
             CircleAvatar(
               radius: 100,
               backgroundColor: Colors.white,
@@ -53,7 +55,6 @@ class _FriendProfileState extends State<FriendProfile> {
               ),
             ),
             //uid
-            //SizedBox(height: 20),
             Text(
               "@"+widget.friend.uid,
               style: TextStyle(
@@ -67,8 +68,21 @@ class _FriendProfileState extends State<FriendProfile> {
               children: [
                 //コンテンツのボタンとメッセージのボタン
                 ElevatedButton(
-                  onPressed: () {
-                    //コンテンツのボタンのアクション
+                  onPressed: () async {
+                    String? uid = Provider.of<UserData>(context, listen: false).uid;
+                    String? groupId = await _checkFriend(uid!, widget.friend.uid);
+                    if (groupId != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Home(
+                            groupId: groupId,
+                            groupName: widget.friend.uid,
+                            startOnChatScreen: false,
+                          ),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     shape: CircleBorder(),
@@ -81,8 +95,21 @@ class _FriendProfileState extends State<FriendProfile> {
                 ),
                 SizedBox(width: 50),
                 ElevatedButton(
-                  onPressed: () {
-                    //メッセージのボタンのアクション
+                  onPressed: () async {
+                    String? uid = Provider.of<UserData>(context, listen: false).uid;
+                    String? groupId = await _checkFriend(uid!, widget.friend.uid);
+                    if (groupId != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Home(
+                            groupId: groupId,
+                            groupName: widget.friend.uid,
+                            startOnChatScreen: true,
+                          ),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     shape: CircleBorder(),
@@ -97,7 +124,7 @@ class _FriendProfileState extends State<FriendProfile> {
             )
           ],
         ),
-      )
+      ),
     );
   }
 }

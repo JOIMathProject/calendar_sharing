@@ -42,6 +42,21 @@ class _ContentsManageState extends State<ContentsManage> {
         title: Text('Contents Manage'),
         actions: <Widget>[
           IconButton(
+            icon: Icon(Icons.chat),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Home(
+                    groupId: null,
+                    groupName: 'Chat',
+                    startOnChatScreen: true, // Start directly on the chat screen
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.group_add),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => CreateContents()));
@@ -86,11 +101,25 @@ class _ContentsManageState extends State<ContentsManage> {
                     ),
                     title: Text(filteredContents[index].gname),
                     subtitle: Text('Last message...'),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text('12:34 PM'),
-                        Icon(Icons.check_circle, color: Colors.blue),
+                        IconButton(
+                          icon: Icon(Icons.chat, color: Colors.blue),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Home(
+                                  groupId: filteredContents[index].gid,
+                                  groupName: filteredContents[index].gname,
+                                  startOnChatScreen: true,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                     onTap: () {
@@ -100,7 +129,9 @@ class _ContentsManageState extends State<ContentsManage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => Home(
-                                groupId: filteredContents[index].gid,groupName: filteredContents[index].gname,
+                                groupId: filteredContents[index].gid,
+                                groupName: filteredContents[index].gname,
+                                startOnChatScreen: false,
                               )));
                     },
                   );

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:calendar_sharing/screen/ChatScreen.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
@@ -20,7 +19,9 @@ import 'package:calendar_sharing/setting/color.dart' as global_colors;
 class Home extends StatefulWidget {
   final String? groupId;
   final String? groupName;
-  Home({required this.groupId, required this.groupName});
+  final bool startOnChatScreen;
+
+  Home({required this.groupId, required this.groupName, this.startOnChatScreen = false});
 
   @override
   _HomeState createState() => _HomeState();
@@ -31,14 +32,16 @@ class _HomeState extends State<Home> {
   var googleCalendarApiO = null;
   List<cal.Event> _events = [];
   final AuthService _auth = AuthService();
-  final PageController _pageController = PageController(initialPage: 0);
-  bool _showFab = true;  // Flag to control the visibility of the FloatingActionButton
+  late PageController _pageController;
+  bool _showFab = true;
 
-  List<TimeRegion> GroupCal = []; // Initialize the list as empty
+  List<TimeRegion> GroupCal = [];
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
+    _showFab = !widget.startOnChatScreen;
     _getTimeRegions();
   }
 
@@ -76,88 +79,96 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(widget.groupName!),
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _showFab = index == 0;  // Show the FAB only on the calendar page
-          });
-        },
+      body: Stack(
         children: [
-          // Google Calendar Screen
-          SfCalendar(
-            view: CalendarView.week,
-            timeZone: 'Japan',
-            headerHeight: 50,
-            dataSource: MeetingDataSource(getAppointments()),
-            headerDateFormat: 'yyyy MMMM',
-            selectionDecoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(
-                color: Colors.transparent,
-                width: 0,
-              ),
-            ),
-            appointmentBuilder:
-                (BuildContext context, CalendarAppointmentDetails details) {
-              return Container(
-                decoration: BoxDecoration(
+          PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _showFab = index == 0;
+              });
+            },
+            children: [
+              SfCalendar(
+                view: CalendarView.week,
+                timeZone: 'Japan',
+                headerHeight: 50,
+                dataSource: MeetingDataSource(getAppointments()),
+                headerDateFormat: 'yyyy MMMM',
+                selectionDecoration: BoxDecoration(
+                  color: Colors.transparent,
                   border: Border.all(
-                    color: global_colors.Calendar_outline_color,
-                    width: 3.0,
+                    color: Colors.transparent,
+                    width: 0,
                   ),
                 ),
-              );
-            },
-            cellBorderColor: global_colors.Calendar_grid_color,
-            timeSlotViewSettings: TimeSlotViewSettings(
-              timeFormat: 'H:mm',
-            ),
-            specialRegions: GroupCal,  // Use the initialized list here
+                appointmentBuilder: (BuildContext context, CalendarAppointmentDetails details) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: global_colors.Calendar_outline_color,
+                        width: 3.0,
+                      ),
+                    ),
+                  );
+                },
+                cellBorderColor: global_colors.Calendar_grid_color,
+                timeSlotViewSettings: TimeSlotViewSettings(
+                  timeFormat: 'H:mm',
+                ),
+                specialRegions: GroupCal,
+              ),
+              ChatScreen(gid: widget.groupId),
+            ],
           ),
-
-          // Chat Screen
-          ChatScreen(gid: widget.groupId),
+          // Position the FAB at the top right in ChatScreen
+          if (!_showFab)
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 100.0,right: 16),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    _pageController.previousPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut);
+                  },
+                  child: Icon(Icons.calendar_today),
+                ),
+              ),
+            ),
         ],
       ),
       floatingActionButton: _showFab
           ? FloatingActionButton(
         onPressed: () {
-          // Switch to the chat screen
           _pageController.nextPage(
               duration: Duration(milliseconds: 300),
               curve: Curves.easeInOut);
         },
         child: Icon(Icons.message),
       )
-          : null, // Set FAB to null when it's not supposed to be shown
+          : null,
     );
   }
 
   Future<void> _getTimeRegions() async {
     var fetchedRegions = await GetGroupCalendar().getGroupCalendar(widget.groupId, '2023-01-00', '2025-12-11');
     setState(() {
-      GroupCal = fetchedRegions;  // Set the fetched data and update the UI
+      GroupCal = fetchedRegions;
     });
   }
 
   List<Appointment> getAppointments() {
     List<Appointment> meetings = <Appointment>[];
     for (var event in _events) {
-      if (event.start?.dateTime == null || event.end?.dateTime == null)
-        continue;
+      if (event.start?.dateTime == null || event.end?.dateTime == null) continue;
 
-      // Check if the event is a recurring event
       if (event.recurrence != null && event.recurrence!.isNotEmpty) {
-        // Parse the recurrence rule
         String rruleString = event.recurrence![0];
-
-        // Replace WKST=SU with WKST=MO
         rruleString = rruleString.replaceAll('WKST=SU', 'WKST=MO');
-
         RecurrenceRule rrule = RecurrenceRule.fromString(rruleString);
 
-        // Generate the recurring dates
         List<DateTime> recurringDates = rrule.getAllInstances(
           start: event.start!.dateTime!,
           before: rrule.until == null
@@ -165,17 +176,14 @@ class _HomeState extends State<Home> {
               : rrule.until,
         );
 
-        // Create an appointment for each recurring date
         for (DateTime date in recurringDates) {
           meetings.add(Appointment(
             startTime: date,
-            endTime: date
-                .add(event.end!.dateTime!.difference(event.start!.dateTime!)),
+            endTime: date.add(event.end!.dateTime!.difference(event.start!.dateTime!)),
             color: global_colors.Calendar_icon_color,
           ));
         }
       } else {
-        // If the event is not a recurring event, add it as a single appointment
         meetings.add(Appointment(
           startTime: event.start!.dateTime!,
           endTime: event.end!.dateTime!,

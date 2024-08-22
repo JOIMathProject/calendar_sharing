@@ -14,7 +14,7 @@ final appTheme = ThemeData(
     onSecondary: Color(0xFF986AD9),
     error: Color(0xFFF2CB57),
     onError: Color(0xFF850783),
-    background: Color(0xFFF7C8FF),
+    background: Color(0xFFFFE4D6),
     onBackground: Color(0xFF484848),
     surface: Color(0xFFFDFDFD),
     onSurface: Color(0xFF000000),
