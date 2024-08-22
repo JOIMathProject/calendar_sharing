@@ -87,6 +87,20 @@ class FriendRequestInformation {
     required this.uicon
   });
 }
+class ChatMessage {
+  final String mid;
+  final String content;
+  final String uid;
+  final String uname;
+  final String uicon;
+  ChatMessage({
+    required this.mid,
+    required this.content,
+    required this.uid,
+    required this.uname,
+    required this.uicon,
+  });
+}
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -486,5 +500,53 @@ class DeleteFriendRequest{
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to delete friend request: ${response.statusCode}';
     }
+  }
+}
+
+class GetChatMessages{
+  Future<List<ChatMessage>> getChatMessages(String? gid,int limit,String? mid) async {
+    if(mid == null){
+      mid = '';
+    }
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages/before/$limit/$mid');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
+      throw 'Failed to get chat messages: ${response.statusCode}';
+    }
+    List<ChatMessage> messages = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return messages;
+    }
+    for (var group in jsonDecode(response.body)['data']) {
+      messages.add(ChatMessage(
+        mid: group['mid'],
+        content: group['content'],
+        uid: group['uid'],
+        uname: group['uname'],
+        uicon: group['uicon'],
+      ));
+    }
+
+    return messages;
+  }
+}
+
+class SendChatMessage{
+  Future<String> sendChatMessage(String? gid, String? uid, String? content) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uid": uid,
+        "content": content,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to send chat message: ${response.statusCode}';
+    }
+    final responseBody = jsonDecode(response.body);
+    return responseBody['mid'];
   }
 }
