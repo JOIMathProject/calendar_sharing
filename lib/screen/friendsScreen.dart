@@ -97,7 +97,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     );
   }
 
-  Column Requests(List<FriendRequestInformation> requests ,UserData userData) {
+  Column Requests(List<FriendRequestInformation> requests, UserData userData) {
     return Column(
       children: [
         SizedBox(height: 20),
@@ -132,7 +132,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             ElevatedButton(
                               onPressed: () async {
                                 // 申請許可
-                                await AcceptFriendRequest().acceptFriendRequest(userData.uid, requests[index].uid);
+                                await AcceptFriendRequest().acceptFriendRequest(
+                                    userData.uid, requests[index].uid);
                                 await _fetchReceivedRequests();
                               },
                               child: Icon(Icons.check),
@@ -140,7 +141,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             ElevatedButton(
                               onPressed: () async {
                                 // 申請削除
-                                await DeleteFriendRequest().deleteFriendRequest(userData.uid, requests[index].uid);
+                                await DeleteFriendRequest().deleteFriendRequest(
+                                    userData.uid, requests[index].uid);
                                 await _fetchReceivedRequests();
                               },
                               child: Icon(Icons.delete),
