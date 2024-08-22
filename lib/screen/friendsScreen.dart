@@ -26,6 +26,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     if (gUser?.currentUser != null) {
       // Fetch friends after the widget is fully inserted into the widget tree
       _fetchFriends();
+      _fetchReceivedRequests();
     }
   }
 
@@ -107,8 +108,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
               onRefresh: _fetchReceivedRequests,
               child: ListView.builder(
                 itemCount: requests.length,
-                itemBuilder: (BuildContext context, int index) {
-                  Padding(
+                itemBuilder: (context, index) {
+                  return Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       children: [
@@ -128,24 +129,27 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               requests[index].uname,
                               style: TextStyle(fontSize: 25),
                             ),
-                            //申請許可ボタンと削除ボタン
-                            ElevatedButton(
+                            Spacer(),
+                            // 承認ボタン
+                            IconButton(
+                              icon: Icon(Icons.check),
                               onPressed: () async {
-                                // 申請許可
-                                await AcceptFriendRequest().acceptFriendRequest(
-                                    userData.uid, requests[index].uid);
-                                await _fetchReceivedRequests();
+                                await AcceptFriendRequest()
+                                    .acceptFriendRequest(
+                                        userData.uid, requests[index].uid);
+                                _fetchReceivedRequests();
+                                _fetchFriends();
                               },
-                              child: Icon(Icons.check),
                             ),
-                            ElevatedButton(
+                            // 拒否ボタン
+                            IconButton(
+                              icon: Icon(Icons.close),
                               onPressed: () async {
-                                // 申請削除
-                                await DeleteFriendRequest().deleteFriendRequest(
-                                    userData.uid, requests[index].uid);
-                                await _fetchReceivedRequests();
+                                await DeleteFriendRequest()
+                                    .deleteFriendRequest(
+                                        userData.uid, requests[index].uid);
+                                _fetchReceivedRequests();
                               },
-                              child: Icon(Icons.delete),
                             ),
                           ],
                         ),
@@ -200,7 +204,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
             onRefresh: _fetchFriends, // The function to reload friends
             child: ListView.builder(
               itemCount: friends.length,
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (context, index) {
                 return GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   child: Padding(

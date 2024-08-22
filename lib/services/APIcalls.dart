@@ -161,9 +161,11 @@ class GetFriends {
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get friends: ${response.statusCode}';
     }
-
     //responseの中のdataの中のuidだけをListにして返す
     List<FriendInformation> friends = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return friends;
+    }
     for (var friend in jsonDecode(response.body)['data']) {
       if (friend['uicon'] == null) {
         friend['uicon'] =
@@ -360,10 +362,13 @@ class GetReceiveFriendRequest{
         'https://calendar-api.woody1227.com/friends_requests/$uid/receive');
     final response = await http.get(url);
 
-    if (response.statusCode != 200) {
-      throw 'Failed to get group: ${response.statusCode}';
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to get friend request: ${response.statusCode}';
     }
     List<FriendRequestInformation> requests = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return requests;
+    }
     for (var group in jsonDecode(response.body)['data']) {
       requests.add(FriendRequestInformation(
         uid: group['uid'],
