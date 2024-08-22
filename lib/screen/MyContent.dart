@@ -38,7 +38,7 @@ class _MyContentState extends State<MyContent> {
 
   Future<void> _getCalendar() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    events = await GetMyContentsSchedule().getMyContentsSchedule(uid,widget.cid, '2024-01-00', '2025-12-11');
+    events = await GetMyContentsSchedule().getMyContentsSchedule(uid, widget.cid, '2024-01-00', '2025-12-11');
     setState(() {});
   }
 
@@ -49,40 +49,72 @@ class _MyContentState extends State<MyContent> {
       appBar: AppBar(
         title: Text('Google Calendar & Chat'),
       ),
-      body:
-          // Google Calendar Screen
-          SfCalendar(
-            view: CalendarView.week,
-            timeZone: 'Japan',
-            headerHeight: 50,
-            dataSource: MeetingDataSource(events),
-            headerDateFormat: 'yyyy MMMM',
-            selectionDecoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(
-                color: Colors.transparent,
-                width: 0,
+      body: SfCalendar(
+        view: CalendarView.week,
+        timeZone: 'Japan',
+        headerHeight: 50,
+        dataSource: MeetingDataSource(events),
+        headerDateFormat: 'yyyy MMMM',
+        selectionDecoration: BoxDecoration(
+          color: Colors.transparent,
+          border: Border.all(
+            color: Colors.transparent,
+            width: 0,
+          ),
+        ),
+        appointmentBuilder:
+            (BuildContext context, CalendarAppointmentDetails details) {
+          final Appointment appointment = details.appointments.first;
+          return Container(
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: global_colors.Calendar_background_color,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                appointment.subject,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            appointmentBuilder:
-                (BuildContext context, CalendarAppointmentDetails details) {
-              return Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: global_colors.Calendar_outline_color,
-                    width: 3.0,
-                  ),
-                ),
-              );
-            },
-            cellBorderColor: global_colors.Calendar_grid_color,
-            timeSlotViewSettings: TimeSlotViewSettings(
-              timeFormat: 'H:mm',
-            ),
-          )
+          );
+        },
+        cellBorderColor: global_colors.Calendar_grid_color,
+        timeSlotViewSettings: TimeSlotViewSettings(
+          timeFormat: 'H:mm',
+        ),
+        onTap: (CalendarTapDetails details) {
+          if (details.targetElement == CalendarElement.appointment) {
+            final Appointment appointment = details.appointments!.first;
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text(appointment.subject),
+                  content: Text(appointment.notes ?? 'No description'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('Close'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        },
+      ),
     );
   }
 }
+
 class MeetingDataSource extends CalendarDataSource {
   MeetingDataSource(List<Appointment> source) {
     appointments = source;
