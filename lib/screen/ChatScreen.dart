@@ -70,13 +70,15 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _addMessage(types.Message message,[bool isMe = false]) {
-    setState(() {
-      if (isMe) {
-        _messages.insert(0, message);
-      } else {
-        _messages.add(message);
-      }
-    });
+    if (mounted){
+      setState(() {
+        if (isMe) {
+          _messages.insert(0, message);
+        } else {
+          _messages.add(message);
+        }
+      });
+    }
   }
 
   Future<void> getNewMessages() async {
