@@ -554,7 +554,7 @@ class SendChatMessage{
 
 class GetChatNewMessage{
   Future<List<ChatMessage>> getChatNewMessage(String? gid,int limit,String? mid) async {
-    if(mid == null || mid == '0'){
+    if(mid == '0'){
       mid = '';
     }
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages/after/$limit/$mid');
