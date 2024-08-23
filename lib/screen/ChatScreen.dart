@@ -18,9 +18,16 @@ class _ChatScreenState extends State<ChatScreen> {
   static const getMessageLimit = 15;
   String lastMessageId = '0';
   String latestMessageId = '0';
+  late types.User myUser;
   @override
   void initState() {
     super.initState();
+    final userData = Provider.of<UserData>(context, listen: false);
+    myUser = types.User(
+      firstName: userData.uname,
+      id: userData.uid!,
+      imageUrl: userData.uicon,
+    );
     getMessages();
     //3秒毎に呼ぶ
     Timer.periodic(Duration(seconds: 3), (timer) {
@@ -30,12 +37,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userData = Provider.of<UserData>(context);
-    final myUser = types.User(
-      firstName: userData.uname,
-      id: userData.uid!,
-      imageUrl: userData.uicon,
-    );
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -55,18 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
   void sendMessage(types.PartialText message) async{
     UserData userData = Provider.of<UserData>(context, listen: false);
-    final mid = await SendChatMessage().sendChatMessage(widget.gid!,userData.uid, message.text);
-    final myUser = types.User(
-      firstName: userData.uname,
-      id: userData.uid!,
-      imageUrl: userData.uicon,
-    );
-    final newMessage = types.TextMessage(
-      id: mid,
-      text: message.text,
-      author: myUser,
-    );
-    getNewMessages();
+    await SendChatMessage().sendChatMessage(widget.gid!,userData.uid, message.text);
   }
 
   void _addMessage(types.Message message,[bool isMe = false]) {
