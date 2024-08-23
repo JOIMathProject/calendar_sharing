@@ -66,7 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
       text: message.text,
       author: myUser,
     );
-    _addMessage(newMessage, true);
+    getNewMessages();
   }
 
   void _addMessage(types.Message message,[bool isMe = false]) {
