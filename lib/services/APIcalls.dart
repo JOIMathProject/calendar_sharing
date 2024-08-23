@@ -505,7 +505,7 @@ class DeleteFriendRequest{
 
 class GetChatMessages{
   Future<List<ChatMessage>> getChatMessages(String? gid,int limit,String? mid) async {
-    if(mid == null){
+    if(mid == null || mid == '0'){
       mid = '';
     }
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages/before/$limit/$mid');
@@ -535,6 +535,7 @@ class GetChatMessages{
 class SendChatMessage{
   Future<String> sendChatMessage(String? gid, String? uid, String? content) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages');
+    //print('sendChatMessage: $gid, $uid, $content');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
@@ -548,5 +549,34 @@ class SendChatMessage{
     }
     final responseBody = jsonDecode(response.body);
     return responseBody['mid'];
+  }
+}
+
+class GetChatNewMessage{
+  Future<List<ChatMessage>> getChatNewMessage(String? gid,int limit,String? mid) async {
+    if(mid == null || mid == '0'){
+      mid = '';
+    }
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages/after/$limit/$mid');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
+      throw 'Failed to get chat messages: ${response.statusCode}';
+    }
+    List<ChatMessage> messages = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return messages;
+    }
+    for (var group in jsonDecode(response.body)['data']) {
+      messages.add(ChatMessage(
+        mid: group['mid'],
+        content: group['content'],
+        uid: group['uid'],
+        uname: group['uname'],
+        uicon: group['uicon'],
+      ));
+    }
+
+    return messages;
   }
 }
