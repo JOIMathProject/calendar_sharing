@@ -158,20 +158,22 @@ class _CreateContentsState extends State<CreateContents> {
       ),
     );
   }
-  void _makeGroup(List<String> selectedFriends,String OwnUid) async {
-    if(title == ''){
-      title+=OwnUid;
+  void _makeGroup(List<String> selectedFriends, String ownUid) async {
+    if (title.isEmpty) {
+      title = ownUid;
       for (var uid in selectedFriends) {
         title += ', ';
         title += uid;
       }
     }
-    await _createEmptyGroup(title,'');
-    await _addUserToGroup(gid, OwnUid);
+
+    await _createEmptyGroup(title, '');
+    await _addUserToGroup(gid, ownUid);
     for (var uid in selectedFriends) {
       await _addUserToGroup(gid, uid);
     }
   }
+
 }
 class FriendTile extends StatelessWidget {
   final FriendInformation friend;
