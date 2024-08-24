@@ -80,8 +80,11 @@ class _ContentsManageState extends State<ContentsManage> {
                   var filteredContents = _filteredContents();
                   return ListTile(
                     leading: CircleAvatar(
-                      child: Image.network(
-                          "https://calendar-files.woody1227.com/user_icon/${filteredContents[index].gicon}"),
+                      backgroundImage: NetworkImage(
+                        filteredContents[index].is_friends == '1'
+                            ? "https://calendar-files.woody1227.com/user_icon/${filteredContents[index].gicon}"
+                            : "https://calendar-files.woody1227.com/group_icon/${filteredContents[index].gicon}",
+                      ),
                       backgroundColor: Colors.blue,
                     ),
                     title: Text(filteredContents[index].gname),
