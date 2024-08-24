@@ -154,33 +154,33 @@ class _HomeState extends State<Home> {
               ChatScreen(gid: widget.groupId),
             ],
           ),
-          if (!_showFab)
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 100.0, right: 16),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    _pageController.previousPage(
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut);
-                  },
-                  child: Icon(Icons.calendar_today),
-                ),
-              ),
-            ),
+          //if (!_showFab)
+          //  Align(
+          //    alignment: Alignment.bottomRight,
+          //    child: Padding(
+          //      padding: const EdgeInsets.only(bottom: 100.0, right: 16),
+          //      child: FloatingActionButton(
+          //        onPressed: () {
+          //          _pageController.previousPage(
+          //              duration: Duration(milliseconds: 300),
+          //              curve: Curves.easeInOut);
+          //        },
+          //        child: Icon(Icons.calendar_today),
+          //      ),
+          //    ),
+          //  ),
         ],
       ),
-      floatingActionButton: _showFab
-          ? FloatingActionButton(
-        onPressed: () {
-          _pageController.nextPage(
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeInOut);
-        },
-        child: Icon(Icons.message),
-      )
-          : null,
+      //floatingActionButton: _showFab
+      //    ? FloatingActionButton(
+      //  onPressed: () {
+      //    _pageController.nextPage(
+      //        duration: Duration(milliseconds: 300),
+      //        curve: Curves.easeInOut);
+      //  },
+      //  child: Icon(Icons.message),
+      //)
+      //    : null,
     );
   }
 
