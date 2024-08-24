@@ -72,7 +72,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Contents'),
+        title: Text('マイコンテンツ'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.edit_calendar),
@@ -119,6 +119,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
                             MaterialPageRoute(
                               builder: (context) => MyContent(
                                 cid: contents[index].cid,
+                                contentsName: contents[index].cname,
                               ),
                             ),
                           );

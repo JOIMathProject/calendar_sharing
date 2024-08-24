@@ -37,14 +37,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Future<void> _fetchFriends() async {
     try {
       UserData userData = Provider.of<UserData>(context, listen: false);
-      String? uid = userData.uid;
       List<FriendInformation> friends =
       await GetFriends().getFriends(userData.uid);
       Provider.of<UserData>(context, listen: false).updateFriends(friends);
     } catch (e) {
       print("Error fetching friends: $e");
     }
-    print('hey');
   }
 
   Future<void> _fetchReceivedRequests() async {

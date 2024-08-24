@@ -14,7 +14,7 @@ class ContentsManage extends StatefulWidget {
 List<GroupInformation> contents = [];
 
 class _ContentsManageState extends State<ContentsManage> {
-  String currentLabel = 'All';
+  String currentLabel = '全て';
 
   @override
   void initState() {
@@ -39,23 +39,8 @@ class _ContentsManageState extends State<ContentsManage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contents Manage'),
+        title: Text('コンテンツ管理'),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.chat),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Home(
-                    groupId: null,
-                    groupName: 'Chat',
-                    startOnChatScreen: true, // Start directly on the chat screen
-                  ),
-                ),
-              );
-            },
-          ),
           IconButton(
             icon: Icon(Icons.group_add),
             onPressed: () {
@@ -70,7 +55,7 @@ class _ContentsManageState extends State<ContentsManage> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <String>['All', 'Personal', 'Group']
+              children: <String>['全て', '個人', 'グループ']
                   .map((String value) {
                 return ElevatedButton(
                   onPressed: () {
@@ -100,7 +85,7 @@ class _ContentsManageState extends State<ContentsManage> {
                       backgroundColor: Colors.blue,
                     ),
                     title: Text(filteredContents[index].gname),
-                    subtitle: Text('Last message...'),
+                    subtitle: Text('最後のメッセージ...'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -145,9 +130,9 @@ class _ContentsManageState extends State<ContentsManage> {
   }
 
   List<GroupInformation> _filteredContents() {
-    if (currentLabel == 'Personal') {
+    if (currentLabel == '個人') {
       return contents.where((content) => content.is_friends == '1').toList();
-    } else if (currentLabel == 'Group') {
+    } else if (currentLabel == 'グループ') {
       return contents.where((content) => content.is_friends == '0').toList();
     } else {
       return contents; // Show all contents if "All" is selected

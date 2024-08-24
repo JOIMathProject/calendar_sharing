@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/setting/color.dart' as global_colors;
+import 'package:provider/provider.dart';
+import '../services/APIcalls.dart';
+import '../services/UserData.dart';
 
 class CreateContents extends StatefulWidget {
   @override
@@ -7,147 +10,157 @@ class CreateContents extends StatefulWidget {
 }
 
 class _CreateContentsState extends State<CreateContents> {
-  @override
   String title = '';
   List<String> peoples = [];
-  String people_field = '';
+  List<String> selectedFriends = [];
+  List<FriendInformation> filteredFriends = [];
   TextStyle bigFont = TextStyle(fontSize: 20);
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFriends();
+  }
+
+  Future<void> _fetchFriends() async {
+    try {
+      UserData userData = Provider.of<UserData>(context, listen: false);
+      List<FriendInformation> friends = await GetFriends().getFriends(userData.uid);
+      Provider.of<UserData>(context, listen: false).updateFriends(friends);
+      setState(() {
+        filteredFriends = friends;
+      });
+    } catch (e) {
+      print("Error fetching friends: $e");
+    }
+  }
+
+  void _filterFriends(String query) {
+    UserData userData = Provider.of<UserData>(context, listen: false);
+    List<FriendInformation> friends = userData.friends;
+    setState(() {
+      filteredFriends = friends.where((friend) {
+        return friend.uname.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    UserData userData = Provider.of<UserData>(context);
+    List<FriendInformation> friends = userData.friends;
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text('グループの作成')
-        ),
-        body: Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'グループ名',
-                    ),
-                    onChanged: (String value) {
+      appBar: AppBar(
+        title: Text('グループの作成'),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                hintText: '検索...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+              ),
+              onChanged: _filterFriends,
+            ),
+          ),
+          if (selectedFriends.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Wrap(
+                spacing: 8.0,
+                children: selectedFriends.map((friendUid) {
+                  final friend = friends.firstWhere((f) => f.uid == friendUid);
+                  return Chip(
+                    label: Text(friend.uname),
+                    onDeleted: () {
                       setState(() {
-                        title = value;
+                        selectedFriends.remove(friendUid);
                       });
                     },
-                    style: TextStyle(fontSize: 25),
-                  ),
-                ],
+                  );
+                }).toList(),
               ),
-              SizedBox(height: 20),
-              //人々の名前+削除ボタン
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //人の追加テキスト+追加ボタン
-                  Text("追加済みアドレス", style: bigFont),
-                  SizedBox(height: 10),
-                  Column(
-                    children: [
-                      if (peoples.isEmpty)
-                        Text('追加されているユーザーはいません')
-                      else
-                      for (var people in peoples)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(people, style: TextStyle(fontSize: 15)),
-                            ElevatedButton(
-                              onPressed: () {
-                                //確認ウィンドウ
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text('削除確認'),
-                                      content: Text('本当に'+people+'を削除しますか？'),
-                                      actions: <Widget>[
-                                        ElevatedButton(
-                                          child: Text('削除'),
-                                          onPressed: () {
-                                            setState(() {
-                                              peoples.remove(people);
-                                            });
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                        ElevatedButton(
-                                          child: Text('キャンセル'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(// ボタンのサイズ
-                                shape: const CircleBorder(),
-                                elevation: 0,
-                                backgroundColor: Colors.transparent,
-                              ),
-                              child: Icon(Icons.delete, color: Colors.black, size: 20),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text('人を追加'),
-                            content: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'example@gmail.com',
-                              ),
-                              onChanged: (String value) {
-                                setState(() {
-                                  people_field = value;
-                                });
-                              },
-                            ),
-                            actions: <Widget>[
-                              ElevatedButton(
-                                child: Text('追加'),
-                                onPressed: () {
-                                  setState(() {
-                                    if (people_field != '') peoples.add(people_field);
-                                  });
-                                  people_field = '';
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Icon(Icons.add, size: 20),
-                  ),
-                  SizedBox(height: 30),
-                  //作成ボタン
-                  ElevatedButton(
-                    onPressed: () {
-                      //print('作成');
-                    },
-                    child: Text('作成'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(100, 30),
-                    )
-                  )
-                ],
-              )
-            ],
+            ),
+          ],
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredFriends.length,
+              itemBuilder: (context, index) {
+                return FriendTile(
+                  friend: filteredFriends[index],
+                  isSelected: selectedFriends.contains(filteredFriends[index].uid),
+                  onSelected: (bool? selected) {
+                    setState(() {
+                      if (selected == true) {
+                        selectedFriends.add(filteredFriends[index].uid);
+                      } else {
+                        selectedFriends.remove(filteredFriends[index].uid);
+                      }
+                    });
+                  },
+                );
+              },
+            ),
           ),
-        ));
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                peoples = selectedFriends; // Add selected friends to peoples list
+                // Implement the group creation logic here
+              },
+              child: Text('作成'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(100, 40),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
+class FriendTile extends StatelessWidget {
+  final FriendInformation friend;
+  final bool isSelected;
+  final ValueChanged<bool?> onSelected;
+
+  const FriendTile({
+    Key? key,
+    required this.friend,
+    required this.isSelected,
+    required this.onSelected,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: NetworkImage(
+            "https://calendar-files.woody1227.com/user_icon/" +
+                friend.uicon),
+        child: Text(friend.uname[0]), // Fallback to the first letter of their name
+      ),
+      title: Text(friend.uname),
+      trailing: Checkbox(
+        value: isSelected,
+        onChanged: onSelected,
+      ),
+      onTap: () {
+        // Toggle selection when the tile is tapped
+        onSelected(!isSelected);
+      },
+    );
+  }
+}
+

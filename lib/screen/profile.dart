@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:googleapis/bigquerydatatransfer/v1.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
-import 'package:image_picker/image_picker.dart';
+import '../services/APIcalls.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -18,12 +15,7 @@ class _ProfileState extends State<Profile> {
   final imagePicker = ImagePicker();
 
   Future<XFile?> getImageFromGallery() async {
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
-    XFile? _selectedImage;
-    if (pickedFile != null) {
-      _selectedImage = XFile(pickedFile.path);
-    }
-    return _selectedImage;
+    return await imagePicker.pickImage(source: ImageSource.gallery);
   }
 
   @override
@@ -32,133 +24,145 @@ class _ProfileState extends State<Profile> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: Text('プロフィール'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('google_uid: ${userData.google_uid}', style: TextStyle(fontSize: 20)),
-            SizedBox(height: 10),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('UID: ${userData.uid}', style: TextStyle(fontSize: 20)),
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () async {
-                    final newUid = await showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        String uidValue = '';
-                        return AlertDialog(
-                          title: Text('Edit UID'),
-                          content: TextField(
-                            decoration: InputDecoration(hintText: "Enter new UID"),
-                            onChanged: (value) {
-                              uidValue = value;
-                            },
-                          ),
-                          actions: [
-                            TextButton(
-                              child: Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(context).pop(null);
-                              },
-                            ),
-                            TextButton(
-                              child: Text('Save'),
-                              onPressed: () {
-                                Navigator.of(context).pop(uidValue);
-                              },
-                            ),
-                          ],
-                        );
+            Center(
+              child: Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(
+                        "https://calendar-files.woody1227.com/user_icon/${userData.uicon}"),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: () async {
+                        XFile? image = await getImageFromGallery();
+                        if (image != null) {
+                          List<int> imageBytes =
+                          await File(image.path).readAsBytesSync();
+                          String base64Image = base64Encode(imageBytes);
+                          await UpdateUserImage().updateUserImage(
+                              userData.uid, base64Image);
+                        }
                       },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.grey[200],
+                        radius: 18,
+                        child: Icon(Icons.edit, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 30),
+            buildProfileField(
+              context,
+              label: 'UID',
+              value: userData.uid!,
+              onEdit: () async {
+                final newUid = await showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    String uidValue = '';
+                    return buildEditDialog(
+                      context,
+                      title: 'UIDを編集',
+                      hintText: '新規UID',
+                      onChanged: (value) => uidValue = value,
+                      onSave: () => Navigator.of(context).pop(uidValue),
                     );
-                    if (newUid != null && newUid.isNotEmpty) {
-                      await UpdateUserID().updateUserID(userData.uid,newUid);
-                      Provider.of<UserData>(context, listen: false).uid = newUid;
-                    }
                   },
-                ),
-              ],
+                );
+                if (newUid != null && newUid.isNotEmpty) {
+                  await UpdateUserID().updateUserID(userData.uid, newUid);
+                  Provider.of<UserData>(context, listen: false).uid = newUid;
+                }
+              },
             ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Username: ${userData.uname}', style: TextStyle(fontSize: 20)),
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () async {
-                    final newUsername = await showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        String unameValue = '';
-                        return AlertDialog(
-                          title: Text('Edit Username'),
-                          content: TextField(
-                            decoration: InputDecoration(hintText: "Enter new username"),
-                            onChanged: (value) {
-                              unameValue = value;
-                            },
-                          ),
-                          actions: [
-                            TextButton(
-                              child: Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(context).pop(null);
-                              },
-                            ),
-                            TextButton(
-                              child: Text('Save'),
-                              onPressed: () {
-                                Navigator.of(context).pop(unameValue);
-                              },
-                            ),
-                          ],
-                        );
-                      },
+            buildProfileField(
+              context,
+              label: 'ユーザーネーム',
+              value: userData.uname!,
+              onEdit: () async {
+                final newUsername = await showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    String unameValue = '';
+                    return buildEditDialog(
+                      context,
+                      title: 'ユーザーネームを編集',
+                      hintText: '新規ユーザーネーム',
+                      onChanged: (value) => unameValue = value,
+                      onSave: () => Navigator.of(context).pop(unameValue),
                     );
-                    if (newUsername != null && newUsername.isNotEmpty) {
-                      await UpdateUserName().updateUserName(userData.uid,newUsername);
-                    }
                   },
-                ),
-              ],
+                );
+                if (newUsername != null && newUsername.isNotEmpty) {
+                  await UpdateUserName()
+                      .updateUserName(userData.uid, newUsername);
+                }
+              },
             ),
-
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image.network(
-                  "https://calendar-files.woody1227.com/user_icon/${userData.uicon}",
-                  width: 100,
-                  height: 100,
-                ),
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () async {
-                    XFile? image = await getImageFromGallery();
-                    if (image != null) {
-                      List<int> imageBytes = await File(image.path).readAsBytesSync();
-                      String base64Image = base64Encode(imageBytes);
-                      await UpdateUserImage().updateUserImage(userData.uid, base64Image);
-                    }
-                  },
-                ),
-              ],
-            ),
-
-            SizedBox(height: 10),
-            Text('Email: ${userData.mailAddress}', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 20),
+            Text('メールアドレス: ${userData.mailAddress}',
+                style: TextStyle(fontSize: 18)),
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildProfileField(BuildContext context,
+      {required String label,
+        required String value,
+        required VoidCallback onEdit}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('$label: $value', style: TextStyle(fontSize: 18)),
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: onEdit,
+          ),
+        ],
+      ),
+    );
+  }
+
+  AlertDialog buildEditDialog(BuildContext context,
+      {required String title,
+        required String hintText,
+        required ValueChanged<String> onChanged,
+        required VoidCallback onSave}) {
+    return AlertDialog(
+      title: Text(title),
+      content: TextField(
+        decoration: InputDecoration(hintText: hintText),
+        onChanged: onChanged,
+      ),
+      actions: [
+        TextButton(
+          child: Text('Cancel'),
+          onPressed: () {
+            Navigator.of(context).pop(null);
+          },
+        ),
+        TextButton(
+          child: Text('Save'),
+          onPressed: onSave,
+        ),
+      ],
     );
   }
 }

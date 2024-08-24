@@ -19,7 +19,8 @@ import 'package:calendar_sharing/setting/color.dart' as global_colors;
 
 class MyContent extends StatefulWidget {
   final String? cid;
-  MyContent({required this.cid});
+  final String? contentsName;
+  MyContent({required this.cid,required this.contentsName});
 
   @override
   _MyContentState createState() => _MyContentState();
@@ -47,7 +48,7 @@ class _MyContentState extends State<MyContent> {
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Google Calendar & Chat'),
+        title: Text(widget.contentsName ?? ''),
       ),
       body: SfCalendar(
         view: CalendarView.week,
@@ -96,10 +97,10 @@ class _MyContentState extends State<MyContent> {
               builder: (BuildContext context) {
                 return AlertDialog(
                   title: Text(appointment.subject),
-                  content: Text(appointment.notes ?? 'No description'),
+                  content: Text(appointment.notes ?? '概要なし'),
                   actions: <Widget>[
                     TextButton(
-                      child: Text('Close'),
+                      child: Text('閉じる'),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },

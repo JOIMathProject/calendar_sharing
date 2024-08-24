@@ -55,13 +55,13 @@ class _CreateMyContentsState extends State<CreateMyContents> {
               style: TextStyle(fontSize: 25),
             ),
             SizedBox(height: 20),
-            Text("Select calendars", style: bigFont),
+            Text("カレンダーを選択", style: bigFont),
             SizedBox(height: 10),
             Expanded(
               child: ListView(
                 children: [
                   if (calendars.isEmpty)
-                    Text('No calendars available')
+                    Text('カレンダーなし')
                   else
                     for (var calendar in calendars)
                       CheckboxListTile(
@@ -90,7 +90,7 @@ class _CreateMyContentsState extends State<CreateMyContents> {
                 } else {
                   // Show a message if no calendar is selected
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please select at least one calendar')),
+                    SnackBar(content: Text('最低でも一つはカレンダーを選択してください')),
                   );
                 }
               },

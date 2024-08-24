@@ -8,7 +8,7 @@ Color Calendar_background_color = Color(0xFF22348C);
 final appTheme = ThemeData(
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFFFF0000),
+    primary: Color(0xFF000000),
     onPrimary: Color(0xFFF0F0F0),
     secondary: Color(0xFF1948E1),
     onSecondary: Color(0xFF986AD9),

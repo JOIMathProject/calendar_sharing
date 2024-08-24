@@ -266,6 +266,45 @@ class GetGroupInfo{
     return groups;
   }
 }
+class CreateEmptyGroup{
+  Future<void> createEmptyGroup(String uid, String gname, String gicon) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "gname": gname,
+        "gicon": gicon,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create group: ${response.statusCode}';
+    }
+    final responseBody = jsonDecode(response.body);
+
+    if (responseBody.containsKey('gid')) {
+      return responseBody['gid'];
+    } else {
+      throw 'cid not found in the response';
+    }
+
+  }
+}
+class AddUserToGroup{
+  Future<void> addCalendarToContents(String? gid, String? addUid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uid": addUid
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add contents: ${response.statusCode}';
+    }
+  }
+}
 class UpdateUserID{
   Future<void> updateUserID(String? OldUid,String?NewUid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/${OldUid}');
