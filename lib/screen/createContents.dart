@@ -70,6 +70,25 @@ class _CreateContentsState extends State<CreateContents> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
+                hintText: 'グループタイトルを入力...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+              ),
+              onChanged: (value) {
+                setState(() {
+                  title = value;
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: '検索...',
                 border: OutlineInputBorder(
@@ -140,10 +159,12 @@ class _CreateContentsState extends State<CreateContents> {
     );
   }
   void _makeGroup(List<String> selectedFriends,String OwnUid) async {
-    title+=OwnUid;
-    for (var uid in selectedFriends) {
-      title += ', ';
-      title += uid;
+    if(title == ''){
+      title+=OwnUid;
+      for (var uid in selectedFriends) {
+        title += ', ';
+        title += uid;
+      }
     }
     await _createEmptyGroup(title,'');
     await _addUserToGroup(gid, OwnUid);
