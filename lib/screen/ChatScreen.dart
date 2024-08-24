@@ -32,7 +32,13 @@ class _ChatScreenState extends State<ChatScreen> {
     //3秒毎に呼ぶ
     Timer.periodic(Duration(milliseconds: 1000), (timer) {
       setState(() {});
-      getNewMessages();
+      if (mounted) {
+        if (lastMessageId != '0') {
+          getNewMessages();
+        }else{
+          getMessages();
+        }
+      }
     });
   }
 
