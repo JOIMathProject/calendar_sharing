@@ -34,6 +34,7 @@ class _HomeState extends State<Home> {
   final AuthService _auth = AuthService();
   late PageController _pageController;
   bool _showFab = true;
+  int _currentPage = 0; // To track the current page
 
   List<TimeRegion> GroupCal = [];
 
@@ -41,6 +42,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
+    _currentPage = widget.startOnChatScreen ? 1 : 0;
     _showFab = !widget.startOnChatScreen;
     _getTimeRegions();
   }
@@ -78,6 +80,36 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.groupName!),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _currentPage == 0 ? Icons.chat : Icons.calendar_today, // Change icon based on page
+              size: 30,
+            ),
+            onPressed: () {
+              if (_currentPage == 0) {
+                _pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              } else {
+                _pageController.previousPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              size: 30,
+            ),
+            onPressed: () {
+              // Implement settings functionality here
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -85,6 +117,7 @@ class _HomeState extends State<Home> {
             controller: _pageController,
             onPageChanged: (index) {
               setState(() {
+                _currentPage = index;
                 _showFab = index == 0;
               });
             },
@@ -121,12 +154,11 @@ class _HomeState extends State<Home> {
               ChatScreen(gid: widget.groupId),
             ],
           ),
-          // Position the FAB at the top right in ChatScreen
           if (!_showFab)
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 100.0,right: 16),
+                padding: const EdgeInsets.only(bottom: 100.0, right: 16),
                 child: FloatingActionButton(
                   onPressed: () {
                     _pageController.previousPage(

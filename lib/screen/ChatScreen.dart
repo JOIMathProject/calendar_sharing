@@ -31,6 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
     getMessages();
     //3秒毎に呼ぶ
     Timer.periodic(Duration(milliseconds: 1000), (timer) {
+      setState(() {});
       getNewMessages();
     });
   }
@@ -61,13 +62,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _addMessage(types.Message message,[bool isMe = false]) {
     if (mounted){
-      setState(() {
-        if (isMe) {
-          _messages.insert(0, message);
-        } else {
-          _messages.add(message);
-        }
-      });
+      if (isMe) {
+        _messages.insert(0, message);
+      } else {
+        _messages.add(message);
+      }
     }
   }
 
