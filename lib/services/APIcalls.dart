@@ -267,8 +267,8 @@ class GetGroupInfo{
   }
 }
 class CreateEmptyGroup{
-  Future<void> createEmptyGroup(String uid, String gname, String gicon) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups');
+  Future<String> createEmptyGroup(String gname, String gicon) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
@@ -287,11 +287,10 @@ class CreateEmptyGroup{
     } else {
       throw 'cid not found in the response';
     }
-
   }
 }
 class AddUserToGroup{
-  Future<void> addCalendarToContents(String? gid, String? addUid) async {
+  Future<void> addUserToGroup(String? gid, String? addUid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
     final response = await http.post(
       url,

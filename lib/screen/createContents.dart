@@ -15,6 +15,7 @@ class _CreateContentsState extends State<CreateContents> {
   List<String> selectedFriends = [];
   List<FriendInformation> filteredFriends = [];
   TextStyle bigFont = TextStyle(fontSize: 20);
+  String gid = '';
 
   @override
   void initState() {
@@ -45,6 +46,14 @@ class _CreateContentsState extends State<CreateContents> {
     });
   }
 
+  Future<void> _createEmptyGroup(String gname, String gicon) async {
+    gid = await CreateEmptyGroup().createEmptyGroup(gname, gicon);
+    print('$gid');
+  }
+
+  Future<void> _addUserToGroup(String gid,String Adduid) async {
+    await AddUserToGroup().addUserToGroup(gid, Adduid);
+  }
   @override
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
@@ -117,7 +126,8 @@ class _CreateContentsState extends State<CreateContents> {
             child: ElevatedButton(
               onPressed: () {
                 peoples = selectedFriends; // Add selected friends to peoples list
-                // Implement the group creation logic here
+                _makeGroup(peoples,userData.uid!);
+                Navigator.pop(context);
               },
               child: Text('作成'),
               style: ElevatedButton.styleFrom(
@@ -128,6 +138,18 @@ class _CreateContentsState extends State<CreateContents> {
         ],
       ),
     );
+  }
+  void _makeGroup(List<String> selectedFriends,String OwnUid) async {
+    title+=OwnUid;
+    for (var uid in selectedFriends) {
+      title += ', ';
+      title += uid;
+    }
+    await _createEmptyGroup(title,'');
+    await _addUserToGroup(gid, OwnUid);
+    for (var uid in selectedFriends) {
+      await _addUserToGroup(gid, uid);
+    }
   }
 }
 class FriendTile extends StatelessWidget {
