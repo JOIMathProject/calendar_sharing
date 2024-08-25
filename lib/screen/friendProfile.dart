@@ -6,6 +6,7 @@ import 'Content.dart';
 
 class FriendProfile extends StatefulWidget {
   final FriendInformation friend;
+
   FriendProfile({required this.friend});
 
   @override
@@ -31,6 +32,34 @@ class _FriendProfileState extends State<FriendProfile> {
             ),
             onPressed: () {
               //フレンド削除のアクション
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("フレンド削除"),
+                    content: Text("本当に削除しますか？"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("キャンセル"),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          String? uid =
+                              Provider.of<UserData>(context, listen: false).uid;
+                          await DeleteFriend()
+                              .deleteFriend(uid!, widget.friend.uid);
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: Text("削除"),
+                      ),
+                    ],
+                  );
+                },
+              );
             },
           ),
         ],
@@ -44,7 +73,9 @@ class _FriendProfileState extends State<FriendProfile> {
             CircleAvatar(
               radius: 100,
               backgroundColor: Colors.white,
-              backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/"+widget.friend.uicon),
+              backgroundImage: NetworkImage(
+                  "https://calendar-files.woody1227.com/user_icon/" +
+                      widget.friend.uicon),
             ),
             //名前
             SizedBox(height: 30),
@@ -56,7 +87,7 @@ class _FriendProfileState extends State<FriendProfile> {
             ),
             //uid
             Text(
-              "@"+widget.friend.uid,
+              "@" + widget.friend.uid,
               style: TextStyle(
                 fontSize: 25,
               ),
@@ -69,8 +100,10 @@ class _FriendProfileState extends State<FriendProfile> {
                 //コンテンツのボタンとメッセージのボタン
                 ElevatedButton(
                   onPressed: () async {
-                    String? uid = Provider.of<UserData>(context, listen: false).uid;
-                    String? groupId = await _checkFriend(uid!, widget.friend.uid);
+                    String? uid =
+                        Provider.of<UserData>(context, listen: false).uid;
+                    String? groupId =
+                        await _checkFriend(uid!, widget.friend.uid);
                     if (groupId != null) {
                       Navigator.push(
                         context,
@@ -96,8 +129,10 @@ class _FriendProfileState extends State<FriendProfile> {
                 SizedBox(width: 50),
                 ElevatedButton(
                   onPressed: () async {
-                    String? uid = Provider.of<UserData>(context, listen: false).uid;
-                    String? groupId = await _checkFriend(uid!, widget.friend.uid);
+                    String? uid =
+                        Provider.of<UserData>(context, listen: false).uid;
+                    String? groupId =
+                        await _checkFriend(uid!, widget.friend.uid);
                     if (groupId != null) {
                       Navigator.push(
                         context,

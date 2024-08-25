@@ -185,7 +185,7 @@ class GetFriends {
     for (var friend in jsonDecode(response.body)['data']) {
       if (friend['uicon'] == null) {
         friend['uicon'] =
-            'https://calendar-api.woody1227.com/user_icon/default.png';
+        'https://calendar-api.woody1227.com/user_icon/default.png';
       }
       friends.add(FriendInformation(
         uid: friend['uid'],
@@ -195,6 +195,15 @@ class GetFriends {
       ));
     }
     return friends;
+  }
+}
+class DeleteFriend{
+  Future<void> deleteFriend(String? uid, String? friend_uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
+    final response = await http.delete(url);
+    if (response.statusCode != 204) {
+      throw 'Failed to delete friend: ${response.statusCode}';
+    }
   }
 }
 class CheckFriend{
