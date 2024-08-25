@@ -115,7 +115,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Column Requests(List<FriendRequestInformation> requests, UserData userData) {
     return Column(
       children: [
-        SizedBox(height: 20),
+        SizedBox(height: 10),
         if (requests.isNotEmpty)
           Expanded(
             child: RefreshIndicator(
@@ -205,14 +205,26 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                 children: [
                                   Text(
                                     requests[index].uname,
-                                    style: TextStyle(fontSize: 25),
+                                    style: const TextStyle(fontSize: 22),
                                   ),
-                                  Text(
-                                    'リクエスト送信済み',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.black.withOpacity(0.8),
-                                    ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "@${requests[index].uid}",
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color: Colors.black.withOpacity(0.6),
+                                        ),
+                                      ),
+                                      //FIXME ここの送信済みを右に寄せる
+                                      Text(
+                                        '送信済み',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color: Colors.black.withOpacity(0.6),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -273,7 +285,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   Column Friends(List<FriendInformation> friends) {
     return Column(children: [
-      SizedBox(height: 20),
+      SizedBox(height: 10),
       if (friends.isNotEmpty)
         Expanded(
           child: RefreshIndicator(
@@ -299,9 +311,21 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             ),
                             SizedBox(width: 20),
                             // 名前
-                            Text(
-                              friends[index].uname,
-                              style: TextStyle(fontSize: 25),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  friends[index].uname,
+                                  style: const TextStyle(fontSize: 22),
+                                ),
+                                Text(
+                                  "@${friends[index].uid}",
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    color: Colors.black.withOpacity(0.6),
+                                  ),
+                                )
+                              ],
                             ),
                           ],
                         ),
