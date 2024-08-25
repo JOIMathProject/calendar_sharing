@@ -581,7 +581,7 @@ class DeleteFriendRequest{
 }
 
 class GetChatMessages{
-  Future<List<ChatMessage>> getChatMessages(String? gid,String? uid,int limit,String? mid) async {
+  Future<List<ChatMessage>> getChatMessages(String? gid,String? mid,int limit,String? uid) async {
     if(mid == null || mid == '0'){
       mid = '';
     }
