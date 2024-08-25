@@ -105,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> getMessages() async{
-    List<ChatMessage> messages = await GetChatMessages().getChatMessages(widget.gid!, getMessageLimit, lastMessageId,Provider.of<UserData>(context, listen: false).uid!);
+    List<ChatMessage> messages = await GetChatMessages().getChatMessages(widget.gid!, lastMessageId,getMessageLimit,Provider.of<UserData>(context, listen: false).uid!);
     if(messages.length == 0){
       return;
     }
