@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:calendar_sharing/setting/color.dart' as global_colors;
 import 'package:provider/provider.dart';
 import 'package:calendar_sharing/services/UserData.dart';
+import '../setting/color.dart' as GlobalColor;
 
 class CreateMyContents extends StatefulWidget {
   @override
@@ -15,6 +16,7 @@ class _CreateMyContentsState extends State<CreateMyContents> {
   TextStyle bigFont = TextStyle(fontSize: 20);
   List<CalendarInformation> calendars = [];
   String cid = '';
+
   @override
   void initState() {
     super.initState();
@@ -32,19 +34,23 @@ class _CreateMyContentsState extends State<CreateMyContents> {
     print('$cid');
   }
 
-  Future<void> _addCalendarToContents(String uid,String cid, String calendar_id) async {
-    await AddCalendarToContents().addCalendarToContents(uid,cid, calendar_id);
+  Future<void> _addCalendarToContents(String uid, String cid, String calendar_id) async {
+    await AddCalendarToContents().addCalendarToContents(uid, cid, calendar_id);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('マイコンテンツの作成')),
+      appBar: AppBar(
+        backgroundColor: GlobalColor.SubCol,
+      ),
       body: Container(
         padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            Text('マイコンテンツの作成', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+            SizedBox(height: 20),
             TextField(
               decoration: InputDecoration(hintText: 'コンテンツ名'),
               onChanged: (String value) {
@@ -81,24 +87,30 @@ class _CreateMyContentsState extends State<CreateMyContents> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                if (selectedCalendars.isNotEmpty) {
-                  // Code to make content with selected calendars
-                  _makeContent(selectedCalendars);
-                } else {
-                  // Show a message if no calendar is selected
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('最低でも一つはカレンダーを選択してください')),
-                  );
-                }
-              },
-              child: Text('作成'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(100, 30),
+            Spacer(),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (selectedCalendars.isNotEmpty) {
+                    // Code to make content with selected calendars
+                    _makeContent(selectedCalendars);
+                  } else {
+                    // Show a message if no calendar is selected
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('最低でも一つはカレンダーを選択してください')),
+                    );
+                  }
+                },
+                child: Text('作成', style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
             ),
+            SizedBox(height: 20),
           ],
         ),
       ),

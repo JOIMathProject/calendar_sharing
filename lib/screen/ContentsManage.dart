@@ -66,56 +66,54 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
         ),
         backgroundColor: GlobalColor.SubCol,
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(100.0),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(vertical: 12.0),
-                    hintText: '検索',
-                    prefixIcon: Icon(Icons.search, size: 20.0),
-                    fillColor: GlobalColor.Unselected,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ),
-              ),
-              TabBar(
-                controller: _tabController,
-                tabs: [
-                  Tab(text: 'すべて'),
-                  Tab(text: 'フレンド'),
-                  Tab(text: 'グループ'),
-                ],
-                indicator: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: GlobalColor.MainCol,
-                      width: 3.0,
-                    ),
-                  ),
-                ),
-                labelStyle: TextStyle(fontSize: 16.0),
-                dividerColor: GlobalColor.Unselected,
-                labelColor: GlobalColor.MainCol,
-              ),
-            ],
-          ),
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildContentList(_filteredContents()), // All
-          _buildContentList(_filteredContents(isPersonal: true)), // Personal
-          _buildContentList(_filteredContents(isGroup: true)), // Group
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+                hintText: '検索',
+                prefixIcon: Icon(Icons.search, size: 20.0),
+                fillColor: GlobalColor.Unselected,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+          ),
+          TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: 'すべて'),
+              Tab(text: 'フレンド'),
+              Tab(text: 'グループ'),
+            ],
+            indicator: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: GlobalColor.MainCol,
+                  width: 3.0,
+                ),
+              ),
+            ),
+            labelStyle: TextStyle(fontSize: 16.0),
+            labelColor: GlobalColor.MainCol,
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildContentList(_filteredContents()), // All
+                _buildContentList(_filteredContents(isPersonal: true)), // Personal
+                _buildContentList(_filteredContents(isGroup: true)), // Group
+              ],
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(

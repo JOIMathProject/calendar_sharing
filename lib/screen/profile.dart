@@ -86,19 +86,23 @@ class _ProfileState extends State<Profile> {
                       title: 'UIDを編集',
                       hintText: '新規UID',
                       onChanged: (value) => uidValue = value,
-                      onSave: () => Navigator.of(context).pop(uidValue),
+                      onSave: () {
+                        Navigator.of(context).pop(uidValue);
+                        setState(() {});
+                      },
                     );
                   },
                 );
                 if (newUid != null && newUid.isNotEmpty) {
                   await UpdateUserID().updateUserID(userData.uid, newUid);
                   Provider.of<UserData>(context, listen: false).uid = newUid;
+                  setState(() {});
                 }
               },
             ),
             buildProfileField(
               context,
-              label: 'ユーザーネーム',
+              label: 'ユーザー名',
               value: userData.uname!,
               onEdit: () async {
                 final newUsername = await showDialog<String>(
@@ -107,16 +111,21 @@ class _ProfileState extends State<Profile> {
                     String unameValue = '';
                     return buildEditDialog(
                       context,
-                      title: 'ユーザーネームを編集',
-                      hintText: '新規ユーザーネーム',
+                      title: 'ユーザー名を編集',
+                      hintText: '新規ユーザー名',
                       onChanged: (value) => unameValue = value,
-                      onSave: () => Navigator.of(context).pop(unameValue),
+                      onSave: () {
+                        Navigator.of(context).pop(unameValue);
+                        setState(() {});
+                      },
                     );
                   },
                 );
                 if (newUsername != null && newUsername.isNotEmpty) {
                   await UpdateUserName()
                       .updateUserName(userData.uid, newUsername);
+                  Provider.of<UserData>(context, listen: false).uname = newUsername;
+                  setState(() {});
                 }
               },
             ),
