@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:provider/provider.dart';
+import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 
 class AddFriend extends StatefulWidget {
   @override
@@ -16,51 +17,83 @@ class _AddFriendState extends State<AddFriend> {
     UserData userData = Provider.of<UserData>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('フレンドを追加する'),
+        backgroundColor: GlobalColor.SubCol,
       ),
       body: Center(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Text("@"),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'ユーザーID',
+            Spacer(flex: 1), // Adds flexible space at the top
+            Text(
+              'フレンドリクエストを送る',
+              style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            Spacer(flex: 1), // Adds space between the title and the TextField
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+                          prefixText: '@', // Use prefixText instead of prefix
+                          hintText: 'ユーザーIDを入力',
+                          fillColor: GlobalColor.Unselected,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        onChanged: (text) {
+                          addFriendID = text;
+                        },
+                      ),
                     ),
-                    onChanged: (text) {
-                      addFriendID = text;
-                    },
+                  ),
+                ],
+              ),
+            ),
+            Spacer(flex: 5), // Adds more space between the TextField and the button
+            SizedBox(
+              height: 50,
+              width: 400,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
-              ],
+                onPressed: () {
+                  Future<UserInformation> user =
+                  GetUser().getUser(addFriendID);
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        insetPadding: EdgeInsets.all(5
+                        ),
+                        title: Text('このユーザーにリクエストを送信しますか',
+                            style: TextStyle(fontSize: 20)),
+                        content: AddFriendsSearchDialog(
+                          user: user,
+                          userData: userData,
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Text(
+                  'フレンドリクエストを送る',
+                  style: TextStyle(fontSize: 20, color: GlobalColor.SubCol),
+                ),
+              ),
             ),
-
-            //以下は保留
-            Text("共有するコンテンツ"),
-
-            //追加ボタン
-            ElevatedButton(
-              onPressed: () {
-                //フレンドを検索→追加ボタンをそのウィンドウに配置
-                Future<UserInformation> user = GetUser().getUser(addFriendID);
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      insetPadding: EdgeInsets.all(10),
-                      title: Text('フレンドの追加'),
-                      content: AddFriendsSearchDialog(
-                        user: user,
-                        userData: userData,
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Text('検索'),
-            ),
+            Spacer(flex: 1), // Adds space at the bottom for better balancing
           ],
         ),
       ),
@@ -118,7 +151,7 @@ class AddFriendsSearchDialog extends StatelessWidget {
                           },
                         );
                       },
-                      child: Text('追加'),
+                      child: Text('送信'),
                     ),
                   ],
                 ),
@@ -177,7 +210,7 @@ class AddFriendsSearchDialog extends StatelessWidget {
                       Text('すでにフレンドです', style: TextStyle(fontSize: 20)),
                     ],
                   );
-                }else{
+                } else {
                   return Column(
                     children: [
                       Icon(
@@ -192,7 +225,6 @@ class AddFriendsSearchDialog extends StatelessWidget {
                       )
                     ],
                   );
-
                 }
               }
               return CircularProgressIndicator();
