@@ -69,21 +69,12 @@ class _AddFriendState extends State<AddFriend> {
                   ),
                 ),
                 onPressed: () {
-                  Future<UserInformation> user =
-                  GetUser().getUser(addFriendID);
+                  Future<void> addFriend = AddFriendRequest()
+                      .addFriend(userData.uid!, addFriendID);
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return AlertDialog(
-                        insetPadding: EdgeInsets.all(5
-                        ),
-                        title: Text('このユーザーにリクエストを送信しますか',
-                            style: TextStyle(fontSize: 20)),
-                        content: AddFriendsSearchDialog(
-                          user: user,
-                          userData: userData,
-                        ),
-                      );
+                      return addFriendResultDialog(addFriend);
                     },
                   );
                 },
@@ -99,83 +90,6 @@ class _AddFriendState extends State<AddFriend> {
       ),
     );
   }
-}
-
-class AddFriendsSearchDialog extends StatelessWidget {
-  const AddFriendsSearchDialog({
-    super.key,
-    required this.user,
-    required this.userData,
-  });
-
-  final Future<UserInformation> user;
-  final UserData userData;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      FutureBuilder<UserInformation>(
-        future: user,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Column(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.white,
-                  backgroundImage: NetworkImage(
-                      "https://calendar-files.woody1227.com/user_icon/" +
-                          snapshot.data!.uicon),
-                ),
-                Text(snapshot.data!.uname),
-                Text("@${snapshot.data!.uid}"),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('キャンセル'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        //フレンドを追加
-                        Navigator.of(context).pop();
-                        Future<void> addFriend = AddFriendRequest()
-                            .addFriend(userData.uid!, snapshot.data!.uid);
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return addFriendResultDialog(addFriend);
-                          },
-                        );
-                      },
-                      child: Text('送信'),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          } else if (snapshot.hasError) {
-            return Column(
-              children: [
-                Text('ユーザーが見つかりませんでした'),
-                closeButton(),
-              ],
-            );
-          }
-          // return CircularProgressIndicator();
-          return Column(
-            children: [
-              CircularProgressIndicator(),
-              Text('検索中...'),
-            ],
-          );
-        },
-      ),
-    ]);
-  }
 
   AlertDialog addFriendResultDialog(Future<void> addFriend) {
     return AlertDialog(
@@ -186,7 +100,7 @@ class AddFriendsSearchDialog extends StatelessWidget {
           FutureBuilder<void>(
             future: addFriend,
             builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.waiting) {
+              if (snapshot.connectionState != ConnectionState.waiting && !snapshot.hasError) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -207,10 +121,11 @@ class AddFriendsSearchDialog extends StatelessWidget {
                         color: Colors.red,
                         size: 50,
                       ),
-                      Text('すでにフレンドです', style: TextStyle(fontSize: 20)),
+                      Text('すでにフレンドもしくは送信済みです', style: TextStyle(fontSize: 20)),
                     ],
                   );
                 } else {
+                  print(snapshot.error.toString());
                   return Column(
                     children: [
                       Icon(
