@@ -78,7 +78,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> getNewMessages() async {
     List<ChatMessage> messages = await GetChatNewMessage().getChatNewMessage(
-        widget.gid!, getMessageLimit, latestMessageId);
+        widget.gid!, getMessageLimit, latestMessageId,Provider.of<UserData>(context, listen: false).uid!);
     if (messages.length == 0) {
       return;
     }
@@ -97,6 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
         author: Message_author,
         id: message.mid,
         text: message.content,
+        createdAt: message.sendTime.millisecondsSinceEpoch,
       );
       _addMessage(newMessage, true);
     }
@@ -104,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> getMessages() async{
-    List<ChatMessage> messages = await GetChatMessages().getChatMessages(widget.gid!, getMessageLimit, lastMessageId);
+    List<ChatMessage> messages = await GetChatMessages().getChatMessages(widget.gid!, getMessageLimit, lastMessageId,Provider.of<UserData>(context, listen: false).uid!);
     if(messages.length == 0){
       return;
     }
@@ -125,6 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
         author: Message_author,
         id: message.mid,
         text: message.content,
+        createdAt: message.sendTime.millisecondsSinceEpoch,
       );
       _addMessage(newMessage);
     }

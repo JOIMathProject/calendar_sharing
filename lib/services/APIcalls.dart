@@ -93,12 +93,14 @@ class ChatMessage {
   final String uid;
   final String uname;
   final String uicon;
+  final DateTime sendTime;
   ChatMessage({
     required this.mid,
     required this.content,
     required this.uid,
     required this.uname,
     required this.uicon,
+    required this.sendTime,
   });
 }
 class CreateUser {
@@ -542,11 +544,11 @@ class DeleteFriendRequest{
 }
 
 class GetChatMessages{
-  Future<List<ChatMessage>> getChatMessages(String? gid,int limit,String? mid) async {
+  Future<List<ChatMessage>> getChatMessages(String? gid,int limit,String? mid,String? uid) async {
     if(mid == null || mid == '0'){
       mid = '';
     }
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages/before/$limit/$mid');
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/before/$limit/$mid');
     final response = await http.get(url);
 
     if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
@@ -557,12 +559,14 @@ class GetChatMessages{
       return messages;
     }
     for (var group in jsonDecode(response.body)['data']) {
+      final DateTime sendTime = DateTime.parse(group['sent_time']);
       messages.add(ChatMessage(
         mid: group['mid'],
         content: group['content'],
         uid: group['uid'],
         uname: group['uname'],
         uicon: group['uicon'],
+        sendTime: sendTime,
       ));
     }
 
@@ -591,11 +595,11 @@ class SendChatMessage{
 }
 
 class GetChatNewMessage{
-  Future<List<ChatMessage>> getChatNewMessage(String? gid,int limit,String? mid) async {
+  Future<List<ChatMessage>> getChatNewMessage(String? gid,int limit,String? mid,String? uid) async {
     if(mid == '0'){
       mid = '';
     }
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages/after/$limit/$mid');
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/after/$limit/$mid');
     final response = await http.get(url);
 
     if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
@@ -606,12 +610,14 @@ class GetChatNewMessage{
       return messages;
     }
     for (var group in jsonDecode(response.body)['data']) {
+      final DateTime sendTime = DateTime.parse(group['sent_time']);
       messages.add(ChatMessage(
         mid: group['mid'],
         content: group['content'],
         uid: group['uid'],
         uname: group['uname'],
         uicon: group['uicon'],
+        sendTime: sendTime,
       ));
     }
 
