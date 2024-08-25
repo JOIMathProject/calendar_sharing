@@ -81,10 +81,12 @@ class FriendRequestInformation {
   final String uid;
   final String uname;
   final String uicon;
+  final bool isReceived;
   FriendRequestInformation({
     required this.uid,
     required this.uname,
-    required this.uicon
+    required this.uicon,
+    required this.isReceived,
   });
 }
 class ChatMessage {
@@ -93,12 +95,14 @@ class ChatMessage {
   final String uid;
   final String uname;
   final String uicon;
+  final DateTime sendTime;
   ChatMessage({
     required this.mid,
     required this.content,
     required this.uid,
     required this.uname,
     required this.uicon,
+    required this.sendTime,
   });
 }
 class CreateUser {
@@ -183,7 +187,7 @@ class GetFriends {
     for (var friend in jsonDecode(response.body)['data']) {
       if (friend['uicon'] == null) {
         friend['uicon'] =
-            'https://calendar-api.woody1227.com/user_icon/default.png';
+        'https://calendar-api.woody1227.com/user_icon/default.png';
       }
       friends.add(FriendInformation(
         uid: friend['uid'],
@@ -193,6 +197,15 @@ class GetFriends {
       ));
     }
     return friends;
+  }
+}
+class DeleteFriend{
+  Future<void> deleteFriend(String? uid, String? friend_uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
+    final response = await http.delete(url);
+    if (response.statusCode != 204) {
+      throw 'Failed to delete friend: ${response.statusCode}';
+    }
   }
 }
 class CheckFriend{
@@ -438,6 +451,32 @@ class GetReceiveFriendRequest{
         uid: group['uid'],
         uname: group['uname'],
         uicon: group['uicon'],
+        isReceived: true,
+      ));
+    }
+
+    return requests;
+  }
+}
+class GetSentFriendRequest{
+  Future<List<FriendRequestInformation>> getSentFriendRequest(String? uid) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/friends_requests/$uid/send');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to get friend request: ${response.statusCode}';
+    }
+    List<FriendRequestInformation> requests = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return requests;
+    }
+    for (var group in jsonDecode(response.body)['data']) {
+      requests.add(FriendRequestInformation(
+        uid: group['uid'],
+        uname: group['uname'],
+        uicon: group['uicon'],
+        isReceived: false,
       ));
     }
 
@@ -524,7 +563,7 @@ class AcceptFriendRequest{
         "uid2": friend_uid,
       }),
     );
-    if (response.statusCode != 200 && response.statusCode != 201) {
+    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
       throw 'Failed to accept friend request: ${response.statusCode}';
     }
   }
@@ -535,7 +574,7 @@ class DeleteFriendRequest{
     //フレンド申請拒否
     final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/$friend_uid/$uid');
     final response = await http.delete(url);
-    if (response.statusCode != 200 && response.statusCode != 201) {
+    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404 && response.statusCode != 204) {
       throw 'Failed to delete friend request: ${response.statusCode}';
     }
   }
@@ -557,12 +596,14 @@ class GetChatMessages{
       return messages;
     }
     for (var group in jsonDecode(response.body)['data']) {
+      final DateTime sendTime = DateTime.parse(group['sent_time']);
       messages.add(ChatMessage(
         mid: group['mid'],
         content: group['content'],
         uid: group['uid'],
         uname: group['uname'],
         uicon: group['uicon'],
+        sendTime: sendTime,
       ));
     }
 
@@ -591,11 +632,11 @@ class SendChatMessage{
 }
 
 class GetChatNewMessage{
-  Future<List<ChatMessage>> getChatNewMessage(String? gid,int limit,String? mid) async {
+  Future<List<ChatMessage>> getChatNewMessage(String? gid,int limit,String? mid,String? uid) async {
     if(mid == '0'){
       mid = '';
     }
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages/after/$limit/$mid');
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/after/$limit/$mid');
     final response = await http.get(url);
 
     if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
@@ -606,12 +647,14 @@ class GetChatNewMessage{
       return messages;
     }
     for (var group in jsonDecode(response.body)['data']) {
+      final DateTime sendTime = DateTime.parse(group['sent_time']);
       messages.add(ChatMessage(
         mid: group['mid'],
         content: group['content'],
         uid: group['uid'],
         uname: group['uname'],
         uicon: group['uicon'],
+        sendTime: sendTime,
       ));
     }
 
