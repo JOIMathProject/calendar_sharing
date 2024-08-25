@@ -6,6 +6,7 @@ import '../services/APIcalls.dart';
 import '../services/UserData.dart';
 import 'friendProfile.dart';
 import '../setting/color.dart' as GlobalColor;
+import 'package:calendar_sharing/setting/size_config.dart';
 
 class FriendsScreen extends StatefulWidget {
   @override
@@ -65,6 +66,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     UserData userData = Provider.of<UserData>(context);
     List<FriendInformation> friends = userData.friends;
     List<FriendRequestInformation> requests = userData.receivedRequests;
@@ -115,7 +117,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Column Requests(List<FriendRequestInformation> requests, UserData userData) {
     return Column(
       children: [
-        SizedBox(height: 10),
+        SizedBox(height: SizeConfig.blockSizeVertical!*2),
         if (requests.isNotEmpty)
           Expanded(
             child: RefreshIndicator(
@@ -138,7 +140,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                     "https://calendar-files.woody1227.com/user_icon/" +
                                         requests[index].uicon),
                               ),
-                              SizedBox(width: 20),
+                              SizedBox(width: SizeConfig.blockSizeHorizontal!*3),
                               // 名前
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,7 +200,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                     "https://calendar-files.woody1227.com/user_icon/" +
                                         requests[index].uicon),
                               ),
-                              SizedBox(width: 20),
+                              SizedBox(width: SizeConfig.blockSizeHorizontal!*3),
                               // 名前
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,7 +287,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   Column Friends(List<FriendInformation> friends) {
     return Column(children: [
-      SizedBox(height: 10),
+      SizedBox(height: SizeConfig.blockSizeVertical!*2),
       if (friends.isNotEmpty)
         Expanded(
           child: RefreshIndicator(
@@ -309,7 +311,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                   "https://calendar-files.woody1227.com/user_icon/" +
                                       friends[index].uicon),
                             ),
-                            SizedBox(width: 20),
+                            SizedBox(width: SizeConfig.blockSizeHorizontal!*3),
                             // 名前
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
