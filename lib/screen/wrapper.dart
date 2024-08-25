@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'mainScreen.dart';
 import 'package:googleapis/calendar/v3.dart' as googleAPI;
+import 'package:google_fonts/google_fonts.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({super.key});
@@ -52,6 +53,7 @@ class _WrapperState extends State<Wrapper> {
   @override
   Widget build(BuildContext context) {
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
+
     if (gUser != null && gUser.currentUser != null) {
       return MainScreen(); // Show the main screen if the user is logged in
     } else {

@@ -542,11 +542,11 @@ class DeleteFriendRequest{
 }
 
 class GetChatMessages{
-  Future<List<ChatMessage>> getChatMessages(String? gid,int limit,String? mid) async {
+  Future<List<ChatMessage>> getChatMessages(String? gid,String? uid,int limit,String? mid) async {
     if(mid == null || mid == '0'){
       mid = '';
     }
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages/before/$limit/$mid');
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/before/$limit/$mid');
     final response = await http.get(url);
 
     if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {

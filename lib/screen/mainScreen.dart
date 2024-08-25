@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../services/APIcalls.dart';
 import 'createContents.dart';
+import '../setting/color.dart' as GlobalColor;
 
 class MainScreen extends StatefulWidget {
   @override
@@ -83,6 +84,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
+        backgroundColor: GlobalColor.Menu_bar,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.group
