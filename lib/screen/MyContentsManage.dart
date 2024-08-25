@@ -4,6 +4,7 @@ import '../services/UserData.dart';
 import 'MyContent.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'createMyContent.dart';
+import '../setting/color.dart' as GlobalColor;
 
 class MyContentsManage extends StatefulWidget {
   @override
@@ -72,15 +73,14 @@ class _MyContentsManageState extends State<MyContentsManage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('マイコンテンツ'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.edit_calendar),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateMyContents()));
-            },
-          ),
-        ],
+        title: Text('Sando',
+            style: TextStyle(color: GlobalColor.MainCol,
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Pacifico'),
+        ),
+        backgroundColor: GlobalColor.SubCol,
+        centerTitle: true,
       ),
       body: Column(
         children: <Widget>[
@@ -134,6 +134,13 @@ class _MyContentsManageState extends State<MyContentsManage> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => CreateMyContents()));
+        },
+        child: Icon(Icons.add, color: GlobalColor.SubCol),
+        backgroundColor: GlobalColor.MainCol,
       ),
     );
   }

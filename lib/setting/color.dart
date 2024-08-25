@@ -6,6 +6,11 @@ Color Calendar_grid_color = Color(0xFF000000);
 Color Calendar_background_color = Color(0xFF22348C);
 Color Menu_bar = Color(0xFFFFA74F);
 
+
+Color MainCol = Color(0xFFFDB164);
+Color SubCol = Color(0xFFFDFDFD);
+Color Unselected = Color(0xFFBCBCBC);
+
 final appTheme = ThemeData(
   colorScheme: const ColorScheme(
     brightness: Brightness.light,

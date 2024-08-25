@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../services/APIcalls.dart';
 import '../services/UserData.dart';
 import 'friendProfile.dart';
+import '../setting/color.dart' as GlobalColor;
 
 class FriendsScreen extends StatefulWidget {
   @override
@@ -70,16 +71,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('フレンド'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.person_add_alt),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddFriend()));
-            },
-          ),
-        ],
+        title: Text('Sando',
+          style: TextStyle(color: GlobalColor.MainCol,
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Pacifico'),
+        ),
+        backgroundColor: GlobalColor.SubCol,
+        centerTitle: true,
       ),
       body: DefaultTabController(
         length: 2,
@@ -101,6 +100,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => AddFriend()));
+        },
+        child: Icon(Icons.add, color: GlobalColor.SubCol),
+        backgroundColor: GlobalColor.MainCol,
       ),
     );
   }

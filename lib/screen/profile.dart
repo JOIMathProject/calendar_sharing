@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
 import '../services/APIcalls.dart';
+import '../setting/color.dart' as GlobalColor;
 
 class Profile extends StatefulWidget {
   @override
@@ -24,7 +25,14 @@ class _ProfileState extends State<Profile> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('プロフィール'),
+        title: Text('Sando',
+          style: TextStyle(color: GlobalColor.MainCol,
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Pacifico'),
+        ),
+        backgroundColor: GlobalColor.SubCol,
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

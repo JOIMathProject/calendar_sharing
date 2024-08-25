@@ -27,8 +27,8 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _initializeApp();
     _children = [
-      FriendsScreen(), // Replace with your actual widgets
-      ContentsManage(), // Access gUser through Provider
+      ContentsManage(),
+      FriendsScreen(),
       Profile(),
       MyContentsManage(),
     ];
@@ -87,21 +87,26 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: GlobalColor.Menu_bar,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.group
+            icon: Icon(Icons.home,
+              color: _currentIndex != 0 ? GlobalColor.Unselected : GlobalColor.MainCol,
             ),
-            label: 'Friends',
+            label: 'ホーム',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.group,
+              color: _currentIndex != 1 ? GlobalColor.Unselected : GlobalColor.MainCol,
+            ),
+            label: 'フレンド',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.person
+              ,color: _currentIndex != 2 ? GlobalColor.Unselected : GlobalColor.MainCol,),
+            label: 'プロフィール',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: 'MyContents',
+            icon: Icon(Icons.calendar_month
+              ,color: _currentIndex != 3 ? GlobalColor.Unselected : GlobalColor.MainCol,),
+            label: 'マイコンテンツ',
           ),
         ],
       ),
