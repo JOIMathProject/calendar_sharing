@@ -74,8 +74,8 @@ class _ProfileState extends State<Profile> {
             SizedBox(height: 30),
             buildProfileField(
               context,
-              label: 'UID',
-              value: userData.uid!,
+              label: 'ユーザーID',
+              value: '@'+userData.uid!,
               onEdit: () async {
                 final newUid = await showDialog<String>(
                   context: context,

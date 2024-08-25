@@ -86,7 +86,6 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
                     ),
                   ),
                 ),
-
               ),
               TabBar(
                 controller: _tabController,
