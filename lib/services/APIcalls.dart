@@ -81,10 +81,12 @@ class FriendRequestInformation {
   final String uid;
   final String uname;
   final String uicon;
+  final bool isReceived;
   FriendRequestInformation({
     required this.uid,
     required this.uname,
-    required this.uicon
+    required this.uicon,
+    required this.isReceived,
   });
 }
 class ChatMessage {
@@ -449,6 +451,32 @@ class GetReceiveFriendRequest{
         uid: group['uid'],
         uname: group['uname'],
         uicon: group['uicon'],
+        isReceived: true,
+      ));
+    }
+
+    return requests;
+  }
+}
+class GetSentFriendRequest{
+  Future<List<FriendRequestInformation>> getSentFriendRequest(String? uid) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/friends_requests/$uid/send');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to get friend request: ${response.statusCode}';
+    }
+    List<FriendRequestInformation> requests = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return requests;
+    }
+    for (var group in jsonDecode(response.body)['data']) {
+      requests.add(FriendRequestInformation(
+        uid: group['uid'],
+        uname: group['uname'],
+        uicon: group['uicon'],
+        isReceived: false,
       ));
     }
 
@@ -535,7 +563,7 @@ class AcceptFriendRequest{
         "uid2": friend_uid,
       }),
     );
-    if (response.statusCode != 200 && response.statusCode != 201) {
+    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
       throw 'Failed to accept friend request: ${response.statusCode}';
     }
   }
@@ -546,7 +574,7 @@ class DeleteFriendRequest{
     //フレンド申請拒否
     final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/$friend_uid/$uid');
     final response = await http.delete(url);
-    if (response.statusCode != 200 && response.statusCode != 201) {
+    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404 && response.statusCode != 204) {
       throw 'Failed to delete friend request: ${response.statusCode}';
     }
   }

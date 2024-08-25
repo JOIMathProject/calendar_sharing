@@ -49,10 +49,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
     try {
       UserData userData = Provider.of<UserData>(context, listen: false);
       String? uid = userData.uid;
-      List<FriendRequestInformation> requests =
+      List<FriendRequestInformation> receivedRequests =
       await GetReceiveFriendRequest().getReceiveFriendRequest(userData.uid);
+      List<FriendRequestInformation> sentRequests =
+      await GetSentFriendRequest().getSentFriendRequest(userData.uid);
+      //二つをくっつける
+      receivedRequests.addAll(sentRequests);
       Provider.of<UserData>(context, listen: false)
-          .updateReceivedRequests(requests);
+          .updateReceivedRequests(receivedRequests);
     } catch (e) {
       print("Error fetching requests: $e");
     }
@@ -112,53 +116,115 @@ class _FriendsScreenState extends State<FriendsScreen> {
               child: ListView.builder(
                 itemCount: requests.length,
                 itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            // アイコン
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor: Colors.white,
-                              backgroundImage: NetworkImage(
-                                  "https://calendar-files.woody1227.com/user_icon/" +
-                                      requests[index].uicon),
-                            ),
-                            SizedBox(width: 20),
-                            // 名前
-                            Text(
-                              requests[index].uname,
-                              style: TextStyle(fontSize: 25),
-                            ),
-                            Spacer(),
-                            // 承認ボタン
-                            IconButton(
-                              icon: Icon(Icons.check),
-                              onPressed: () async {
-                                await AcceptFriendRequest()
-                                    .acceptFriendRequest(
-                                    userData.uid, requests[index].uid);
-                                _fetchReceivedRequests();
-                                _fetchFriends();
-                              },
-                            ),
-                            // 拒否ボタン
-                            IconButton(
-                              icon: Icon(Icons.close),
-                              onPressed: () async {
-                                await DeleteFriendRequest()
-                                    .deleteFriendRequest(
-                                    userData.uid, requests[index].uid);
-                                _fetchReceivedRequests();
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
+                  if (requests[index].isReceived){
+                    return Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              // アイコン
+                              CircleAvatar(
+                                radius: 25,
+                                backgroundColor: Colors.white,
+                                backgroundImage: NetworkImage(
+                                    "https://calendar-files.woody1227.com/user_icon/" +
+                                        requests[index].uicon),
+                              ),
+                              SizedBox(width: 20),
+                              // 名前
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    requests[index].uname,
+                                    style: TextStyle(fontSize: 25),
+                                  ),
+                                  Text(
+                                    'リクエストを受信しています',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black.withOpacity(0.8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Spacer(),
+                              // 承認ボタン
+                              IconButton(
+                                icon: Icon(Icons.check),
+                                onPressed: () async {
+                                  await AcceptFriendRequest()
+                                      .acceptFriendRequest(
+                                      userData.uid, requests[index].uid);
+                                  _fetchReceivedRequests();
+                                  _fetchFriends();
+                                },
+                              ),
+                              // 拒否ボタン
+                              IconButton(
+                                icon: Icon(Icons.close),
+                                onPressed: () async {
+                                  await DeleteFriendRequest()
+                                      .deleteFriendRequest(
+                                      userData.uid, requests[index].uid);
+                                  _fetchReceivedRequests();
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }else{
+                    return Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              // アイコン
+                              CircleAvatar(
+                                radius: 25,
+                                backgroundColor: Colors.white,
+                                backgroundImage: NetworkImage(
+                                    "https://calendar-files.woody1227.com/user_icon/" +
+                                        requests[index].uicon),
+                              ),
+                              SizedBox(width: 20),
+                              // 名前
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    requests[index].uname,
+                                    style: TextStyle(fontSize: 25),
+                                  ),
+                                  Text(
+                                    'リクエスト送信済み',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black.withOpacity(0.8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Spacer(),
+                              // 削除ボタン
+                              IconButton(
+                                icon: Icon(Icons.close),
+                                onPressed: () async {
+                                  await DeleteFriendRequest()
+                                      .deleteFriendRequest(requests[index].uid,userData.uid);
+                                  _fetchReceivedRequests();
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                 },
               ),
             ),
