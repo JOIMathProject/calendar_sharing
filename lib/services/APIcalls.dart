@@ -724,7 +724,7 @@ class GetChatNewMessage{
     if(mid == '0'){
       mid = '';
     }
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/after/$limit/$mid');
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/after/100/$mid');
     final response = await http.get(url);
 
     if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {

@@ -20,6 +20,8 @@ class _ChatScreenState extends State<ChatScreen> {
   String lastMessageId = '0';
   String latestMessageId = '0';
   late types.User myUser;
+  String getNewMsgStatus = "";
+  String getMsgStatus = "";
   @override
   void initState() {
     super.initState();
@@ -35,7 +37,9 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {});
       if (mounted) {
         if (lastMessageId != '0') {
-          getNewMessages();
+          if (getMsgStatus != "running"){
+            getNewMessages();
+          }
         }else{
           getMessages();
         }
@@ -84,6 +88,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> getNewMessages() async {
+    if (getNewMsgStatus == "running") {
+      return;
+    }
+    getNewMsgStatus = "running";
     List<ChatMessage> messages = await GetChatNewMessage().getChatNewMessage(
         widget.gid!, getMessageLimit, latestMessageId,Provider.of<UserData>(context, listen: false).uid!);
     if (messages.length == 0) {
@@ -109,9 +117,14 @@ class _ChatScreenState extends State<ChatScreen> {
       _addMessage(newMessage, true);
     }
     latestMessageId = messages.last.mid;
+    getNewMsgStatus = "success";
   }
 
   Future<void> getMessages() async{
+    if(getMsgStatus == "running"){
+      return;
+    }
+    getMsgStatus = "running";
     List<ChatMessage> messages = await GetChatMessages().getChatMessages(widget.gid!, lastMessageId,getMessageLimit,Provider.of<UserData>(context, listen: false).uid!);
     if(messages.length == 0){
       return;
@@ -141,5 +154,6 @@ class _ChatScreenState extends State<ChatScreen> {
       latestMessageId = messages.first.mid;
     }
     lastMessageId = messages.last.mid;
+    getMsgStatus = "success";
   }
 }
