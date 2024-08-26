@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:calendar_sharing/setting/color.dart' as global_colors;
+import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 import 'package:provider/provider.dart';
 import '../services/APIcalls.dart';
 import '../services/UserData.dart';
@@ -26,7 +26,8 @@ class _CreateContentsState extends State<CreateContents> {
   Future<void> _fetchFriends() async {
     try {
       UserData userData = Provider.of<UserData>(context, listen: false);
-      List<FriendInformation> friends = await GetFriends().getFriends(userData.uid);
+      List<FriendInformation> friends =
+          await GetFriends().getFriends(userData.uid);
       Provider.of<UserData>(context, listen: false).updateFriends(friends);
       setState(() {
         filteredFriends = friends;
@@ -51,9 +52,10 @@ class _CreateContentsState extends State<CreateContents> {
     print('$gid');
   }
 
-  Future<void> _addUserToGroup(String gid,String Adduid) async {
+  Future<void> _addUserToGroup(String gid, String Adduid) async {
     await AddUserToGroup().addUserToGroup(gid, Adduid);
   }
+
   @override
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
@@ -61,11 +63,18 @@ class _CreateContentsState extends State<CreateContents> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('グループの作成'),
+        backgroundColor: GlobalColor.SubCol,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              'グループの作成',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -126,7 +135,8 @@ class _CreateContentsState extends State<CreateContents> {
               itemBuilder: (context, index) {
                 return FriendTile(
                   friend: filteredFriends[index],
-                  isSelected: selectedFriends.contains(filteredFriends[index].uid),
+                  isSelected:
+                      selectedFriends.contains(filteredFriends[index].uid),
                   onSelected: (bool? selected) {
                     setState(() {
                       if (selected == true) {
@@ -141,16 +151,23 @@ class _CreateContentsState extends State<CreateContents> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () {
-                peoples = selectedFriends; // Add selected friends to peoples list
-                _makeGroup(peoples,userData.uid!);
-                Navigator.pop(context);
-              },
-              child: Text('作成'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(100, 40),
+            padding: const EdgeInsets.all(20.0),
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  peoples =
+                      selectedFriends; // Add selected friends to peoples list
+                  _makeGroup(peoples, userData.uid!);
+                  Navigator.pop(context);
+                },
+                child: Text('作成',
+                    style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
             ),
           ),
@@ -158,6 +175,7 @@ class _CreateContentsState extends State<CreateContents> {
       ),
     );
   }
+
   void _makeGroup(List<String> selectedFriends, String ownUid) async {
     if (title.isEmpty) {
       title = ownUid;
@@ -173,8 +191,8 @@ class _CreateContentsState extends State<CreateContents> {
       await _addUserToGroup(gid, uid);
     }
   }
-
 }
+
 class FriendTile extends StatelessWidget {
   final FriendInformation friend;
   final bool isSelected;
@@ -192,9 +210,9 @@ class FriendTile extends StatelessWidget {
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: NetworkImage(
-            "https://calendar-files.woody1227.com/user_icon/" +
-                friend.uicon),
-        child: Text(friend.uname[0]), // Fallback to the first letter of their name
+            "https://calendar-files.woody1227.com/user_icon/" + friend.uicon),
+        child:
+            Text(friend.uname[0]), // Fallback to the first letter of their name
       ),
       title: Text(friend.uname),
       trailing: Checkbox(
@@ -208,4 +226,3 @@ class FriendTile extends StatelessWidget {
     );
   }
 }
-
