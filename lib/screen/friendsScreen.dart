@@ -73,6 +73,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
+    SizeConfig().init(context);
     List<FriendInformation> friends = userData.friends;
     List<FriendRequestInformation> requests = userData.receivedRequests;
 
