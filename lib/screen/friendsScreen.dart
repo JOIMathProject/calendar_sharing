@@ -14,7 +14,13 @@ class FriendsScreen extends StatefulWidget {
 }
 class _FriendsScreenState extends State<FriendsScreen> {
   bool _isDataFetched = false;
+  final TextEditingController _searchController = TextEditingController();
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
   @override
   void initState() {
     super.initState();
@@ -66,7 +72,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context);
     UserData userData = Provider.of<UserData>(context);
     List<FriendInformation> friends = userData.friends;
     List<FriendRequestInformation> requests = userData.receivedRequests;
@@ -91,6 +96,17 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 Tab(text: 'フレンド'),
                 Tab(text: 'リクエスト'),
               ],
+              indicator: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: GlobalColor.MainCol,
+                    width: 3.0,
+                  ),
+                ),
+              ),
+              labelStyle: TextStyle(fontSize: 16.0),
+              dividerColor: GlobalColor.Unselected,
+              labelColor: GlobalColor.MainCol,
             ),
             Expanded(
               child: TabBarView(
@@ -286,14 +302,40 @@ class _FriendsScreenState extends State<FriendsScreen> {
   }
 
   Column Friends(List<FriendInformation> friends) {
+    List<FriendInformation> filteredFriends = friends.where((friend) {
+      return friend.uname.toLowerCase().contains(_searchController.text.toLowerCase());
+    }).toList();
+
     return Column(children: [
       SizedBox(height: SizeConfig.blockSizeVertical!*2),
       if (friends.isNotEmpty)
+      Padding(
+        padding: EdgeInsets.all(8.0),
+        child: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+            hintText: '検索',
+            prefixIcon: Icon(Icons.search, size: 20.0),
+            fillColor: GlobalColor.Unselected,
+            filled: true,
+            border: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
+          onChanged: (value) {
+            setState(() {});  // Refresh the widget to apply the filter
+          },
+        ),
+      ),
+      SizedBox(height: 10),
+      if (filteredFriends.isNotEmpty)
         Expanded(
           child: RefreshIndicator(
             onRefresh: _fetchFriends, // The function to reload friends
             child: ListView.builder(
-              itemCount: friends.length,
+              itemCount: filteredFriends.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   behavior: HitTestBehavior.translucent,
@@ -309,7 +351,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               backgroundColor: Colors.white,
                               backgroundImage: NetworkImage(
                                   "https://calendar-files.woody1227.com/user_icon/" +
-                                      friends[index].uicon),
+                                      filteredFriends[index].uicon),
                             ),
                             SizedBox(width: SizeConfig.blockSizeHorizontal!*3),
                             // 名前
@@ -336,12 +378,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
                   ),
                   onTap: () {
                     // フレンドのプロフィールに飛ばす
-                    print(friends[index].uid);
+                    print(filteredFriends[index].uid);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            FriendProfile(friend: friends[index]),
+                            FriendProfile(friend: filteredFriends[index]),
                       ),
                     );
                   },

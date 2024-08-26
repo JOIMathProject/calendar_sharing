@@ -66,57 +66,54 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
         ),
         backgroundColor: GlobalColor.SubCol,
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(100.0),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(vertical: 12.0),
-                    hintText: '検索',
-                    prefixIcon: Icon(Icons.search, size: 20.0),
-                    fillColor: GlobalColor.Unselected,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ),
-
-              ),
-              TabBar(
-                controller: _tabController,
-                tabs: [
-                  Tab(text: 'すべて'),
-                  Tab(text: 'フレンド'),
-                  Tab(text: 'グループ'),
-                ],
-                indicator: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: GlobalColor.MainCol,
-                      width: 3.0,
-                    ),
-                  ),
-                ),
-                labelStyle: TextStyle(fontSize: 16.0),
-                dividerColor: GlobalColor.Unselected,
-                labelColor: GlobalColor.MainCol,
-              ),
-            ],
-          ),
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildContentList(_filteredContents()), // All
-          _buildContentList(_filteredContents(isPersonal: true)), // Personal
-          _buildContentList(_filteredContents(isGroup: true)), // Group
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+                hintText: '検索',
+                prefixIcon: Icon(Icons.search, size: 20.0),
+                fillColor: GlobalColor.Unselected,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+          ),
+          TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: 'すべて'),
+              Tab(text: 'フレンド'),
+              Tab(text: 'グループ'),
+            ],
+            indicator: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: GlobalColor.MainCol,
+                  width: 3.0,
+                ),
+              ),
+            ),
+            labelStyle: TextStyle(fontSize: 16.0),
+            labelColor: GlobalColor.MainCol,
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildContentList(_filteredContents()), // All
+                _buildContentList(_filteredContents(isPersonal: true)), // Personal
+                _buildContentList(_filteredContents(isGroup: true)), // Group
+              ],
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -148,22 +145,22 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
     return filteredContents;
   }
 
-  Widget _buildContentList(List<GroupInformation> filteredContents) {
+  Widget _buildContentList(List<GroupInformation>? filteredContents) {
     return RefreshIndicator(
       onRefresh: _reloadContents,
       child: ListView.builder(
-        itemCount: filteredContents.length,
+        itemCount: filteredContents?.length,
         itemBuilder: (context, index) {
           return ListTile(
             leading: CircleAvatar(
               backgroundImage: NetworkImage(
-                filteredContents[index].is_friends == '1'
-                    ? "https://calendar-files.woody1227.com/user_icon/${filteredContents[index].gicon}"
-                    : "https://calendar-files.woody1227.com/group_icon/${filteredContents[index].gicon}",
+                filteredContents?[index].is_friends == '1'
+                    ? "https://calendar-files.woody1227.com/user_icon/${filteredContents?[index].gicon}"
+                    : "https://calendar-files.woody1227.com/group_icon/${filteredContents?[index].gicon}",
               ),
               backgroundColor: Colors.blue,
             ),
-            title: Text(filteredContents[index].gname),
+            title: Text(filteredContents![index].gname),
             subtitle: Text('最後のメッセージ...'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -176,8 +173,8 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
                       context,
                       MaterialPageRoute(
                         builder: (context) => Home(
-                          groupId: filteredContents[index].gid,
-                          groupName: filteredContents[index].gname,
+                          groupId: filteredContents?[index].gid,
+                          groupName: filteredContents?[index].gname,
                           startOnChatScreen: true,
                         ),
                       ),
@@ -192,8 +189,8 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
                 context,
                 MaterialPageRoute(
                   builder: (context) => Home(
-                    groupId: filteredContents[index].gid,
-                    groupName: filteredContents[index].gname,
+                    groupId: filteredContents?[index].gid,
+                    groupName: filteredContents?[index].gname,
                     startOnChatScreen: false,
                   ),
                 ),

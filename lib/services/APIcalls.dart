@@ -1,9 +1,9 @@
 import 'dart:ui';
-
-import 'package:googleapis/calendar/v3.dart';
-import 'package:googleapis/cloudsearch/v1.dart';
+import 'package:googleapis/admob/v1.dart';
+import 'package:googleapis/calendar/v3.dart' as googleAPI;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -317,6 +317,92 @@ class AddUserToGroup{
     }
   }
 }
+class DeleteUserFromGroup{
+  Future<void> deleteUserFromGroup(String? gid, String? deleteUid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members/$deleteUid');
+    final response = await http.delete(url);
+    if (response.statusCode != 200) {
+      throw 'Failed to delete contents: ${response.statusCode}';
+    }
+  }
+}
+class GetUserInGroup{
+  Future<List<UserInformation>> getUserInGroup(String? gid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    List<UserInformation> users = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      users.add(UserInformation(
+        google_uid: '',
+        uid: group['uid'] ?? 'default',
+        uname: group['uname'] ?? 'default',
+        uicon: group['uicon'] ?? 'default',
+        refreshToken: group['refresh_token'] ?? 'default',
+        mailAddress: group['mail_address'] ?? 'default',
+      ));
+    }
+
+    return users;
+  }
+}
+class UpdateGroupName{
+  Future<void> updateGroupName(String? gid, String? gname) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "gname": gname,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create group: ${response.statusCode}';
+    }
+  }
+}
+class UpdateGroupIcon{
+  Future<void> updateGroupIcon(String? gid, String? gicon) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "gicon": gicon,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to create group: ${response.statusCode}';
+    }
+  }
+}
+class AddContentsToGroup{
+  Future<void> addContentsToGroup(String? gid, String? cid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "cid": cid
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add contents: ${response.statusCode}';
+    }
+  }
+}
+class RemoveContentsFromGroup{
+  Future<void> removeContentsFromGroup(String? gid, String? cid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents/$cid');
+    final response = await http.delete(url);
+    if (response.statusCode != 200) {
+      throw 'Failed to delete contents: ${response.statusCode}';
+    }
+  }
+}
 class UpdateUserID{
   Future<void> updateUserID(String? OldUid,String?NewUid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/${OldUid}');
@@ -363,26 +449,28 @@ class UpdateUserImage{
   }
 }
 class GetGroupCalendar{
-  Future<List<TimeRegion>> getGroupCalendar(String? gid,String? from, String? to) async {
+  Future<List<Appointment>> getGroupCalendar(String? gid,String? from, String? to) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content/events/$from/$to');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
       throw 'Failed to get group: ${response.statusCode}';
     }
-    List<TimeRegion> events = [];
+    List<Appointment> events = [];
     for (var group in jsonDecode(response.body)['data']) {
       int count = group['count'];
-      // Ensure count is capped between 0 and 5
-      count = count.clamp(0, 5);
+      // Ensure count is capped between 0 and 10
+      count = count.clamp(0, 10);
 
-      // Calculate the blue intensity
-      int blueIntensity = (255 - (count * 51)); // 51 = 255 / 5
+      // Define the base orange color (at intensity 10)
+      final Color intenseOrange = Color(0xFFFF8200); // You can adjust this as needed
 
-      // Create the color based on blueIntensity
-      Color color = Color.fromARGB(255, 0, 0, blueIntensity);
-
-      events.add(TimeRegion(
+      // Calculate the amount to reduce the intensity based on the input
+      double factor = 1 - ((count - 1) / 2);
+      Color minOrange = Color(0xFFFFD8AF);
+      // Blend the orange with white to lighten it
+      Color color = Color.lerp(intenseOrange, minOrange, factor)!;
+      events.add(Appointment(
         startTime: DateTime.parse(group['start_dateTime']),
         endTime: DateTime.parse(group['end_dateTime']),
         color: color,

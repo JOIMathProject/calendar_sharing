@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
 import 'Content.dart';
+import '../setting/color.dart' as GlobalColor;
 
 class FriendProfile extends StatefulWidget {
   final FriendInformation friend;
@@ -63,6 +64,7 @@ class _FriendProfileState extends State<FriendProfile> {
             },
           ),
         ],
+        backgroundColor: GlobalColor.SubCol,
       ),
       body: Center(
         child: Column(
@@ -77,7 +79,6 @@ class _FriendProfileState extends State<FriendProfile> {
                   "https://calendar-files.woody1227.com/user_icon/" +
                       widget.friend.uicon),
             ),
-            //名前
             SizedBox(height: 30),
             Text(
               widget.friend.uname,
@@ -123,6 +124,7 @@ class _FriendProfileState extends State<FriendProfile> {
                   ),
                   child: Icon(
                     Icons.calendar_today,
+                    color: GlobalColor.SubCol,
                     size: 40,
                   ),
                 ),
@@ -152,6 +154,7 @@ class _FriendProfileState extends State<FriendProfile> {
                   ),
                   child: Icon(
                     Icons.message,
+                    color: GlobalColor.SubCol,
                     size: 40,
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:calendar_sharing/screen/ChatScreen.dart';
+import 'package:calendar_sharing/screen/ContentsSetting.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:flutter/gestures.dart';
@@ -14,14 +15,17 @@ import 'package:googleapis/calendar/v3.dart' as cal;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import '../services/auth.dart';
-import 'package:calendar_sharing/setting/color.dart' as global_colors;
+import '../setting/color.dart' as GlobalColor;
 
 class Home extends StatefulWidget {
   final String? groupId;
   final String? groupName;
   final bool startOnChatScreen;
 
-  Home({required this.groupId, required this.groupName, this.startOnChatScreen = false});
+  Home(
+      {required this.groupId,
+      required this.groupName,
+      this.startOnChatScreen = false});
 
   @override
   _HomeState createState() => _HomeState();
@@ -36,12 +40,13 @@ class _HomeState extends State<Home> {
   bool _showFab = true;
   int _currentPage = 0; // To track the current page
 
-  List<TimeRegion> GroupCal = [];
+  List<Appointment> GroupCal = [];
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
+    _pageController =
+        PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
     _currentPage = widget.startOnChatScreen ? 1 : 0;
     _showFab = !widget.startOnChatScreen;
     _getTimeRegions();
@@ -80,10 +85,13 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.groupName!),
+        backgroundColor: GlobalColor.SubCol,
         actions: [
           IconButton(
             icon: Icon(
-              _currentPage == 0 ? Icons.chat : Icons.calendar_today, // Change icon based on page
+              _currentPage == 0
+                  ? Icons.chat
+                  : Icons.calendar_today, // Change icon based on page
               size: 30,
             ),
             onPressed: () {
@@ -106,7 +114,12 @@ class _HomeState extends State<Home> {
               size: 30,
             ),
             onPressed: () {
-              // Implement settings functionality here
+              Navigator.push(context,
+                MaterialPageRoute(
+                builder: (context) => ContentsSetting(
+                  groupId: widget.groupId,
+                ),
+              ),);
             },
           ),
         ],
@@ -126,7 +139,7 @@ class _HomeState extends State<Home> {
                 view: CalendarView.week,
                 timeZone: 'Japan',
                 headerHeight: 50,
-                dataSource: MeetingDataSource(getAppointments()),
+                dataSource: MeetingDataSource(GroupCal),
                 headerDateFormat: 'yyyy MMMM',
                 selectionDecoration: BoxDecoration(
                   color: Colors.transparent,
@@ -135,21 +148,31 @@ class _HomeState extends State<Home> {
                     width: 0,
                   ),
                 ),
-                appointmentBuilder: (BuildContext context, CalendarAppointmentDetails details) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: global_colors.Calendar_outline_color,
-                        width: 3.0,
+                todayHighlightColor: GlobalColor.MainCol,
+                todayTextStyle: TextStyle(
+                  color: GlobalColor.SubCol,
+                  fontWeight: FontWeight.bold,
+                ),
+                appointmentBuilder: (context, calendarAppointmentDetails) {
+                  final Appointment appointment =
+                      calendarAppointmentDetails.appointments.first;
+                  return Padding(
+                    padding: EdgeInsets.only(left: 3.0),
+                    // Adjust this value as needed
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: appointment.color,
+                        borderRadius: BorderRadius.circular(5),
                       ),
                     ),
                   );
                 },
-                cellBorderColor: global_colors.Calendar_grid_color,
+                showTodayButton: true,
+                cellBorderColor: GlobalColor.Calendar_grid_color,
                 timeSlotViewSettings: TimeSlotViewSettings(
                   timeFormat: 'H:mm',
                 ),
-                specialRegions: GroupCal,
+                specialRegions: getAppointments(),
               ),
               ChatScreen(gid: widget.groupId),
             ],
@@ -185,16 +208,18 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _getTimeRegions() async {
-    var fetchedRegions = await GetGroupCalendar().getGroupCalendar(widget.groupId, '2023-01-00', '2025-12-11');
+    var fetchedRegions = await GetGroupCalendar()
+        .getGroupCalendar(widget.groupId, '2023-01-00', '2025-12-11');
     setState(() {
       GroupCal = fetchedRegions;
     });
   }
 
-  List<Appointment> getAppointments() {
-    List<Appointment> meetings = <Appointment>[];
+  List<TimeRegion> getAppointments() {
+    List<TimeRegion> meetings = <TimeRegion>[];
     for (var event in _events) {
-      if (event.start?.dateTime == null || event.end?.dateTime == null) continue;
+      if (event.start?.dateTime == null || event.end?.dateTime == null)
+        continue;
 
       if (event.recurrence != null && event.recurrence!.isNotEmpty) {
         String rruleString = event.recurrence![0];
@@ -209,17 +234,18 @@ class _HomeState extends State<Home> {
         );
 
         for (DateTime date in recurringDates) {
-          meetings.add(Appointment(
+          meetings.add(TimeRegion(
             startTime: date,
-            endTime: date.add(event.end!.dateTime!.difference(event.start!.dateTime!)),
-            color: global_colors.Calendar_icon_color,
+            endTime: date
+                .add(event.end!.dateTime!.difference(event.start!.dateTime!)),
+            color: GlobalColor.Calendar_outline_color,
           ));
         }
       } else {
-        meetings.add(Appointment(
+        meetings.add(TimeRegion(
           startTime: event.start!.dateTime!,
           endTime: event.end!.dateTime!,
-          color: global_colors.Calendar_icon_color,
+          color: GlobalColor.Calendar_outline_color,
         ));
       }
     }

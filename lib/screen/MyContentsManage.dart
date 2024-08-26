@@ -43,18 +43,18 @@ class _MyContentsManageState extends State<MyContentsManage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Content'),
-          content: Text('Are you sure you want to delete "$cname"? This action cannot be undone.'),
+          title: Text('マイコンテンツを削除'),
+          content: Text('本当にマイコンテンツ"$cname"を削除しますか? この操作は取り消せません。'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('キャンセル'),
               onPressed: () {
                 Navigator.of(context).pop();
                 _reloadContents(); // Reload contents if deletion is canceled
               },
             ),
             TextButton(
-              child: Text('Delete', style: TextStyle(color: Colors.red)),
+              child: Text('削除', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(context).pop();
                 await _deleteContent(uid, cid);

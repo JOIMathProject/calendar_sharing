@@ -12,7 +12,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../services/APIcalls.dart';
 import 'createContents.dart';
 import '../setting/color.dart' as GlobalColor;
-
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -21,6 +20,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   late List<Widget> _children;
+  bool _isLoading = true;  // Loading state
 
   @override
   void initState() {
@@ -33,12 +33,17 @@ class _MainScreenState extends State<MainScreen> {
       MyContentsManage(),
     ];
   }
+
   Future<void> _initializeApp() async {
     try {
       await _loadUserData();
       await _getDeviceId();
     } catch (e) {
       print('Error during initialization: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;  // Stop loading
+      });
     }
   }
 
@@ -79,6 +84,13 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(), // Or any other loading icon
+        ),
+      );
+    }
     return Scaffold(
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
