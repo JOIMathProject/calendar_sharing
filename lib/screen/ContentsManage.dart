@@ -145,22 +145,22 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
     return filteredContents;
   }
 
-  Widget _buildContentList(List<GroupInformation> filteredContents) {
+  Widget _buildContentList(List<GroupInformation>? filteredContents) {
     return RefreshIndicator(
       onRefresh: _reloadContents,
       child: ListView.builder(
-        itemCount: filteredContents.length,
+        itemCount: filteredContents?.length,
         itemBuilder: (context, index) {
           return ListTile(
             leading: CircleAvatar(
               backgroundImage: NetworkImage(
-                filteredContents[index].is_friends == '1'
-                    ? "https://calendar-files.woody1227.com/user_icon/${filteredContents[index].gicon}"
-                    : "https://calendar-files.woody1227.com/group_icon/${filteredContents[index].gicon}",
+                filteredContents?[index].is_friends == '1'
+                    ? "https://calendar-files.woody1227.com/user_icon/${filteredContents?[index].gicon}"
+                    : "https://calendar-files.woody1227.com/group_icon/${filteredContents?[index].gicon}",
               ),
               backgroundColor: Colors.blue,
             ),
-            title: Text(filteredContents[index].gname),
+            title: Text(filteredContents![index].gname),
             subtitle: Text('最後のメッセージ...'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -173,8 +173,8 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
                       context,
                       MaterialPageRoute(
                         builder: (context) => Home(
-                          groupId: filteredContents[index].gid,
-                          groupName: filteredContents[index].gname,
+                          groupId: filteredContents?[index].gid,
+                          groupName: filteredContents?[index].gname,
                           startOnChatScreen: true,
                         ),
                       ),
@@ -189,8 +189,8 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
                 context,
                 MaterialPageRoute(
                   builder: (context) => Home(
-                    groupId: filteredContents[index].gid,
-                    groupName: filteredContents[index].gname,
+                    groupId: filteredContents?[index].gid,
+                    groupName: filteredContents?[index].gname,
                     startOnChatScreen: false,
                   ),
                 ),

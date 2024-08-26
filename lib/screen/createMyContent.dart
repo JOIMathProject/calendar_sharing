@@ -100,6 +100,7 @@ class _CreateMyContentsState extends State<CreateMyContents> {
                       SnackBar(content: Text('最低でも一つはカレンダーを選択してください')),
                     );
                   }
+                  Navigator.pop(context);
                 },
                 child: Text('作成', style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
                 style: ElevatedButton.styleFrom(
