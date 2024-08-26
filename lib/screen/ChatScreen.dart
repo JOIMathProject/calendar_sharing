@@ -5,6 +5,7 @@ import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 
 class ChatScreen extends StatefulWidget {
   final String? gid;
@@ -55,6 +56,12 @@ class _ChatScreenState extends State<ChatScreen> {
               onEndReached: getMessages,
               showUserAvatars: true,
               showUserNames: true,
+              theme: DefaultChatTheme(
+                userAvatarNameColors: [
+                  GlobalColor.MainCol,
+                ],
+                primaryColor: GlobalColor.MainCol,
+              ),
             ),
           )
         ],
