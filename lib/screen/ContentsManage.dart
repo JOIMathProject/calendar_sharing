@@ -3,9 +3,11 @@ import 'package:calendar_sharing/screen/Content.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
 import '../setting/color.dart' as GlobalColor;
+import 'package:badges/badges.dart' as badge;
 
 class ContentsManage extends StatefulWidget {
   @override
@@ -18,6 +20,7 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
   late TabController _tabController;
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+  final timeFormat = DateFormat('HH:mm');
 
   @override
   void initState() {
@@ -161,11 +164,18 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
               backgroundColor: Colors.blue,
             ),
             title: Text(filteredContents![index].gname),
-            subtitle: Text('最後のメッセージ...'),
+            subtitle: Text(filteredContents[index].latest_message),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('12:34 PM'),
+                badge.Badge(
+                  //showBadge: filteredContents[index].unread_messages > 0,
+                  badgeContent: Text(
+                    filteredContents[index].unread_messages.toString(),
+                    style: TextStyle(color: GlobalColor.SubCol),
+                  ),
+                ),
+                Text(timeFormat.format(filteredContents[index].latest_message_time)),
                 IconButton(
                   icon: Icon(Icons.chat, color: GlobalColor.Unselected),
                   onPressed: () {
