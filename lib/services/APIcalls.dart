@@ -67,6 +67,16 @@ class MyContentsInformation {
     required this.cname,
   });
 }
+class ContentsInformation {
+  final String cid;
+  final String cname;
+  final String uid;
+  ContentsInformation({
+    required this.cid,
+    required this.cname,
+    required this.uid,
+  });
+}
 class CalendarInformation{
   final String calendar_id;
   final String summary;
@@ -379,6 +389,27 @@ class UpdateGroupIcon{
     }
   }
 }
+class GetContentInGroup{
+  Future<List<ContentsInformation>?> getContentInGroup(String? gid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content');
+    final response = await http.get(url);
+    if (response.statusCode == 404){
+      return null;
+    }
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    List<ContentsInformation> contents = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      contents.add(ContentsInformation(
+        cid: group['cid'],
+        cname: group['cname'],
+        uid: group['uid'],
+      ));
+    }
+    return contents;
+  }
+}
 class AddContentsToGroup{
   Future<void> addContentsToGroup(String? gid, String? cid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents');
@@ -398,7 +429,7 @@ class RemoveContentsFromGroup{
   Future<void> removeContentsFromGroup(String? gid, String? cid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents/$cid');
     final response = await http.delete(url);
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
   }

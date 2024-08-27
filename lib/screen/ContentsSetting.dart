@@ -1,6 +1,7 @@
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/setting/color.dart' as global_colors;
+import 'package:googleapis/script/v1.dart';
 import 'package:provider/provider.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import '../setting/color.dart' as GlobalColor;
@@ -18,41 +19,50 @@ class _ContentsSettingState extends State<ContentsSetting> {
   TextStyle bigFont = TextStyle(fontSize: 20);
   List<MyContentsInformation> calendars = [];
   List<UserInformation> users = [];  // List to store users
-  String cid = '';
   String selectedIcon = 'default_icon.png';  // Placeholder for icon
-  String? selectedContent; // Allow selectedContent to be nullable
+  MyContentsInformation? selectedContent; // Allow selectedContent to be nullable
 
   @override
   void initState() {
     super.initState();
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     _getMyContents(uid!);
-    //print calendars
     _getGroupUsers(); // Load existing group users
   }
 
   Future<void> _getMyContents(String uid) async {
     calendars = await GetMyContents().getMyContents(uid);
-    if (calendars.isNotEmpty) {
-      selectedContent = calendars[0].cname; // Set default selected value to first item
-    }
+    calendars.insert(0, MyContentsInformation(cid: '', cname: 'None')); // Add 'None' to the list
+    selectedContent = await _getCurrentUserContent(widget.groupId!,uid); // Set default to current user content
     setState(() {}); // Trigger a rebuild once the content is loaded
   }
 
+  Future<MyContentsInformation?> _getCurrentUserContent(String gid, String uid) async {
+    List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(gid);
+    if (contents?.isNotEmpty == true) {
+      // Find the content in calendars with matching uid
+      return calendars.firstWhere(
+            (content) => contents!.any((groupContent) => groupContent.uid == uid && content.cid == groupContent.cid),
+        orElse: () => calendars[0], // Return 'None' if no match is found
+      );
+    }
+    return calendars[0];
+  }
+
+
   Future<void> _getGroupUsers() async {
-    print(widget.groupId!);
-    users = await GetUserInGroup().getUserInGroup(widget.groupId!); // Fetch users
-    print('hey');
-    print(users.length);
-    setState(() {}); // Trigger a rebuild
+    users = await GetUserInGroup().getUserInGroup(widget.groupId!);
+    setState(() {});
   }
 
   Future<void> _changeGroupName(String gname) async {
     await UpdateGroupName().updateGroupName(widget.groupId, gname);
+    setState(() {});
   }
 
   Future<void> _changeGroupIcon(String gicon) async {
     await UpdateGroupName().updateGroupName(widget.groupId, gicon);
+    setState(() {});
   }
 
   Future<void> _addContentToGroup(String gid, String cid) async {
@@ -129,19 +139,26 @@ class _ContentsSettingState extends State<ContentsSetting> {
             SizedBox(height: 20),
             Text("コンテンツを選択", style: bigFont),
             if (calendars.isNotEmpty)
-              DropdownButton<String>(
+              DropdownButton<MyContentsInformation>(
                 value: selectedContent,
                 items: calendars.map((MyContentsInformation content) {
-                  return DropdownMenuItem<String>(
-                    value: content.cname,
+                  return DropdownMenuItem<MyContentsInformation>(
+                    value: content,
                     child: Text(content.cname),
                   );
                 }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedContent = newValue!;
-                  });
-                  _addContentToGroup(widget.groupId!, selectedContent!);
+                onChanged: (MyContentsInformation? newValue) async {
+                  if (newValue != null) {
+                    if (selectedContent?.cid != '') {
+                      await _removeContentFromGroup(widget.groupId!, selectedContent!.cid);
+                    }
+                    setState(() {
+                      selectedContent = newValue;
+                    });
+                    if (newValue.cname != 'None') {
+                      await _addContentToGroup(widget.groupId!, newValue.cid);
+                    }
+                  }
                 },
               ),
           ],
