@@ -52,12 +52,18 @@ class GroupInformation {
   final String gname;
   final String gicon;
   final String is_friends;
+  final int unread_messages;
+  final String latest_message;
+  final DateTime latest_message_time;
   GroupInformation(
       {required this.id,
       required this.gid,
       required this.gname,
       required this.gicon,
-      required this.is_friends});
+      required this.is_friends,
+      required this.unread_messages,
+      required this.latest_message,
+      required this.latest_message_time});
 }
 class MyContentsInformation {
   final String cid;
@@ -256,7 +262,7 @@ class AddFriendRequest {
 }
 class GetGroupInfo{
   Future<List<GroupInformation>> getGroupInfo(String? uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups');
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups/detail');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -266,12 +272,21 @@ class GetGroupInfo{
     //responseの中のdataの中のuidだけをListにして返す
     List<GroupInformation> groups = [];
     for (var group in jsonDecode(response.body)['data']) {
+      DateTime latestMessageTime;
+      if (group['latest_message']['sent_time'] != null) {
+        latestMessageTime = DateTime.parse(group['latest_message']['sent_time']);
+      } else {
+        latestMessageTime = DateTime.now().add(const Duration(hours: 9));
+      }
       groups.add(GroupInformation(
         id: group['id'] ?? 0,
         gid: group['gid'] ?? 'default',
         gname: group['gname'] ?? 'default',
         gicon: group['gicon'] ?? 'default_icon.png',
         is_friends: group['is_friends'] ?? '0',
+        unread_messages: int.parse(group['unread_count']) ?? 0,
+        latest_message: group['latest_message']['content'] ?? 'default',
+        latest_message_time: latestMessageTime,
       ));
     }
     //print everything
