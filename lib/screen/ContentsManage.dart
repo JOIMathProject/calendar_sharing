@@ -21,6 +21,7 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
   final timeFormat = DateFormat('HH:mm');
+  final dateFormat = DateFormat('MM/dd');
 
   @override
   void initState() {
@@ -144,7 +145,8 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
           .where((content) => content.gname.toLowerCase().contains(_searchQuery.toLowerCase()))
           .toList();
     }
-
+    // Sort by latest message time
+    filteredContents.sort((a, b) => b.latest_message_time.compareTo(a.latest_message_time));
     return filteredContents;
   }
 
@@ -169,13 +171,21 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
               mainAxisSize: MainAxisSize.min,
               children: [
                 badge.Badge(
-                  //showBadge: filteredContents[index].unread_messages > 0,
+                  showBadge: filteredContents[index].unread_messages > 0,
                   badgeContent: Text(
                     filteredContents[index].unread_messages.toString(),
                     style: TextStyle(color: GlobalColor.SubCol),
                   ),
                 ),
-                Text(timeFormat.format(filteredContents[index].latest_message_time)),
+                SizedBox(width: 10.0),
+                Text(
+                  //今日なら時刻、それ以外なら日付
+                  filteredContents[index].latest_message_time.day == DateTime.now().day &&
+                          filteredContents[index].latest_message_time.month == DateTime.now().month &&
+                          filteredContents[index].latest_message_time.year == DateTime.now().year
+                      ? timeFormat.format(filteredContents[index].latest_message_time)
+                      : dateFormat.format(filteredContents[index].latest_message_time),
+                ),
                 IconButton(
                   icon: Icon(Icons.chat, color: GlobalColor.Unselected),
                   onPressed: () {
