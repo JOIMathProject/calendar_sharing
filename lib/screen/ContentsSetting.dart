@@ -1,9 +1,7 @@
-import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
-import 'package:calendar_sharing/setting/color.dart' as global_colors;
-import 'package:googleapis/script/v1.dart';
 import 'package:provider/provider.dart';
 import 'package:calendar_sharing/services/UserData.dart';
+import 'package:calendar_sharing/services/APIcalls.dart';
 import '../setting/color.dart' as GlobalColor;
 
 class ContentsSetting extends StatefulWidget {
@@ -18,37 +16,35 @@ class _ContentsSettingState extends State<ContentsSetting> {
   String title = '';
   TextStyle bigFont = TextStyle(fontSize: 20);
   List<MyContentsInformation> calendars = [];
-  List<UserInformation> users = [];  // List to store users
-  String selectedIcon = 'default_icon.png';  // Placeholder for icon
-  MyContentsInformation? selectedContent; // Allow selectedContent to be nullable
+  List<UserInformation> users = [];
+  String selectedIcon = 'default_icon.png';
+  MyContentsInformation? selectedContent;
 
   @override
   void initState() {
     super.initState();
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     _getMyContents(uid!);
-    _getGroupUsers(); // Load existing group users
+    _getGroupUsers();
   }
 
   Future<void> _getMyContents(String uid) async {
     calendars = await GetMyContents().getMyContents(uid);
-    calendars.insert(0, MyContentsInformation(cid: '', cname: 'None')); // Add 'None' to the list
-    selectedContent = await _getCurrentUserContent(widget.groupId!,uid); // Set default to current user content
-    setState(() {}); // Trigger a rebuild once the content is loaded
+    calendars.insert(0, MyContentsInformation(cid: '', cname: 'None'));
+    selectedContent = await _getCurrentUserContent(widget.groupId!, uid);
+    setState(() {});
   }
 
   Future<MyContentsInformation?> _getCurrentUserContent(String gid, String uid) async {
     List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(gid);
     if (contents?.isNotEmpty == true) {
-      // Find the content in calendars with matching uid
       return calendars.firstWhere(
             (content) => contents!.any((groupContent) => groupContent.uid == uid && content.cid == groupContent.cid),
-        orElse: () => calendars[0], // Return 'None' if no match is found
+        orElse: () => calendars[0],
       );
     }
     return calendars[0];
   }
-
 
   Future<void> _getGroupUsers() async {
     users = await GetUserInGroup().getUserInGroup(widget.groupId!);
@@ -75,16 +71,49 @@ class _ContentsSettingState extends State<ContentsSetting> {
 
   Future<void> _addUserToGroup(String gid, String Adduid) async {
     await AddUserToGroup().addUserToGroup(gid, Adduid);
-    _getGroupUsers(); // Refresh the user list
+    _getGroupUsers();
   }
 
   Future<void> _removeUserFromGroup(String gid, String Removeuid) async {
     await DeleteUserFromGroup().deleteUserFromGroup(gid, Removeuid);
-    _getGroupUsers(); // Refresh the user list
+    _getGroupUsers();
+  }
+
+  Future<void> _showRemoveUserDialog(String uid, String uname) async {
+    bool shouldRemove = false;
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Remove User'),
+          content: Text('Are you sure you want to remove $uname from the group?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Remove'),
+              onPressed: () {
+                shouldRemove = true;
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    if (shouldRemove) {
+      await _removeUserFromGroup(widget.groupId!, uid);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    String? currentUserUid = Provider.of<UserData>(context, listen: false).uid;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalColor.SubCol,
@@ -118,13 +147,14 @@ class _ContentsSettingState extends State<ContentsSetting> {
               child: ListView.builder(
                 itemCount: users.length,
                 itemBuilder: (context, index) {
+                  String uid = users[index].uid;
                   return ListTile(
                     title: Text(users[index].uname),
                     trailing: IconButton(
                       icon: Icon(Icons.delete),
-                      onPressed: () {
-                        _removeUserFromGroup(widget.groupId!, users[index].uid);
-                      },
+                      onPressed: uid != currentUserUid
+                          ? () => _showRemoveUserDialog(uid, users[index].uname)
+                          : null, // Prevent self-deletion
                     ),
                   );
                 },
@@ -135,6 +165,14 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 // Implement logic to add user
               },
               child: Text('ユーザーを追加'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                await _removeUserFromGroup(widget.groupId!, currentUserUid!);
+                Navigator.of(context).pop(); // Go back to the previous screen
+              },
+              child: Text('グループを離れる'),
             ),
             SizedBox(height: 20),
             Text("コンテンツを選択", style: bigFont),

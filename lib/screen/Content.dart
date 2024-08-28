@@ -16,6 +16,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import '../services/auth.dart';
 import '../setting/color.dart' as GlobalColor;
+import 'dart:ui' as ui;
 
 class Home extends StatefulWidget {
   final String? groupId;
@@ -38,7 +39,8 @@ class _HomeState extends State<Home> {
   final AuthService _auth = AuthService();
   late PageController _pageController;
   bool _showFab = true;
-  int _currentPage = 0; // To track the current page
+  int _currentPage = 0;
+  CalendarView _currentView = CalendarView.week; // To track the current view
 
   List<Appointment> GroupCal = [];
 
@@ -87,6 +89,29 @@ class _HomeState extends State<Home> {
         title: Text(widget.groupName!),
         backgroundColor: GlobalColor.SubCol,
         actions: [
+          DropdownButton<CalendarView>(
+            value: _currentView,
+            icon: Icon(Icons.arrow_drop_down),
+            onChanged: (CalendarView? newView) {
+              setState(() {
+                if (newView != null) _currentView = newView;
+              });
+            },
+            items: [
+              DropdownMenuItem(
+                value: CalendarView.month,
+                child: Text('Month View'),
+              ),
+              DropdownMenuItem(
+                value: CalendarView.week,
+                child: Text('Week View'),
+              ),
+              DropdownMenuItem(
+                value: CalendarView.day,
+                child: Text('Day View'),
+              ),
+            ],
+          ),
           IconButton(
             icon: Icon(
               _currentPage == 0
@@ -114,12 +139,14 @@ class _HomeState extends State<Home> {
               size: 30,
             ),
             onPressed: () {
-              Navigator.push(context,
+              Navigator.push(
+                context,
                 MaterialPageRoute(
-                builder: (context) => ContentsSetting(
-                  groupId: widget.groupId,
+                  builder: (context) => ContentsSetting(
+                    groupId: widget.groupId,
+                  ),
                 ),
-              ),);
+              );
             },
           ),
         ],
@@ -136,7 +163,8 @@ class _HomeState extends State<Home> {
             },
             children: [
               SfCalendar(
-                view: CalendarView.week,
+                key: ValueKey(_currentView),
+                view: _currentView,
                 timeZone: 'Japan',
                 headerHeight: 50,
                 dataSource: MeetingDataSource(GroupCal),
@@ -153,16 +181,25 @@ class _HomeState extends State<Home> {
                   color: GlobalColor.SubCol,
                   fontWeight: FontWeight.bold,
                 ),
-                appointmentBuilder: (context, calendarAppointmentDetails) {
-                  final Appointment appointment =
-                      calendarAppointmentDetails.appointments.first;
-                  return Padding(
-                    padding: EdgeInsets.only(left: 3.0),
-                    // Adjust this value as needed
+                appointmentBuilder:
+                    (BuildContext context, CalendarAppointmentDetails details) {
+                  final Appointment appointment = details.appointments.first;
+                  return Directionality(
+                    textDirection: ui.TextDirection.rtl,
                     child: Container(
                       decoration: BoxDecoration(
                         color: appointment.color,
-                        borderRadius: BorderRadius.circular(5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Center(
+                        child: Text(
+                          appointment.subject,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -177,33 +214,8 @@ class _HomeState extends State<Home> {
               ChatScreen(gid: widget.groupId),
             ],
           ),
-          //if (!_showFab)
-          //  Align(
-          //    alignment: Alignment.bottomRight,
-          //    child: Padding(
-          //      padding: const EdgeInsets.only(bottom: 100.0, right: 16),
-          //      child: FloatingActionButton(
-          //        onPressed: () {
-          //          _pageController.previousPage(
-          //              duration: Duration(milliseconds: 300),
-          //              curve: Curves.easeInOut);
-          //        },
-          //        child: Icon(Icons.calendar_today),
-          //      ),
-          //    ),
-          //  ),
         ],
       ),
-      //floatingActionButton: _showFab
-      //    ? FloatingActionButton(
-      //  onPressed: () {
-      //    _pageController.nextPage(
-      //        duration: Duration(milliseconds: 300),
-      //        curve: Curves.easeInOut);
-      //  },
-      //  child: Icon(Icons.message),
-      //)
-      //    : null,
     );
   }
 

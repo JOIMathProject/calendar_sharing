@@ -346,7 +346,7 @@ class DeleteUserFromGroup{
   Future<void> deleteUserFromGroup(String? gid, String? deleteUid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members/$deleteUid');
     final response = await http.delete(url);
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 || response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
   }
