@@ -1,8 +1,7 @@
-import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
-import 'package:calendar_sharing/setting/color.dart' as global_colors;
 import 'package:provider/provider.dart';
 import 'package:calendar_sharing/services/UserData.dart';
+import 'package:calendar_sharing/services/APIcalls.dart';
 import '../setting/color.dart' as GlobalColor;
 
 class ContentsSetting extends StatefulWidget {
@@ -17,42 +16,49 @@ class _ContentsSettingState extends State<ContentsSetting> {
   String title = '';
   TextStyle bigFont = TextStyle(fontSize: 20);
   List<MyContentsInformation> calendars = [];
-  List<UserInformation> users = [];  // List to store users
-  String cid = '';
-  String selectedIcon = 'default_icon.png';  // Placeholder for icon
-  String? selectedContent; // Allow selectedContent to be nullable
+  List<UserInformation> users = [];
+  String selectedIcon = 'default_icon.png';
+  MyContentsInformation? selectedContent;
 
   @override
   void initState() {
     super.initState();
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     _getMyContents(uid!);
-    //print calendars
-    _getGroupUsers(); // Load existing group users
+    _getGroupUsers();
   }
 
   Future<void> _getMyContents(String uid) async {
     calendars = await GetMyContents().getMyContents(uid);
-    if (calendars.isNotEmpty) {
-      selectedContent = calendars[0].cname; // Set default selected value to first item
+    calendars.insert(0, MyContentsInformation(cid: '', cname: 'None'));
+    selectedContent = await _getCurrentUserContent(widget.groupId!, uid);
+    setState(() {});
+  }
+
+  Future<MyContentsInformation?> _getCurrentUserContent(String gid, String uid) async {
+    List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(gid);
+    if (contents?.isNotEmpty == true) {
+      return calendars.firstWhere(
+            (content) => contents!.any((groupContent) => groupContent.uid == uid && content.cid == groupContent.cid),
+        orElse: () => calendars[0],
+      );
     }
-    setState(() {}); // Trigger a rebuild once the content is loaded
+    return calendars[0];
   }
 
   Future<void> _getGroupUsers() async {
-    print(widget.groupId!);
-    users = await GetUserInGroup().getUserInGroup(widget.groupId!); // Fetch users
-    print('hey');
-    print(users.length);
-    setState(() {}); // Trigger a rebuild
+    users = await GetUserInGroup().getUserInGroup(widget.groupId!);
+    setState(() {});
   }
 
   Future<void> _changeGroupName(String gname) async {
     await UpdateGroupName().updateGroupName(widget.groupId, gname);
+    setState(() {});
   }
 
   Future<void> _changeGroupIcon(String gicon) async {
     await UpdateGroupName().updateGroupName(widget.groupId, gicon);
+    setState(() {});
   }
 
   Future<void> _addContentToGroup(String gid, String cid) async {
@@ -65,16 +71,49 @@ class _ContentsSettingState extends State<ContentsSetting> {
 
   Future<void> _addUserToGroup(String gid, String Adduid) async {
     await AddUserToGroup().addUserToGroup(gid, Adduid);
-    _getGroupUsers(); // Refresh the user list
+    _getGroupUsers();
   }
 
   Future<void> _removeUserFromGroup(String gid, String Removeuid) async {
     await DeleteUserFromGroup().deleteUserFromGroup(gid, Removeuid);
-    _getGroupUsers(); // Refresh the user list
+    _getGroupUsers();
+  }
+
+  Future<void> _showRemoveUserDialog(String uid, String uname) async {
+    bool shouldRemove = false;
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Remove User'),
+          content: Text('Are you sure you want to remove $uname from the group?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Remove'),
+              onPressed: () {
+                shouldRemove = true;
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    if (shouldRemove) {
+      await _removeUserFromGroup(widget.groupId!, uid);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    String? currentUserUid = Provider.of<UserData>(context, listen: false).uid;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalColor.SubCol,
@@ -108,13 +147,14 @@ class _ContentsSettingState extends State<ContentsSetting> {
               child: ListView.builder(
                 itemCount: users.length,
                 itemBuilder: (context, index) {
+                  String uid = users[index].uid;
                   return ListTile(
                     title: Text(users[index].uname),
                     trailing: IconButton(
                       icon: Icon(Icons.delete),
-                      onPressed: () {
-                        _removeUserFromGroup(widget.groupId!, users[index].uid);
-                      },
+                      onPressed: uid != currentUserUid
+                          ? () => _showRemoveUserDialog(uid, users[index].uname)
+                          : null, // Prevent self-deletion
                     ),
                   );
                 },
@@ -127,21 +167,36 @@ class _ContentsSettingState extends State<ContentsSetting> {
               child: Text('ユーザーを追加'),
             ),
             SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                await _removeUserFromGroup(widget.groupId!, currentUserUid!);
+                Navigator.of(context).pop(); // Go back to the previous screen
+              },
+              child: Text('グループを離れる'),
+            ),
+            SizedBox(height: 20),
             Text("コンテンツを選択", style: bigFont),
             if (calendars.isNotEmpty)
-              DropdownButton<String>(
+              DropdownButton<MyContentsInformation>(
                 value: selectedContent,
                 items: calendars.map((MyContentsInformation content) {
-                  return DropdownMenuItem<String>(
-                    value: content.cname,
+                  return DropdownMenuItem<MyContentsInformation>(
+                    value: content,
                     child: Text(content.cname),
                   );
                 }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedContent = newValue!;
-                  });
-                  _addContentToGroup(widget.groupId!, selectedContent!);
+                onChanged: (MyContentsInformation? newValue) async {
+                  if (newValue != null) {
+                    if (selectedContent?.cid != '') {
+                      await _removeContentFromGroup(widget.groupId!, selectedContent!.cid);
+                    }
+                    setState(() {
+                      selectedContent = newValue;
+                    });
+                    if (newValue.cname != 'None') {
+                      await _addContentToGroup(widget.groupId!, newValue.cid);
+                    }
+                  }
                 },
               ),
           ],
