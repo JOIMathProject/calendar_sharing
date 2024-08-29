@@ -6,6 +6,7 @@ import 'package:calendar_sharing/services/UserData.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/admob/v1.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rrule/rrule.dart';
@@ -35,7 +36,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   var httpClientO = null;
   var googleCalendarApiO = null;
-  List<cal.Event> _events = [];
+  List<Appointment> _events = [];
   final AuthService _auth = AuthService();
   late PageController _pageController;
   bool _showFab = true;
@@ -52,38 +53,23 @@ class _HomeState extends State<Home> {
     _currentPage = widget.startOnChatScreen ? 1 : 0;
     _showFab = !widget.startOnChatScreen;
     _getTimeRegions();
+    _getCalendar();
   }
-
-  Future<void> _getSelfCalendarEvents(GoogleSignIn? gUser) async {
-    if (gUser == null) return;
-    try {
-      httpClientO = (await gUser?.authenticatedClient())!;
-    } catch (e) {
-      print(e.toString());
-      await _auth.signOut(context);
-      return;
-    }
-    googleCalendarApiO = cal.CalendarApi(httpClientO);
-    String calenderId = "primary";
-    DateTime timeMin = DateTime(2000, 4, 1);
-    DateTime timeMax = DateTime(2100, 12, 31);
-    try {
-      var events = await googleCalendarApiO.events.list(calenderId,
-          timeMin: timeMin, timeMax: timeMax, maxResults: 2500);
-      if (events.items != null && events.items!.isNotEmpty) {
-        setState(() {
-          _events = events.items!;
-        });
+  Future<void> _getCalendar() async {
+    List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(widget.groupId);
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    if (contents?.isNotEmpty == true) {
+      for (var content in contents!) {
+        if(content.uid == uid){
+          _events = await GetMyContentsSchedule().getMyContentsSchedule(uid, content.cid, '2024-01-00', '2025-12-11');
+        }
       }
-    } catch (e) {
-      print(e.toString());
     }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
-    _getSelfCalendarEvents(gUser);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.groupName!),
@@ -181,29 +167,6 @@ class _HomeState extends State<Home> {
                   color: GlobalColor.SubCol,
                   fontWeight: FontWeight.bold,
                 ),
-                appointmentBuilder:
-                    (BuildContext context, CalendarAppointmentDetails details) {
-                  final Appointment appointment = details.appointments.first;
-                  return Directionality(
-                    textDirection: ui.TextDirection.rtl,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: appointment.color,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Center(
-                        child: Text(
-                          appointment.subject,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
                 showTodayButton: true,
                 cellBorderColor: GlobalColor.Calendar_grid_color,
                 timeSlotViewSettings: TimeSlotViewSettings(
@@ -230,37 +193,13 @@ class _HomeState extends State<Home> {
   List<TimeRegion> getAppointments() {
     List<TimeRegion> meetings = <TimeRegion>[];
     for (var event in _events) {
-      if (event.start?.dateTime == null || event.end?.dateTime == null)
-        continue;
-
-      if (event.recurrence != null && event.recurrence!.isNotEmpty) {
-        String rruleString = event.recurrence![0];
-        rruleString = rruleString.replaceAll('WKST=SU', 'WKST=MO');
-        RecurrenceRule rrule = RecurrenceRule.fromString(rruleString);
-
-        List<DateTime> recurringDates = rrule.getAllInstances(
-          start: event.start!.dateTime!,
-          before: rrule.until == null
-              ? event.start!.dateTime!.add(Duration(days: 365))
-              : rrule.until,
-        );
-
-        for (DateTime date in recurringDates) {
-          meetings.add(TimeRegion(
-            startTime: date,
-            endTime: date
-                .add(event.end!.dateTime!.difference(event.start!.dateTime!)),
-            color: GlobalColor.Calendar_outline_color,
-          ));
-        }
-      } else {
+      if (event.startTime == null || event.endTime == null) continue;
         meetings.add(TimeRegion(
-          startTime: event.start!.dateTime!,
-          endTime: event.end!.dateTime!,
+          startTime: event.startTime,
+          endTime: event.endTime,
           color: GlobalColor.Calendar_outline_color,
         ));
       }
-    }
     return meetings;
   }
 }
