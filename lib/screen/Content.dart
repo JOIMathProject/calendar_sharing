@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:calendar_sharing/screen/ChatScreen.dart';
 import 'package:calendar_sharing/screen/ContentsSetting.dart';
+import 'package:calendar_sharing/screen/SearchSchedule.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:flutter/gestures.dart';
@@ -179,6 +180,18 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+              backgroundColor: GlobalColor.MainCol,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SearchSchedule(groupId: widget.groupId,),
+                  ),
+                );
+              },
+              child: Icon(Icons.search, color: GlobalColor.SubCol, size: 30),
+            )
     );
   }
 
