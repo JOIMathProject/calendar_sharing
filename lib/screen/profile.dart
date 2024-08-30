@@ -14,22 +14,39 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final imagePicker = ImagePicker();
+  bool isEditingUID = false;
+  bool isEditingUsername = false;
+  TextEditingController uidController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
 
   Future<XFile?> getImageFromGallery() async {
     return await imagePicker.pickImage(source: ImageSource.gallery);
   }
 
   @override
+  void dispose() {
+    uidController.dispose();
+    usernameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
 
+    uidController.text = userData.uid!;
+    usernameController.text = userData.uname!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sando',
-          style: TextStyle(color: GlobalColor.MainCol,
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Pacifico'),
+        title: Text(
+          'Sando',
+          style: TextStyle(
+            color: GlobalColor.MainCol,
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Pacifico',
+          ),
         ),
         backgroundColor: GlobalColor.SubCol,
         centerTitle: true,
@@ -57,8 +74,8 @@ class _ProfileState extends State<Profile> {
                           List<int> imageBytes =
                           await File(image.path).readAsBytesSync();
                           String base64Image = base64Encode(imageBytes);
-                          await UpdateUserImage().updateUserImage(
-                              userData.uid, base64Image);
+                          await UpdateUserImage()
+                              .updateUserImage(userData.uid, base64Image);
                         }
                       },
                       child: CircleAvatar(
@@ -75,57 +92,46 @@ class _ProfileState extends State<Profile> {
             buildProfileField(
               context,
               label: 'ユーザーID',
-              value: '@'+userData.uid!,
-              onEdit: () async {
-                final newUid = await showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    String uidValue = '';
-                    return buildEditDialog(
-                      context,
-                      title: 'UIDを編集',
-                      hintText: '新規UID',
-                      onChanged: (value) => uidValue = value,
-                      onSave: () {
-                        Navigator.of(context).pop(uidValue);
-                        setState(() {});
-                      },
-                    );
-                  },
-                );
-                if (newUid != null && newUid.isNotEmpty) {
-                  await UpdateUserID().updateUserID(userData.uid, newUid);
-                  Provider.of<UserData>(context, listen: false).uid = newUid;
-                  setState(() {});
+              controller: uidController,
+              isEditing: isEditingUID,
+              onEditToggle: () {
+                setState(() {
+                  isEditingUID = !isEditingUID;
+                });
+              },
+              onSave: () async {
+                if (uidController.text.isNotEmpty &&
+                    uidController.text != userData.uid) {
+                  await UpdateUserID()
+                      .updateUserID(userData.uid, uidController.text);
+                  Provider.of<UserData>(context, listen: false).uid =
+                      uidController.text;
+                  setState(() {
+                    isEditingUID = false;
+                  });
                 }
               },
             ),
             buildProfileField(
               context,
               label: 'ユーザー名',
-              value: userData.uname!,
-              onEdit: () async {
-                final newUsername = await showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    String unameValue = '';
-                    return buildEditDialog(
-                      context,
-                      title: 'ユーザー名を編集',
-                      hintText: '新規ユーザー名',
-                      onChanged: (value) => unameValue = value,
-                      onSave: () {
-                        Navigator.of(context).pop(unameValue);
-                        setState(() {});
-                      },
-                    );
-                  },
-                );
-                if (newUsername != null && newUsername.isNotEmpty) {
+              controller: usernameController,
+              isEditing: isEditingUsername,
+              onEditToggle: () {
+                setState(() {
+                  isEditingUsername = !isEditingUsername;
+                });
+              },
+              onSave: () async {
+                if (usernameController.text.isNotEmpty &&
+                    usernameController.text != userData.uname) {
                   await UpdateUserName()
-                      .updateUserName(userData.uid, newUsername);
-                  Provider.of<UserData>(context, listen: false).uname = newUsername;
-                  setState(() {});
+                      .updateUserName(userData.uid, usernameController.text);
+                  Provider.of<UserData>(context, listen: false).uname =
+                      usernameController.text;
+                  setState(() {
+                    isEditingUsername = false;
+                  });
                 }
               },
             ),
@@ -140,46 +146,32 @@ class _ProfileState extends State<Profile> {
 
   Widget buildProfileField(BuildContext context,
       {required String label,
-        required String value,
-        required VoidCallback onEdit}) {
+        required TextEditingController controller,
+        required bool isEditing,
+        required VoidCallback onEditToggle,
+        required VoidCallback onSave}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('$label: $value', style: TextStyle(fontSize: 18)),
+          isEditing
+              ? Expanded(
+            child: TextField(
+              controller: controller,
+              style: TextStyle(fontSize: 18),
+              decoration: InputDecoration(
+                hintText: label,
+              ),
+            ),
+          )
+              : Text('$label: ${controller.text}', style: TextStyle(fontSize: 18)),
           IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: onEdit,
+            icon: Icon(isEditing ? Icons.check : Icons.edit),
+            onPressed: isEditing ? onSave : onEditToggle,
           ),
         ],
       ),
-    );
-  }
-
-  AlertDialog buildEditDialog(BuildContext context,
-      {required String title,
-        required String hintText,
-        required ValueChanged<String> onChanged,
-        required VoidCallback onSave}) {
-    return AlertDialog(
-      title: Text(title),
-      content: TextField(
-        decoration: InputDecoration(hintText: hintText),
-        onChanged: onChanged,
-      ),
-      actions: [
-        TextButton(
-          child: Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop(null);
-          },
-        ),
-        TextButton(
-          child: Text('Save'),
-          onPressed: onSave,
-        ),
-      ],
     );
   }
 }
