@@ -42,7 +42,7 @@ class _HomeState extends State<Home> {
   late PageController _pageController;
   bool _showFab = true;
   int _currentPage = 0;
-  CalendarView _currentView = CalendarView.week; // To track the current view
+  CalendarView _currentView = CalendarView.week;
 
   List<Appointment> GroupCal = [];
 
@@ -75,6 +75,9 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(widget.groupName!),
         backgroundColor: GlobalColor.SubCol,
+        flexibleSpace: Container(
+          color: GlobalColor.SubCol,
+        ),
         actions: [
           DropdownButton<CalendarView>(
             value: _currentView,
@@ -180,7 +183,7 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _showFab ? FloatingActionButton(
               backgroundColor: GlobalColor.MainCol,
               onPressed: () {
                 Navigator.push(
@@ -191,7 +194,7 @@ class _HomeState extends State<Home> {
                 );
               },
               child: Icon(Icons.search, color: GlobalColor.SubCol, size: 30),
-            )
+            ): null,
     );
   }
 

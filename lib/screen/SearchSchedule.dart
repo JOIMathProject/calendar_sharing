@@ -2,6 +2,7 @@ import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 import 'package:googleapis/chat/v1.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class SearchSchedule extends StatefulWidget {
@@ -113,12 +114,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
     String formattedEndDateDay = formatWithLeadingZero(endDateDay);
     String formattedStartTime = formatWithLeadingZero(startTime);
     String formattedEndTime = formatWithLeadingZero(endTime);
-    print(widget.groupId);
-    print('$startYear-$formattedStartDateMonth-$formattedStartDateDay');
-    print('$endYear-$formattedEndDateMonth-$formattedEndDateDay');
-    print(formattedStartTime);
-    print(formattedEndTime);
-    print(GroupSize-minParticipants);
     searchResults = await SearchContentSchedule().searchContentSchedule(
       widget.groupId,
       '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
@@ -130,10 +125,19 @@ class _SearchScheduleState extends State<SearchSchedule> {
       '${minHours * 60}',
       '${GroupSize-minParticipants}',
     );
-
+    print(searchResults.length);
     setState(() {});
   }
+  String formatDateTime(DateTime dateTime) {
+    // Format month and day
+    String monthDay = DateFormat('M月d日').format(dateTime);
 
+    // Format hour
+    String hour = DateFormat('H時').format(dateTime);
+
+    // Combine them
+    return '$monthDay$hour';
+  }
   @override
   Widget build(BuildContext context) {
     if (!hours.contains(startTime)) {
@@ -163,6 +167,9 @@ class _SearchScheduleState extends State<SearchSchedule> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalColor.SubCol,
+        flexibleSpace: Container(
+          color: GlobalColor.SubCol,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -301,9 +308,9 @@ class _SearchScheduleState extends State<SearchSchedule> {
                 itemCount: searchResults.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text(searchResults[index].startTime.toString() +
-                        ' - ' +
-                        searchResults[index].endTime.toString()),
+                    title: Text(formatDateTime(searchResults[index].startTime)+
+                        ' ~ ' +
+                        formatDateTime(searchResults[index].endTime)),
                   );
                 },
               ),

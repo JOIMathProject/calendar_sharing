@@ -123,7 +123,7 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => CreateContents()));
         },
-        child: Icon(Icons.add, color: GlobalColor.SubCol),
+        child: Icon(Icons.group_add, color: GlobalColor.SubCol),
         backgroundColor: GlobalColor.MainCol,
       ),
     );

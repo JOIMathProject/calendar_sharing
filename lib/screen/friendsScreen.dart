@@ -125,7 +125,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => AddFriend()));
         },
-        child: Icon(Icons.add, color: GlobalColor.SubCol),
+        child: Icon(Icons.person_add, color: GlobalColor.SubCol),
         backgroundColor: GlobalColor.MainCol,
       ),
     );
