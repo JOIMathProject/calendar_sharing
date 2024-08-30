@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/APIcalls.dart';
 import '../services/UserData.dart';
@@ -16,6 +21,11 @@ class _CreateContentsState extends State<CreateContents> {
   List<FriendInformation> filteredFriends = [];
   TextStyle bigFont = TextStyle(fontSize: 20);
   String gid = '';
+  TextEditingController _groupTitleController = TextEditingController();
+  TextEditingController _friendSearchController = TextEditingController();
+  final imagePicker = ImagePicker();
+  XFile currentImage = XFile('assets/images/default_group_icon.png');
+  String base64Image = '';
 
   @override
   void initState() {
@@ -27,7 +37,7 @@ class _CreateContentsState extends State<CreateContents> {
     try {
       UserData userData = Provider.of<UserData>(context, listen: false);
       List<FriendInformation> friends =
-          await GetFriends().getFriends(userData.uid);
+      await GetFriends().getFriends(userData.uid);
       Provider.of<UserData>(context, listen: false).updateFriends(friends);
       setState(() {
         filteredFriends = friends;
@@ -56,6 +66,10 @@ class _CreateContentsState extends State<CreateContents> {
     await AddUserToGroup().addUserToGroup(gid, Adduid);
   }
 
+  Future<XFile?> getImageFromGallery() async {
+    return await imagePicker.pickImage(source: ImageSource.gallery);
+  }
+
   @override
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
@@ -77,26 +91,74 @@ class _CreateContentsState extends State<CreateContents> {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'グループタイトルを入力...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
+            child: Row(
+              children: [
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: FileImage(File(currentImage.path)),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () async {
+                          XFile? image = await getImageFromGallery();
+                          if (image != null) {
+                            List<int> imageBytes = await File(image.path).readAsBytesSync();
+                            base64Image = base64Encode(imageBytes);
+                          }
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.grey[200],
+                          radius: 18,
+                          child: Icon(Icons.edit, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                filled: true,
-                fillColor: Colors.grey[200],
-              ),
-              onChanged: (value) {
-                setState(() {
-                  title = value;
-                });
-              },
+                SizedBox(width: 20),
+                Expanded(
+                  child:
+
+                  TextField(
+                    controller: _groupTitleController,
+                    decoration: InputDecoration(
+                      hintText: 'グループタイトルを入力...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: GlobalColor.Unselected,
+                      suffixIcon: title.isNotEmpty
+                          ? IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: () {
+                          _groupTitleController.clear();
+                          setState(() {
+                            title = ''; // Clear the title value
+                          });
+                        },
+                      )
+                          : null,
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        title = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              controller: _friendSearchController,
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: '検索...',
@@ -105,9 +167,22 @@ class _CreateContentsState extends State<CreateContents> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: GlobalColor.Unselected,
+                suffixIcon: _friendSearchController.text.isNotEmpty
+                    ? IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    _friendSearchController.clear();
+                    _filterFriends(''); // Reset the filter when clearing text
+                    setState(() {});  // Refresh the widget to update UI
+                  },
+                )
+                    : null,
               ),
-              onChanged: _filterFriends,
+              onChanged: (text) {
+                _filterFriends(text);
+                setState(() {});  // Refresh the widget to apply changes
+              },
             ),
           ),
           if (selectedFriends.isNotEmpty) ...[
@@ -136,7 +211,7 @@ class _CreateContentsState extends State<CreateContents> {
                 return FriendTile(
                   friend: filteredFriends[index],
                   isSelected:
-                      selectedFriends.contains(filteredFriends[index].uid),
+                  selectedFriends.contains(filteredFriends[index].uid),
                   onSelected: (bool? selected) {
                     setState(() {
                       if (selected == true) {
@@ -185,7 +260,7 @@ class _CreateContentsState extends State<CreateContents> {
       }
     }
 
-    await _createEmptyGroup(title, '');
+    await _createEmptyGroup(title, base64Image); // Pass the selected icon
     await _addUserToGroup(gid, ownUid);
     for (var uid in selectedFriends) {
       await _addUserToGroup(gid, uid);
@@ -212,7 +287,7 @@ class FriendTile extends StatelessWidget {
         backgroundImage: NetworkImage(
             "https://calendar-files.woody1227.com/user_icon/" + friend.uicon),
         child:
-            Text(friend.uname[0]), // Fallback to the first letter of their name
+        Text(friend.uname[0]), // Fallback to the first letter of their name
       ),
       title: Text(friend.uname),
       trailing: Checkbox(

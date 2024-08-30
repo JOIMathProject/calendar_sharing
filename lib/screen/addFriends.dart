@@ -11,7 +11,7 @@ class AddFriend extends StatefulWidget {
 
 class _AddFriendState extends State<AddFriend> {
   String addFriendID = "";
-
+  TextEditingController _searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
@@ -38,6 +38,7 @@ class _AddFriendState extends State<AddFriend> {
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: TextField(
+                        controller: _searchController,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(vertical: 12.0),
                           prefixText: '@', // Use prefixText instead of prefix
@@ -48,11 +49,23 @@ class _AddFriendState extends State<AddFriend> {
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(10.0),
                           ),
+                          suffixIcon: addFriendID.isNotEmpty
+                              ? IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              addFriendID = '';
+                              setState(() {});  // Refresh the widget to update UI
+                            },
+                          )
+                              : null,
                         ),
                         onChanged: (text) {
                           addFriendID = text;
+                          setState(() {});  // Refresh the widget to apply changes
                         },
                       ),
+
                     ),
                   ),
                 ],

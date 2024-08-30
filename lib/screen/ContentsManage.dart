@@ -86,6 +86,14 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
                   borderSide: BorderSide.none,
                   borderRadius: BorderRadius.circular(10.0),
                 ),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                  },
+                )
+                    : null,
               ),
             ),
           ),
