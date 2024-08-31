@@ -43,6 +43,8 @@ class _ChatScreenState extends State<ChatScreen> {
         }else{
           getMessages();
         }
+      }else{
+        timer.cancel();
       }
     });
   }
