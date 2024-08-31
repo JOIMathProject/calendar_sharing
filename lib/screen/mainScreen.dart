@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:calendar_sharing/screen/ContentsManage.dart';
 import 'package:calendar_sharing/screen/MyContentsManage.dart';
 import 'package:calendar_sharing/screen/profile.dart';
@@ -17,21 +19,37 @@ class MainScreen extends StatefulWidget {
   _MainScreenState createState() => _MainScreenState();
 }
 
+List<GroupInformation> contents = [];
+List<FriendRequestInformation> friendRequests = [];
+
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   late List<Widget> _children;
   bool _isLoading = true;  // Loading state
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     _initializeApp();
     _children = [
-      ContentsManage(),
+      ContentsManage(contents: contents),
       FriendsScreen(),
       Profile(),
       MyContentsManage(),
     ];
+    reloading();
+  }
+  void reloading() async{
+    if (Provider.of<UserData>(context, listen: false).googleUser != null){
+      await new Future.delayed(new Duration(seconds: 2));
+    }
+    _reloadContents();
+    Timer.periodic(Duration(seconds: 3), (timer) {
+      if (!mounted) {
+        timer.cancel();
+      }
+      _reloadContents();
+    });
   }
 
   Future<void> _initializeApp() async {
@@ -79,6 +97,16 @@ class _MainScreenState extends State<MainScreen> {
     } catch (e) {
       print('Error getting device ID: $e');
       throw e;
+    }
+  }
+
+  //任意の引数
+  Future<void> _reloadContents() async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    if (uid != null) {
+      contents = await GetGroupInfo().getGroupInfo(uid);
+      _children[0] = ContentsManage(contents: contents);
+      setState(() {});
     }
   }
 
