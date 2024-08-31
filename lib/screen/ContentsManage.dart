@@ -18,11 +18,9 @@ class ContentsManage extends StatefulWidget {
     Key? key,
     required this.contents,
   }): super(key: key);
-
   @override
   _ContentsManageState createState() => _ContentsManageState();
 }
-List<GroupInformation> contents = [];
 class _ContentsManageState extends State<ContentsManage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   TextEditingController _searchController = TextEditingController();
@@ -150,10 +148,10 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
     List<GroupInformation> filteredContents;
     if (isPersonal) {
       filteredContents =
-          contents.where((content) => content.is_friends == '1').toList();
+          widget.contents.where((content) => content.is_friends == '1').toList();
     } else if (isGroup) {
       filteredContents =
-          contents.where((content) => content.is_friends == '0').toList();
+          widget.contents.where((content) => content.is_friends == '0').toList();
     } else {
       filteredContents = widget.contents;
     }
