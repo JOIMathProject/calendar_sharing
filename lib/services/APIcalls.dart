@@ -295,7 +295,7 @@ class GetGroupInfo{
         gicon: group['gicon'] ?? 'default_icon.png',
         is_friends: group['is_friends'] ?? '0',
         unread_messages: int.parse(group['unread_count']) ?? 0,
-        latest_message: group['latest_message']['content'] ?? 'default',
+        latest_message: group['latest_message']['content'] ?? '',
         latest_message_time: latestMessageTime,
       ));
     }

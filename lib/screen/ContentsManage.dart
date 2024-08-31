@@ -17,11 +17,13 @@ class ContentsManage extends StatefulWidget {
   ContentsManage({
     Key? key,
     required this.contents,
-  }): super(key: key);
+  }) : super(key: key);
   @override
   _ContentsManageState createState() => _ContentsManageState();
 }
-class _ContentsManageState extends State<ContentsManage> with SingleTickerProviderStateMixin {
+
+class _ContentsManageState extends State<ContentsManage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
@@ -39,11 +41,22 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
     });
     Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {});
-      //print("contents_length: ${widget.contents.length}");
       if (!mounted) {
         timer.cancel();
       }
     });
+  }
+
+  Future<void> _getGroupContents(String uid) async {
+    contents = await GetGroupInfo().getGroupInfo(uid);
+    setState(() {});
+  }
+
+  Future<void> _reloadContents() async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    if (uid != null) {
+      await _getGroupContents(uid);
+    }
   }
 
   @override
@@ -147,11 +160,13 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
       {bool isPersonal = false, bool isGroup = false}) {
     List<GroupInformation> filteredContents;
     if (isPersonal) {
-      filteredContents =
-          widget.contents.where((content) => content.is_friends == '1').toList();
+      filteredContents = widget.contents
+          .where((content) => content.is_friends == '1')
+          .toList();
     } else if (isGroup) {
-      filteredContents =
-          widget.contents.where((content) => content.is_friends == '0').toList();
+      filteredContents = widget.contents
+          .where((content) => content.is_friends == '0')
+          .toList();
     } else {
       filteredContents = widget.contents;
     }
@@ -163,80 +178,91 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
           .toList();
     }
     // Sort by latest message time
-    filteredContents.sort((a, b) => b.latest_message_time.compareTo(a.latest_message_time));
+    filteredContents
+        .sort((a, b) => b.latest_message_time.compareTo(a.latest_message_time));
     return filteredContents;
   }
 
   Widget _buildContentList(List<GroupInformation>? filteredContents) {
-    return ListView.builder(
-      itemCount: filteredContents?.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(
-              filteredContents?[index].is_friends == '1'
-                  ? "https://calendar-files.woody1227.com/user_icon/${filteredContents?[index].gicon}"
-                  : "https://calendar-files.woody1227.com/group_icon/${filteredContents?[index].gicon}",
+    return RefreshIndicator(
+      onRefresh: _reloadContents,
+      child: ListView.builder(
+        itemCount: filteredContents?.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(
+                filteredContents?[index].is_friends == '1'
+                    ? "https://calendar-files.woody1227.com/user_icon/${filteredContents?[index].gicon}"
+                    : "https://calendar-files.woody1227.com/group_icon/${filteredContents?[index].gicon}",
+              ),
+              backgroundColor: Colors.blue,
             ),
-            backgroundColor: Colors.blue,
-          ),
-          title: Text(filteredContents![index].gname),
-          subtitle: Text(
-            filteredContents[index].latest_message.length > 15
-                ? filteredContents[index].latest_message.substring(0, 15) + '...'
-                : filteredContents[index].latest_message,
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              badge.Badge(
-                showBadge: filteredContents[index].unread_messages > 0,
-                badgeContent: Text(
-                  filteredContents[index].unread_messages.toString(),
-                  style: TextStyle(color: GlobalColor.SubCol),
+            title: Text(filteredContents![index].gname),
+            subtitle: Text(
+              filteredContents[index].latest_message.length > 15
+                  ? filteredContents[index].latest_message.substring(0, 15) +
+                      '...'
+                  : filteredContents[index].latest_message,
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                badge.Badge(
+                  showBadge: filteredContents[index].unread_messages > 0,
+                  badgeContent: Text(
+                    filteredContents[index].unread_messages.toString(),
+                    style: TextStyle(color: GlobalColor.SubCol),
+                  ),
                 ),
-              ),
-              SizedBox(width: 10.0),
-              Text(
-                //今日なら時刻、それ以外なら日付
-                filteredContents[index].latest_message_time.day == DateTime.now().day &&
-                        filteredContents[index].latest_message_time.month == DateTime.now().month &&
-                        filteredContents[index].latest_message_time.year == DateTime.now().year
-                    ? timeFormat.format(filteredContents[index].latest_message_time)
-                    : dateFormat.format(filteredContents[index].latest_message_time),
-              ),
-              IconButton(
-                icon: Icon(Icons.chat, color: GlobalColor.Unselected),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Home(
-                        groupId: filteredContents?[index].gid,
-                        groupName: filteredContents?[index].gname,
-                        startOnChatScreen: true,
+                SizedBox(width: 10.0),
+                Text(
+                  //今日なら時刻、それ以外なら日付
+                  filteredContents[index].latest_message_time.day ==
+                              DateTime.now().day &&
+                          filteredContents[index].latest_message_time.month ==
+                              DateTime.now().month &&
+                          filteredContents[index].latest_message_time.year ==
+                              DateTime.now().year
+                      ? timeFormat
+                          .format(filteredContents[index].latest_message_time)
+                      : dateFormat
+                          .format(filteredContents[index].latest_message_time),
+                ),
+                IconButton(
+                  icon: Icon(Icons.chat, color: GlobalColor.Unselected),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Home(
+                          groupId: filteredContents?[index].gid,
+                          groupName: filteredContents?[index].gname,
+                          startOnChatScreen: true,
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          onTap: () {
-            GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Home(
-                  groupId: filteredContents?[index].gid,
-                  groupName: filteredContents?[index].gname,
-                  startOnChatScreen: false,
+                    );
+                  },
                 ),
-              ),
-            );
-          },
-        );
-      },
+              ],
+            ),
+            onTap: () {
+              GoogleSignIn? gUser =
+                  Provider.of<UserData>(context, listen: false).googleUser;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Home(
+                    groupId: filteredContents?[index].gid,
+                    groupName: filteredContents?[index].gname,
+                    startOnChatScreen: false,
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
