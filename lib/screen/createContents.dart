@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/APIcalls.dart';
 import '../services/UserData.dart';
+import 'package:image/image.dart' as img;
 
 class CreateContents extends StatefulWidget {
   @override
@@ -67,7 +68,25 @@ class _CreateContentsState extends State<CreateContents> {
   }
 
   Future<XFile?> getImageFromGallery() async {
-    return await imagePicker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final imageBytes = await File(pickedFile.path).readAsBytes();
+      final image = img.decodeImage(imageBytes);
+
+      // Check if the image needs to be rotated
+      final rotatedImage = img.bakeOrientation(image!);
+
+      // Encode the corrected image
+      final correctedBytes = img.encodeJpg(rotatedImage);
+
+      // Save the corrected image to a temporary file
+      final correctedFile = await File(pickedFile.path).writeAsBytes(correctedBytes);
+
+      return XFile(correctedFile.path);
+    }
+
+    return null;
   }
 
   @override
@@ -109,6 +128,9 @@ class _CreateContentsState extends State<CreateContents> {
                             List<int> imageBytes = await File(image.path).readAsBytesSync();
                             base64Image = base64Encode(imageBytes);
                           }
+                          setState(() {
+                            currentImage = image!;
+                          });
                         },
                         child: CircleAvatar(
                           backgroundColor: Colors.grey[200],

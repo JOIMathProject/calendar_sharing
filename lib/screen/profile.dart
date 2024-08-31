@@ -74,8 +74,10 @@ class _ProfileState extends State<Profile> {
                           List<int> imageBytes =
                           await File(image.path).readAsBytesSync();
                           String base64Image = base64Encode(imageBytes);
+                          print('updating$base64Image');
                           await UpdateUserImage()
                               .updateUserImage(userData.uid, base64Image);
+                          setState(() {}); // Refresh the widget to update UI
                         }
                       },
                       child: CircleAvatar(

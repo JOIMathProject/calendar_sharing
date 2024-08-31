@@ -30,7 +30,6 @@ class _WrapperState extends State<Wrapper> {
     super.initState();
     _initializeApp();
   }
-
   Future<void> _initializeApp() async {
     try {
       await _signInSilently();

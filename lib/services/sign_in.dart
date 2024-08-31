@@ -19,16 +19,13 @@ class _SignInState extends State<SignIn> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          // Place the image at the top half of the screen
           Flexible(
             flex: 4,
             child: Image.network(
-              //https://www.iconfinder.com/icons/299092/calendar_icon
               'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678116-calendar-512.png', // Replace with your image URL
               fit: BoxFit.cover,
             ),
           ),
-          // Place the button at the quarter from the bottom of the screen
           Flexible(
             flex: 1,
               child: Center(

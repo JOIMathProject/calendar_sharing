@@ -16,7 +16,8 @@ class ContentsManage extends StatefulWidget {
 
 List<GroupInformation> contents = [];
 
-class _ContentsManageState extends State<ContentsManage> with SingleTickerProviderStateMixin {
+class _ContentsManageState extends State<ContentsManage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
@@ -88,11 +89,11 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
                 ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                  icon: Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                  },
-                )
+                        icon: Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                        },
+                      )
                     : null,
               ),
             ),
@@ -115,21 +116,28 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
             labelStyle: TextStyle(fontSize: 16.0),
             labelColor: GlobalColor.MainCol,
           ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildContentList(_filteredContents()), // All
-                _buildContentList(_filteredContents(isPersonal: true)), // Personal
-                _buildContentList(_filteredContents(isGroup: true)), // Group
-              ],
+          if (contents.isNotEmpty)
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildContentList(_filteredContents()), // All
+                  _buildContentList(
+                      _filteredContents(isPersonal: true)), // Personal
+                  _buildContentList(_filteredContents(isGroup: true)), // Group
+                ],
+              ),
+            )
+          else
+            Center(
+              child: Text('No contents found'),
             ),
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => CreateContents()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CreateContents()));
         },
         child: Icon(Icons.group_add, color: GlobalColor.SubCol),
         backgroundColor: GlobalColor.MainCol,
@@ -137,19 +145,23 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
     );
   }
 
-  List<GroupInformation> _filteredContents({bool isPersonal = false, bool isGroup = false}) {
+  List<GroupInformation> _filteredContents(
+      {bool isPersonal = false, bool isGroup = false}) {
     List<GroupInformation> filteredContents;
     if (isPersonal) {
-      filteredContents = contents.where((content) => content.is_friends == '1').toList();
+      filteredContents =
+          contents.where((content) => content.is_friends == '1').toList();
     } else if (isGroup) {
-      filteredContents = contents.where((content) => content.is_friends == '0').toList();
+      filteredContents =
+          contents.where((content) => content.is_friends == '0').toList();
     } else {
       filteredContents = contents;
     }
 
     if (_searchQuery.isNotEmpty) {
       filteredContents = filteredContents
-          .where((content) => content.gname.toLowerCase().contains(_searchQuery.toLowerCase()))
+          .where((content) =>
+              content.gname.toLowerCase().contains(_searchQuery.toLowerCase()))
           .toList();
     }
 
@@ -183,7 +195,8 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
                     style: TextStyle(color: GlobalColor.SubCol),
                   ),
                 ),
-                Text(timeFormat.format(filteredContents[index].latest_message_time)),
+                Text(timeFormat
+                    .format(filteredContents[index].latest_message_time)),
                 IconButton(
                   icon: Icon(Icons.chat, color: GlobalColor.Unselected),
                   onPressed: () {
@@ -202,7 +215,8 @@ class _ContentsManageState extends State<ContentsManage> with SingleTickerProvid
               ],
             ),
             onTap: () {
-              GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
+              GoogleSignIn? gUser =
+                  Provider.of<UserData>(context, listen: false).googleUser;
               Navigator.push(
                 context,
                 MaterialPageRoute(

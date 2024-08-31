@@ -87,7 +87,8 @@ class _MyContentsManageState extends State<MyContentsManage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _reloadContents,
-              child: ListView.builder(
+              child:
+              ListView.builder(
                 itemCount: contents.length,
                 itemBuilder: (context, index) {
                   if (contents.isNotEmpty) {
@@ -127,7 +128,9 @@ class _MyContentsManageState extends State<MyContentsManage> {
                       ),
                     );
                   } else {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: Text('No contents found'),
+                    );
                   }
                 },
               ),
