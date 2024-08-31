@@ -795,3 +795,24 @@ class GetChatNewMessage{
     return messages;
   }
 }
+class SearchContentSchedule{
+  Future<List<Appointment>> searchContentSchedule(String? gid,String? from_date,
+  String? to_date, String?from_hour, String? from_minute, String? to_hour,
+      String? to_minute, String? limit_time, String? limit_count) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content/events/$from_date/$to_date/$from_hour/$from_minute/$to_hour/$to_minute/$limit_time/$limit_count');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get calendar: ${response.statusCode}';
+    }
+    List<Appointment> events = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      events.add(Appointment(
+        startTime: DateTime.parse(group['start_dateTime']),
+        endTime: DateTime.parse(group['end_dateTime'])
+      ));
+    }
+
+    return events;
+  }
+}

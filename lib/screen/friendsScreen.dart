@@ -125,7 +125,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => AddFriend()));
         },
-        child: Icon(Icons.add, color: GlobalColor.SubCol),
+        child: Icon(Icons.person_add, color: GlobalColor.SubCol),
         backgroundColor: GlobalColor.MainCol,
       ),
     );
@@ -324,11 +324,21 @@ class _FriendsScreenState extends State<FriendsScreen> {
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(10.0),
             ),
+            suffixIcon: _searchController.text.isNotEmpty
+                ? IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: () {
+                _searchController.clear();
+                setState(() {});  // Refresh the widget to update UI
+              },
+            )
+                : null,
           ),
           onChanged: (value) {
             setState(() {});  // Refresh the widget to apply the filter
           },
         ),
+
       ),
       SizedBox(height: 10),
       if (filteredFriends.isNotEmpty)

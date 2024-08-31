@@ -96,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
-        backgroundColor: GlobalColor.Menu_bar,
+        backgroundColor: GlobalColor.MainCol,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home,

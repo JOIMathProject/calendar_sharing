@@ -1,26 +1,15 @@
-import 'dart:convert';
-
-import 'package:calendar_sharing/screen/ChatScreen.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:rrule/rrule.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:googleapis_auth/auth_io.dart';
-import 'package:googleapis/calendar/v3.dart' as cal;
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
-import '../services/auth.dart';
-import 'package:calendar_sharing/setting/color.dart' as global_colors;
+import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 
 class MyContent extends StatefulWidget {
   final String? cid;
   final String? contentsName;
-  MyContent({required this.cid,required this.contentsName});
+  MyContent({required this.cid, required this.contentsName});
 
   @override
   _MyContentState createState() => _MyContentState();
@@ -30,6 +19,7 @@ class _MyContentState extends State<MyContent> {
   var httpClientO = null;
   var googleCalendarApiO = null;
   List<Appointment> events = [];
+  CalendarView _currentView = CalendarView.week;
 
   @override
   void initState() {
@@ -39,7 +29,8 @@ class _MyContentState extends State<MyContent> {
 
   Future<void> _getCalendar() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    events = await GetMyContentsSchedule().getMyContentsSchedule(uid, widget.cid, '2024-01-00', '2025-12-11');
+    events = await GetMyContentsSchedule()
+        .getMyContentsSchedule(uid, widget.cid, '2024-01-00', '2025-12-11');
     setState(() {});
   }
 
@@ -49,9 +40,39 @@ class _MyContentState extends State<MyContent> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contentsName ?? ''),
+        backgroundColor: GlobalColor.SubCol,
+        flexibleSpace: Container(
+          color: GlobalColor.SubCol,
+        ),
+        actions: [
+          DropdownButton<CalendarView>(
+            value: _currentView,
+            icon: Icon(Icons.arrow_drop_down),
+            onChanged: (CalendarView? newView) {
+              setState(() {
+                if (newView != null) _currentView = newView;
+              });
+            },
+            items: [
+              DropdownMenuItem(
+                value: CalendarView.month,
+                child: Text('Month View'),
+              ),
+              DropdownMenuItem(
+                value: CalendarView.week,
+                child: Text('Week View'),
+              ),
+              DropdownMenuItem(
+                value: CalendarView.day,
+                child: Text('Day View'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SfCalendar(
-        view: CalendarView.week,
+        key: ValueKey(_currentView),
+        view: _currentView,
         timeZone: 'Japan',
         headerHeight: 50,
         dataSource: MeetingDataSource(events),
@@ -63,32 +84,38 @@ class _MyContentState extends State<MyContent> {
             width: 0,
           ),
         ),
+        todayHighlightColor: GlobalColor.MainCol,
+        todayTextStyle: TextStyle(
+          color: GlobalColor.SubCol,
+          fontWeight: FontWeight.bold,
+        ),
+        showTodayButton: true,
+        cellBorderColor: GlobalColor.Calendar_grid_color,
+        timeSlotViewSettings: TimeSlotViewSettings(
+          timeFormat: 'H:mm',
+        ),
         appointmentBuilder:
             (BuildContext context, CalendarAppointmentDetails details) {
           final Appointment appointment = details.appointments.first;
           return Container(
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: global_colors.Calendar_background_color,
               borderRadius: BorderRadius.circular(4),
+              color: GlobalColor.MainCol,
             ),
             child: Center(
               child: Text(
                 appointment.subject,
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
+                  fontSize: 11,
+                  color: GlobalColor.SubCol,
                   fontWeight: FontWeight.bold,
                 ),
-                overflow: TextOverflow.ellipsis,
+                overflow: TextOverflow.fade,
               ),
             ),
           );
         },
-        cellBorderColor: global_colors.Calendar_grid_color,
-        timeSlotViewSettings: TimeSlotViewSettings(
-          timeFormat: 'H:mm',
-        ),
         onTap: (CalendarTapDetails details) {
           if (details.targetElement == CalendarElement.appointment) {
             final Appointment appointment = details.appointments!.first;
