@@ -19,13 +19,21 @@ class _ContentsSettingState extends State<ContentsSetting> {
   List<UserInformation> users = [];
   String selectedIcon = 'default_icon.png';
   MyContentsInformation? selectedContent;
-
+  bool isEditingGName = false;
+  TextEditingController gnameController = TextEditingController();
+  GroupDetail _groupDetail = GroupDetail(
+    gid: '',
+    gname: '',
+    gicon: '',
+    is_friends: '0',
+  );
   @override
   void initState() {
     super.initState();
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     _getMyContents(uid!);
     _getGroupUsers();
+    _getGroupDetail();
   }
 
   Future<void> _getMyContents(String uid) async {
@@ -53,8 +61,13 @@ class _ContentsSettingState extends State<ContentsSetting> {
 
   Future<void> _changeGroupName(String gname) async {
     await UpdateGroupName().updateGroupName(widget.groupId, gname);
-    setState(() {});
+    setState(() {
+      _groupDetail.gname = gname; // Update the local group detail name
+      gnameController.text = gname; // Update the text controller
+      isEditingGName = false; // Exit edit mode
+    });
   }
+
 
   Future<void> _changeGroupIcon(String gicon) async {
     await UpdateGroupName().updateGroupName(widget.groupId, gicon);
@@ -78,7 +91,9 @@ class _ContentsSettingState extends State<ContentsSetting> {
     await DeleteUserFromGroup().deleteUserFromGroup(gid, Removeuid);
     _getGroupUsers();
   }
-
+  Future<void> _getGroupDetail() async {
+    _groupDetail = await GetGroupDetail().getGroupDetail(widget.groupId);
+  }
   Future<void> _showRemoveUserDialog(String uid, String uname) async {
     bool shouldRemove = false;
     await showDialog(
@@ -113,7 +128,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
   @override
   Widget build(BuildContext context) {
     String? currentUserUid = Provider.of<UserData>(context, listen: false).uid;
-
+    gnameController.text = _groupDetail.gname;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalColor.SubCol,
@@ -125,21 +140,25 @@ class _ContentsSettingState extends State<ContentsSetting> {
           children: <Widget>[
             Text('設定', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(hintText: 'グループ名'),
-              onChanged: (String value) {
+            buildProfileField(
+              context,
+              label: 'グループ名',
+              controller: gnameController,
+              isEditing: isEditingGName,
+              onEditToggle: () {
                 setState(() {
-                  title = value;
+                  isEditingGName = !isEditingGName;
                 });
               },
-              style: TextStyle(fontSize: 25),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _changeGroupName(title);
+              onSave: () async {
+                if (gnameController.text.isNotEmpty &&
+                    gnameController.text != _groupDetail.gname) {
+                  _changeGroupName(gnameController.text);
+                  setState(() {
+                    isEditingGName = false;
+                  });
+                }
               },
-              child: Text('グループ名を変更'),
             ),
             Text('ユーザー', style: bigFont),
             SizedBox(height: 10),
@@ -201,6 +220,36 @@ class _ContentsSettingState extends State<ContentsSetting> {
               ),
           ],
         ),
+      ),
+    );
+  }
+  Widget buildProfileField(BuildContext context,
+      {required String label,
+        required TextEditingController controller,
+        required bool isEditing,
+        required VoidCallback onEditToggle,
+        required VoidCallback onSave}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          isEditing
+              ? Expanded(
+            child: TextField(
+              controller: controller,
+              style: TextStyle(fontSize: 18),
+              decoration: InputDecoration(
+                hintText: label,
+              ),
+            ),
+          )
+              : Text('$label: ${controller.text}', style: TextStyle(fontSize: 18)),
+          IconButton(
+            icon: Icon(isEditing ? Icons.check : Icons.edit),
+            onPressed: isEditing ? onSave : onEditToggle,
+          ),
+        ],
       ),
     );
   }

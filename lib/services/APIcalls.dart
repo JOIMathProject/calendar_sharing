@@ -65,6 +65,17 @@ class GroupInformation {
       required this.latest_message,
       required this.latest_message_time});
 }
+class GroupDetail{
+  String gid;
+  String gname;
+  String gicon;
+  String is_friends;
+  GroupDetail(
+      {required this.gid,
+      required this.gname,
+      required this.gicon,
+      required this.is_friends});
+}
 class MyContentsInformation {
   final String cid;
   final String cname;
@@ -303,6 +314,26 @@ class GetGroupInfo{
     print("ghe");
     return groups;
   }
+}
+class GetGroupDetail{
+  Future<GroupDetail> getGroupDetail(String? gid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+
+    final responseBody = jsonDecode(response.body);
+
+    return GroupDetail(
+      gid: responseBody['gid'] ?? '',
+      gname: responseBody['gname'] ?? '',
+      gicon: responseBody['gicon'] ?? 'default_icon.png',
+      is_friends: responseBody['is_friends'] ?? '0',
+    );
+  }
+
 }
 class CreateEmptyGroup{
   Future<String> createEmptyGroup(String gname, String gicon) async {
