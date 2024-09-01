@@ -8,12 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class UserInformation {
-  final String google_uid;
-  final String uid;
-  final String uname;
-  final String uicon;
-  final String refreshToken;
-  final String mailAddress;
+  String google_uid;
+  String uid;
+  String uname;
+  String uicon;
+  String refreshToken;
+  String mailAddress;
 
   UserInformation(
       {required this.google_uid,
@@ -525,14 +525,15 @@ class UpdateUserImage{
     }
   }
 }
-class GetGroupCalendar{
-  Future<List<Appointment>> getGroupCalendar(String? gid,String? from, String? to) async {
+class GetGroupCalendar {
+  Future<List<Appointment>> getGroupCalendar(String? gid, String? from, String? to) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content/events/$from/$to');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
       throw 'Failed to get group: ${response.statusCode}';
     }
+
     List<Appointment> events = [];
     for (var group in jsonDecode(response.body)['data']) {
       int count = group['count'];
@@ -547,10 +548,28 @@ class GetGroupCalendar{
       Color minOrange = Color(0xFFFFD8AF);
       // Blend the orange with white to lighten it
       Color color = Color.lerp(intenseOrange, minOrange, factor)!;
+
+      // Parse member information
+      List<FriendInformation> members = [];
+      for (var member in group['members']) {
+        members.add(FriendInformation(
+          uid: member['uid'],
+          gid: '',
+          uname: member['uname'],
+          uicon: member['uicon'],
+        ));
+      }
+
+      // Create the subject with the member names
+      String subject = members.map((m) => m.uname).join('\n');
+
       events.add(Appointment(
         startTime: DateTime.parse(group['start_dateTime']),
         endTime: DateTime.parse(group['end_dateTime']),
         color: color,
+        subject: subject,
+        // Assuming you have a way to attach members to the Appointment
+        notes: 'Participants: ${subject}',
       ));
     }
 

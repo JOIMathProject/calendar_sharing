@@ -56,13 +56,16 @@ class _HomeState extends State<Home> {
     _getTimeRegions();
     _getCalendar();
   }
+
   Future<void> _getCalendar() async {
-    List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(widget.groupId);
+    List<ContentsInformation>? contents =
+        await GetContentInGroup().getContentInGroup(widget.groupId);
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     if (contents?.isNotEmpty == true) {
       for (var content in contents!) {
-        if(content.uid == uid){
-          _events = await GetMyContentsSchedule().getMyContentsSchedule(uid, content.cid, '2024-01-00', '2025-12-11');
+        if (content.uid == uid) {
+          _events = await GetMyContentsSchedule().getMyContentsSchedule(
+              uid, content.cid, '2024-01-00', '2025-12-11');
         }
       }
     }
@@ -94,7 +97,7 @@ class _HomeState extends State<Home> {
               ),
               DropdownMenuItem(
                 value: CalendarView.week,
-                 child: Text('Week View'),
+                child: Text('Week View'),
               ),
               DropdownMenuItem(
                 value: CalendarView.day,
@@ -153,48 +156,85 @@ class _HomeState extends State<Home> {
             },
             children: [
               SfCalendar(
-                key: ValueKey(_currentView),
-                view: _currentView,
-                timeZone: 'Japan',
-                headerHeight: 50,
-                dataSource: MeetingDataSource(GroupCal),
-                headerDateFormat: 'yyyy MMMM',
-                selectionDecoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border.all(
+                  key: ValueKey(_currentView),
+                  view: _currentView,
+                  timeZone: 'Japan',
+                  headerHeight: 50,
+                  dataSource: MeetingDataSource(GroupCal),
+                  headerDateFormat: 'yyyy MMMM',
+                  selectionDecoration: BoxDecoration(
                     color: Colors.transparent,
-                    width: 0,
+                    border: Border.all(
+                      color: Colors.transparent,
+                      width: 0,
+                    ),
                   ),
-                ),
-                todayHighlightColor: GlobalColor.MainCol,
-                todayTextStyle: TextStyle(
-                  color: GlobalColor.SubCol,
-                  fontWeight: FontWeight.bold,
-                ),
-                showTodayButton: true,
-                cellBorderColor: GlobalColor.Calendar_grid_color,
-                timeSlotViewSettings: TimeSlotViewSettings(
-                  timeFormat: 'H:mm',
-                ),
-                specialRegions: getAppointments(),
-              ),
+                  todayHighlightColor: GlobalColor.MainCol,
+                  todayTextStyle: TextStyle(
+                    color: GlobalColor.SubCol,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  showTodayButton: true,
+                  cellBorderColor: GlobalColor.Calendar_grid_color,
+                  timeSlotViewSettings: TimeSlotViewSettings(
+                    timeFormat: 'H:mm',
+                  ),
+                  appointmentBuilder:
+                      (BuildContext context, CalendarAppointmentDetails details) {
+                    final Appointment appointment = details.appointments.first;
+                    return Container(
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(0),
+                        color: appointment.color,
+                      ),
+                    );
+                  },
+                  specialRegions: getAppointments(),
+                  onTap: (CalendarTapDetails details) {
+                    if (details.targetElement == CalendarElement.appointment) {
+                      final Appointment appointment =
+                          details.appointments!.first;
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('参加メンバー'),
+                            content: Text(appointment.subject),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('閉じる'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  }),
               ChatScreen(gid: widget.groupId),
             ],
           ),
         ],
       ),
-      floatingActionButton: _showFab ? FloatingActionButton(
+      floatingActionButton: _showFab
+          ? FloatingActionButton(
               backgroundColor: GlobalColor.MainCol,
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SearchSchedule(groupId: widget.groupId,),
+                    builder: (context) => SearchSchedule(
+                      groupId: widget.groupId,
+                    ),
                   ),
                 );
               },
               child: Icon(Icons.search, color: GlobalColor.SubCol, size: 30),
-            ): null,
+            )
+          : null,
     );
   }
 
@@ -210,12 +250,12 @@ class _HomeState extends State<Home> {
     List<TimeRegion> meetings = <TimeRegion>[];
     for (var event in _events) {
       if (event.startTime == null || event.endTime == null) continue;
-        meetings.add(TimeRegion(
-          startTime: event.startTime,
-          endTime: event.endTime,
-          color: GlobalColor.Calendar_outline_color,
-        ));
-      }
+      meetings.add(TimeRegion(
+        startTime: event.startTime,
+        endTime: event.endTime,
+        color: GlobalColor.Calendar_outline_color,
+      ));
+    }
     return meetings;
   }
 }
