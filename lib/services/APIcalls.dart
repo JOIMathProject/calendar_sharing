@@ -121,6 +121,17 @@ class ChatMessage {
     required this.sendTime,
   });
 }
+class GroupDetail{
+  String gid;
+  String gname;
+  String gicon;
+  String is_friends;
+  GroupDetail(
+      {required this.gid,
+        required this.gname,
+        required this.gicon,
+        required this.is_friends});
+}
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -269,6 +280,26 @@ class AddFriendRequest {
       throw 'Failed to add friend: ${response.statusCode}';
     }
   }
+}
+class GetGroupDetail{
+  Future<GroupDetail> getGroupDetail(String? gid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+
+    final responseBody = jsonDecode(response.body);
+
+    return GroupDetail(
+      gid: responseBody['gid'] ?? '',
+      gname: responseBody['gname'] ?? '',
+      gicon: responseBody['gicon'] ?? 'default_icon.png',
+      is_friends: responseBody['is_friends'] ?? '0',
+    );
+  }
+
 }
 class GetGroupInfo{
   Future<List<GroupInformation>> getGroupInfo(String? uid) async {

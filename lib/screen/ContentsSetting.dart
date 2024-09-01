@@ -189,7 +189,8 @@ class _ContentsSettingState extends State<ContentsSetting> {
             ElevatedButton(
               onPressed: () async {
                 await _removeUserFromGroup(widget.groupId!, currentUserUid!);
-                Navigator.of(context).pop(); // Go back to the previous screen
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pop();
               },
               child: Text('グループを離れる'),
             ),
