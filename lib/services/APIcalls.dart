@@ -17,11 +17,11 @@ class UserInformation {
 
   UserInformation(
       {required this.google_uid,
-      required this.uid,
-      required this.uname,
-      required this.uicon,
-      required this.refreshToken,
-      required this.mailAddress});
+        required this.uid,
+        required this.uname,
+        required this.uicon,
+        required this.refreshToken,
+        required this.mailAddress});
 
   factory UserInformation.fromJson(Map<String, dynamic> json) {
     return UserInformation(
@@ -42,9 +42,9 @@ class FriendInformation {
   final String gid;
   FriendInformation(
       {required this.uid,
-      required this.uname,
-      required this.uicon,
-      required this.gid});
+        required this.uname,
+        required this.uicon,
+        required this.gid});
 }
 class GroupInformation {
   final int id;
@@ -57,24 +57,13 @@ class GroupInformation {
   final DateTime latest_message_time;
   GroupInformation(
       {required this.id,
-      required this.gid,
-      required this.gname,
-      required this.gicon,
-      required this.is_friends,
-      required this.unread_messages,
-      required this.latest_message,
-      required this.latest_message_time});
-}
-class GroupDetail{
-  String gid;
-  String gname;
-  String gicon;
-  String is_friends;
-  GroupDetail(
-      {required this.gid,
-      required this.gname,
-      required this.gicon,
-      required this.is_friends});
+        required this.gid,
+        required this.gname,
+        required this.gicon,
+        required this.is_friends,
+        required this.unread_messages,
+        required this.latest_message,
+        required this.latest_message_time});
 }
 class MyContentsInformation {
   final String cid;
@@ -297,7 +286,7 @@ class GetGroupInfo{
       if (group['latest_message']['sent_time'] != null) {
         latestMessageTime = DateTime.parse(group['latest_message']['sent_time']);
       } else {
-        latestMessageTime = DateTime.now().add(const Duration(hours: 9));
+        latestMessageTime = DateTime.parse(group['created_time']);
       }
       groups.add(GroupInformation(
         id: group['id'] ?? 0,
@@ -314,26 +303,6 @@ class GetGroupInfo{
     print("ghe");
     return groups;
   }
-}
-class GetGroupDetail{
-  Future<GroupDetail> getGroupDetail(String? gid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
-    final response = await http.get(url);
-
-    if (response.statusCode != 200) {
-      throw 'Failed to get group: ${response.statusCode}';
-    }
-
-    final responseBody = jsonDecode(response.body);
-
-    return GroupDetail(
-      gid: responseBody['gid'] ?? '',
-      gname: responseBody['gname'] ?? '',
-      gicon: responseBody['gicon'] ?? 'default_icon.png',
-      is_friends: responseBody['is_friends'] ?? '0',
-    );
-  }
-
 }
 class CreateEmptyGroup{
   Future<String> createEmptyGroup(String gname, String gicon) async {
@@ -697,9 +666,9 @@ class GetMyContentsSchedule{
     List<Appointment> events = [];
     for (var group in jsonDecode(response.body)['data']) {
       events.add(Appointment(
-        startTime: DateTime.parse(group['start_dateTime']),
-        endTime: DateTime.parse(group['end_dateTime']),
-        subject: group['summary']
+          startTime: DateTime.parse(group['start_dateTime']),
+          endTime: DateTime.parse(group['end_dateTime']),
+          subject: group['summary']
       ));
     }
 
@@ -828,7 +797,7 @@ class GetChatNewMessage{
 }
 class SearchContentSchedule{
   Future<List<Appointment>> searchContentSchedule(String? gid,String? from_date,
-  String? to_date, String?from_hour, String? from_minute, String? to_hour,
+      String? to_date, String?from_hour, String? from_minute, String? to_hour,
       String? to_minute, String? limit_time, String? limit_count) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content/events/$from_date/$to_date/$from_hour/$from_minute/$to_hour/$to_minute/$limit_time/$limit_count');
     final response = await http.get(url);
@@ -839,8 +808,8 @@ class SearchContentSchedule{
     List<Appointment> events = [];
     for (var group in jsonDecode(response.body)['data']) {
       events.add(Appointment(
-        startTime: DateTime.parse(group['start_dateTime']),
-        endTime: DateTime.parse(group['end_dateTime'])
+          startTime: DateTime.parse(group['start_dateTime']),
+          endTime: DateTime.parse(group['end_dateTime'])
       ));
     }
 
