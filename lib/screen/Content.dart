@@ -94,7 +94,7 @@ class _HomeState extends State<Home> {
               ),
               DropdownMenuItem(
                 value: CalendarView.week,
-                child: Text('Week View'),
+                 child: Text('Week View'),
               ),
               DropdownMenuItem(
                 value: CalendarView.day,
