@@ -100,17 +100,17 @@ class _ContentsSettingState extends State<ContentsSetting> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Remove User'),
-          content: Text('Are you sure you want to remove $uname from the group?'),
+          title: Text('ユーザーを削除'),
+          content: Text('$uname をグループから削除してよろしいですか?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('キャンセル'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Remove'),
+              child: Text('削除する'),
               onPressed: () {
                 shouldRemove = true;
                 Navigator.of(context).pop();
