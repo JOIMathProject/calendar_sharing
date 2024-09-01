@@ -14,6 +14,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../services/APIcalls.dart';
 import 'createContents.dart';
 import '../setting/color.dart' as GlobalColor;
+import 'package:badges/badges.dart' as badge;
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -26,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   late List<Widget> _children;
   bool _isLoading = true;  // Loading state
-
+  int unreadMessages = 0;
   @override
   void initState(){
     super.initState();
@@ -106,6 +107,12 @@ class _MainScreenState extends State<MainScreen> {
     if (uid != null) {
       contents = await GetGroupInfo().getGroupInfo(uid);
       _children[0] = ContentsManage(contents: contents);
+      //contentsのunread_messagesの合計
+      int unreadMessagescnt = 0;
+      for (int i = 0; i < contents.length; i++) {
+        unreadMessagescnt += contents[i].unread_messages;
+      }
+      unreadMessages = unreadMessagescnt;
       setState(() {});
     }
   }
@@ -127,8 +134,15 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: GlobalColor.MainCol,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home,
-              color: _currentIndex != 0 ? GlobalColor.Unselected : GlobalColor.MainCol,
+            icon: badge.Badge(
+              child: Icon(Icons.home,
+                color: _currentIndex != 0 ? GlobalColor.Unselected : GlobalColor.MainCol,
+              ),
+              badgeContent: Text(
+                unreadMessages.toString(),
+                style: TextStyle(color: Colors.white),
+              ),
+              showBadge: unreadMessages != 0,
             ),
             label: 'ホーム',
           ),
