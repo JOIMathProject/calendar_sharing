@@ -72,16 +72,6 @@ class _MyContentsManageState extends State<MyContentsManage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Sando',
-            style: TextStyle(color: GlobalColor.MainCol,
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Pacifico'),
-        ),
-        backgroundColor: GlobalColor.SubCol,
-        centerTitle: true,
-      ),
       body: Column(
         children: <Widget>[
           Expanded(

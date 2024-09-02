@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:googleapis/admob/v1.dart';
 import 'package:googleapis/calendar/v3.dart' as googleAPI;
+import 'package:googleapis/customsearch/v1.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -17,11 +18,11 @@ class UserInformation {
 
   UserInformation(
       {required this.google_uid,
-        required this.uid,
-        required this.uname,
-        required this.uicon,
-        required this.refreshToken,
-        required this.mailAddress});
+      required this.uid,
+      required this.uname,
+      required this.uicon,
+      required this.refreshToken,
+      required this.mailAddress});
 
   factory UserInformation.fromJson(Map<String, dynamic> json) {
     return UserInformation(
@@ -42,10 +43,11 @@ class FriendInformation {
   final String gid;
   FriendInformation(
       {required this.uid,
-        required this.uname,
-        required this.uicon,
-        required this.gid});
+      required this.uname,
+      required this.uicon,
+      required this.gid});
 }
+
 class GroupInformation {
   final int id;
   final String gid;
@@ -57,14 +59,15 @@ class GroupInformation {
   final DateTime latest_message_time;
   GroupInformation(
       {required this.id,
-        required this.gid,
-        required this.gname,
-        required this.gicon,
-        required this.is_friends,
-        required this.unread_messages,
-        required this.latest_message,
-        required this.latest_message_time});
+      required this.gid,
+      required this.gname,
+      required this.gicon,
+      required this.is_friends,
+      required this.unread_messages,
+      required this.latest_message,
+      required this.latest_message_time});
 }
+
 class MyContentsInformation {
   final String cid;
   final String cname;
@@ -73,6 +76,7 @@ class MyContentsInformation {
     required this.cname,
   });
 }
+
 class ContentsInformation {
   final String cid;
   final String cname;
@@ -83,7 +87,8 @@ class ContentsInformation {
     required this.uid,
   });
 }
-class CalendarInformation{
+
+class CalendarInformation {
   final String calendar_id;
   final String summary;
   final String discription;
@@ -93,6 +98,7 @@ class CalendarInformation{
     required this.discription,
   });
 }
+
 class FriendRequestInformation {
   final String uid;
   final String uname;
@@ -105,6 +111,7 @@ class FriendRequestInformation {
     required this.isReceived,
   });
 }
+
 class ChatMessage {
   final String mid;
   final String content;
@@ -121,17 +128,36 @@ class ChatMessage {
     required this.sendTime,
   });
 }
-class GroupDetail{
+
+class GroupDetail {
   String gid;
   String gname;
   String gicon;
   String is_friends;
   GroupDetail(
       {required this.gid,
-        required this.gname,
-        required this.gicon,
-        required this.is_friends});
+      required this.gname,
+      required this.gicon,
+      required this.is_friends});
 }
+
+class SearchResultEvent {
+  DateTime startTime;
+  DateTime endTime;
+  int count;
+  List<UserInformation> members;
+  int weather;
+  String reliability;
+  SearchResultEvent({
+    required this.startTime,
+    required this.endTime,
+    required this.count,
+    required this.members,
+    required this.weather,
+    required this.reliability,
+  });
+}
+
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -214,7 +240,7 @@ class GetFriends {
     for (var friend in jsonDecode(response.body)['data']) {
       if (friend['uicon'] == null) {
         friend['uicon'] =
-        'https://calendar-api.woody1227.com/user_icon/default.png';
+            'https://calendar-api.woody1227.com/user_icon/default.png';
       }
       friends.add(FriendInformation(
         uid: friend['uid'],
@@ -226,18 +252,22 @@ class GetFriends {
     return friends;
   }
 }
-class DeleteFriend{
+
+class DeleteFriend {
   Future<void> deleteFriend(String? uid, String? friend_uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
     final response = await http.delete(url);
     if (response.statusCode != 204) {
       throw 'Failed to delete friend: ${response.statusCode}';
     }
   }
 }
-class CheckFriend{
+
+class CheckFriend {
   Future<String> checkFriend(String? uid, String? friend_uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
     final response = await http.get(url);
 
     if (response.statusCode != 200 && response.statusCode != 404) {
@@ -248,9 +278,11 @@ class CheckFriend{
     return responseBody['gid'];
   }
 }
+
 class AddDeviceID {
   Future<void> addDeviceID(String? uid, String? deviceID) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/deviceids');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/user/$uid/deviceids');
 
     final response = await http.post(
       url,
@@ -267,7 +299,8 @@ class AddDeviceID {
 
 class AddFriendRequest {
   Future<void> addFriend(String uid, String friend_uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/friends_requests/');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
@@ -281,7 +314,8 @@ class AddFriendRequest {
     }
   }
 }
-class GetGroupDetail{
+
+class GetGroupDetail {
   Future<GroupDetail> getGroupDetail(String? gid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
     final response = await http.get(url);
@@ -299,11 +333,12 @@ class GetGroupDetail{
       is_friends: responseBody['is_friends'] ?? '0',
     );
   }
-
 }
-class GetGroupInfo{
+
+class GetGroupInfo {
   Future<List<GroupInformation>> getGroupInfo(String? uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups/detail');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups/detail');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -315,7 +350,8 @@ class GetGroupInfo{
     for (var group in jsonDecode(response.body)['data']) {
       DateTime latestMessageTime;
       if (group['latest_message']['sent_time'] != null) {
-        latestMessageTime = DateTime.parse(group['latest_message']['sent_time']);
+        latestMessageTime =
+            DateTime.parse(group['latest_message']['sent_time']);
       } else {
         latestMessageTime = DateTime.parse(group['created_time']);
       }
@@ -335,7 +371,8 @@ class GetGroupInfo{
     return groups;
   }
 }
-class CreateEmptyGroup{
+
+class CreateEmptyGroup {
   Future<String> createEmptyGroup(String gname, String gicon) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups');
     final response = await http.post(
@@ -358,33 +395,37 @@ class CreateEmptyGroup{
     }
   }
 }
-class AddUserToGroup{
+
+class AddUserToGroup {
   Future<void> addUserToGroup(String? gid, String? addUid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
-      body: jsonEncode({
-        "uid": addUid
-      }),
+      body: jsonEncode({"uid": addUid}),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to add contents: ${response.statusCode}';
     }
   }
 }
-class DeleteUserFromGroup{
+
+class DeleteUserFromGroup {
   Future<void> deleteUserFromGroup(String? gid, String? deleteUid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members/$deleteUid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/members/$deleteUid');
     final response = await http.delete(url);
     if (response.statusCode != 200 || response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
   }
 }
-class GetUserInGroup{
+
+class GetUserInGroup {
   Future<List<UserInformation>> getUserInGroup(String? gid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -405,7 +446,8 @@ class GetUserInGroup{
     return users;
   }
 }
-class UpdateGroupName{
+
+class UpdateGroupName {
   Future<void> updateGroupName(String? gid, String? gname) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
     final response = await http.put(
@@ -420,7 +462,8 @@ class UpdateGroupName{
     }
   }
 }
-class UpdateGroupIcon{
+
+class UpdateGroupIcon {
   Future<void> updateGroupIcon(String? gid, String? gicon) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
     final response = await http.put(
@@ -435,11 +478,13 @@ class UpdateGroupIcon{
     }
   }
 }
-class GetContentInGroup{
+
+class GetContentInGroup {
   Future<List<ContentsInformation>?> getContentInGroup(String? gid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content');
     final response = await http.get(url);
-    if (response.statusCode == 404){
+    if (response.statusCode == 404) {
       return null;
     }
     if (response.statusCode != 200) {
@@ -456,32 +501,35 @@ class GetContentInGroup{
     return contents;
   }
 }
-class AddContentsToGroup{
+
+class AddContentsToGroup {
   Future<void> addContentsToGroup(String? gid, String? cid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
-      body: jsonEncode({
-        "cid": cid
-      }),
+      body: jsonEncode({"cid": cid}),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to add contents: ${response.statusCode}';
     }
   }
 }
-class RemoveContentsFromGroup{
+
+class RemoveContentsFromGroup {
   Future<void> removeContentsFromGroup(String? gid, String? cid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents/$cid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/contents/$cid');
     final response = await http.delete(url);
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
   }
 }
-class UpdateUserID{
-  Future<void> updateUserID(String? OldUid,String?NewUid) async {
+
+class UpdateUserID {
+  Future<void> updateUserID(String? OldUid, String? NewUid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/${OldUid}');
     final response = await http.put(
       url,
@@ -495,8 +543,9 @@ class UpdateUserID{
     }
   }
 }
-class UpdateUserName{
-  Future<void> updateUserName(String?uid, String? uname) async {
+
+class UpdateUserName {
+  Future<void> updateUserName(String? uid, String? uname) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/${uid}');
     final response = await http.put(
       url,
@@ -510,8 +559,9 @@ class UpdateUserName{
     }
   }
 }
-class UpdateUserImage{
-  Future<void> updateUserImage(String?uid, String? uicon) async {
+
+class UpdateUserImage {
+  Future<void> updateUserImage(String? uid, String? uicon) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/${uid}');
     final response = await http.put(
       url,
@@ -525,9 +575,12 @@ class UpdateUserImage{
     }
   }
 }
+
 class GetGroupCalendar {
-  Future<List<Appointment>> getGroupCalendar(String? gid, String? from, String? to) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content/events/$from/$to');
+  Future<List<Appointment>> getGroupCalendar(
+      String? gid, String? from, String? to) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/content/events/$from/$to');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -541,7 +594,8 @@ class GetGroupCalendar {
       count = count.clamp(0, 10);
 
       // Define the base orange color (at intensity 10)
-      final Color intenseOrange = Color(0xFFFF8200); // You can adjust this as needed
+      final Color intenseOrange =
+          Color(0xFFFF8200); // You can adjust this as needed
 
       // Calculate the amount to reduce the intensity based on the input
       double factor = 1 - ((count - 1) / 2);
@@ -576,9 +630,11 @@ class GetGroupCalendar {
     return events;
   }
 }
-class GetMyContents{
+
+class GetMyContents {
   Future<List<MyContentsInformation>> getMyContents(String? uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -595,9 +651,11 @@ class GetMyContents{
     return contents;
   }
 }
-class GetMyCalendars{
+
+class GetMyCalendars {
   Future<List<CalendarInformation>> getMyCalendars(String? uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/calendars');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/user/$uid/calendars');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -606,19 +664,19 @@ class GetMyCalendars{
     List<CalendarInformation> contents = [];
     for (var group in jsonDecode(response.body)['data']) {
       contents.add(CalendarInformation(
-        calendar_id: group['calendar_id']?? 'default',
-        summary: group['summary']?? 'default',
-        discription: group['discription']?? 'default',
+        calendar_id: group['calendar_id'] ?? 'default',
+        summary: group['summary'] ?? 'default',
+        discription: group['discription'] ?? 'default',
       ));
     }
 
     return contents;
   }
-
 }
 
-class GetReceiveFriendRequest{
-  Future<List<FriendRequestInformation>> getReceiveFriendRequest(String? uid) async {
+class GetReceiveFriendRequest {
+  Future<List<FriendRequestInformation>> getReceiveFriendRequest(
+      String? uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/friends_requests/$uid/receive');
     final response = await http.get(url);
@@ -642,8 +700,10 @@ class GetReceiveFriendRequest{
     return requests;
   }
 }
-class GetSentFriendRequest{
-  Future<List<FriendRequestInformation>> getSentFriendRequest(String? uid) async {
+
+class GetSentFriendRequest {
+  Future<List<FriendRequestInformation>> getSentFriendRequest(
+      String? uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/friends_requests/$uid/send');
     final response = await http.get(url);
@@ -667,15 +727,15 @@ class GetSentFriendRequest{
     return requests;
   }
 }
-class CreateEmptyContents{
+
+class CreateEmptyContents {
   Future<String> createEmptyContents(String? uid, String? cname) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
-      body: jsonEncode({
-        "cname": cname
-      }),
+      body: jsonEncode({"cname": cname}),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to create content: ${response.statusCode}';
@@ -690,24 +750,28 @@ class CreateEmptyContents{
     }
   }
 }
-class AddCalendarToContents{
-  Future<void> addCalendarToContents(String? uid, String? cid, String? calendar_id) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars');
+
+class AddCalendarToContents {
+  Future<void> addCalendarToContents(
+      String? uid, String? cid, String? calendar_id) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json'},
-      body: jsonEncode({
-        "calendar_id": calendar_id
-      }),
+      body: jsonEncode({"calendar_id": calendar_id}),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to add contents: ${response.statusCode}';
     }
   }
 }
-class GetMyContentsSchedule{
-  Future<List<Appointment>> getMyContentsSchedule(String? uid,String? cid,String? from, String? to) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$from/$to');
+
+class GetMyContentsSchedule {
+  Future<List<Appointment>> getMyContentsSchedule(
+      String? uid, String? cid, String? from, String? to) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$from/$to');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -718,16 +782,17 @@ class GetMyContentsSchedule{
       events.add(Appointment(
           startTime: DateTime.parse(group['start_dateTime']),
           endTime: DateTime.parse(group['end_dateTime']),
-          subject: group['summary']
-      ));
+          subject: group['summary']));
     }
 
     return events;
   }
 }
-class DeleteMyContents{
+
+class DeleteMyContents {
   Future<void> deleteMyContents(String? uid, String? cid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid');
     final response = await http.delete(url);
 
     if (response.statusCode != 200) {
@@ -736,9 +801,10 @@ class DeleteMyContents{
   }
 }
 
-class AcceptFriendRequest{
+class AcceptFriendRequest {
   Future<void> acceptFriendRequest(String? uid, String? friend_uid) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/');
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/friends_requests/');
     final response = await http.put(
       url,
       headers: {'Content-type': 'application/json'},
@@ -747,31 +813,41 @@ class AcceptFriendRequest{
         "uid2": friend_uid,
       }),
     );
-    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 404) {
       throw 'Failed to accept friend request: ${response.statusCode}';
     }
   }
 }
 
-class DeleteFriendRequest{
+class DeleteFriendRequest {
   Future<void> deleteFriendRequest(String? uid, String? friend_uid) async {
     //フレンド申請拒否
-    final url = Uri.parse('https://calendar-api.woody1227.com/friends_requests/$friend_uid/$uid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/friends_requests/$friend_uid/$uid');
     final response = await http.delete(url);
-    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404 && response.statusCode != 204) {
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 404 &&
+        response.statusCode != 204) {
       throw 'Failed to delete friend request: ${response.statusCode}';
     }
   }
 }
 
-class GetChatMessages{
-  Future<List<ChatMessage>> getChatMessages(String? gid,String? mid,int limit,String? uid) async {
-    if(mid == null || mid == '0'){
+class GetChatMessages {
+  Future<List<ChatMessage>> getChatMessages(
+      String? gid, String? mid, int limit, String? uid) async {
+    if (mid == null || mid == '0') {
       mid = '';
     }
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/before/$limit/$mid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/before/$limit/$mid');
     final response = await http.get(url);
-    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 404) {
       throw 'Failed to get chat messages: ${response.statusCode}';
     }
     List<ChatMessage> messages = [];
@@ -794,9 +870,11 @@ class GetChatMessages{
   }
 }
 
-class SendChatMessage{
-  Future<String> sendChatMessage(String? gid, String? uid, String? content) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages');
+class SendChatMessage {
+  Future<String> sendChatMessage(
+      String? gid, String? uid, String? content) async {
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/groups/$gid/messages');
     //print('sendChatMessage: $gid, $uid, $content');
     final response = await http.post(
       url,
@@ -814,14 +892,18 @@ class SendChatMessage{
   }
 }
 
-class GetChatNewMessage{
-  Future<List<ChatMessage>> getChatNewMessage(String? gid,int limit,String? mid,String? uid) async {
-    if(mid == '0'){
+class GetChatNewMessage {
+  Future<List<ChatMessage>> getChatNewMessage(
+      String? gid, int limit, String? mid, String? uid) async {
+    if (mid == '0') {
       mid = '';
     }
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/after/100/$mid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/after/100/$mid');
     final response = await http.get(url);
-    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404) {
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 404) {
       throw 'Failed to get chat messages: ${response.statusCode}';
     }
     List<ChatMessage> messages = [];
@@ -843,21 +925,97 @@ class GetChatNewMessage{
     return messages;
   }
 }
-class SearchContentSchedule{
-  Future<List<Appointment>> searchContentSchedule(String? gid,String? from_date,
-      String? to_date, String?from_hour, String? from_minute, String? to_hour,
-      String? to_minute, String? limit_time, String? limit_count) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content/events/$from_date/$to_date/$from_hour/$from_minute/$to_hour/$to_minute/$limit_time/$limit_count');
+
+class SearchContentSchedule {
+  Future<List<SearchResultEvent>> searchContentSchedule(
+      String? gid,
+      String? from_date,
+      String? to_date,
+      String? from_hour,
+      String? from_minute,
+      String? to_hour,
+      String? to_minute,
+      String? limit_time,
+      String? limit_count) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/content/events/$from_date/$to_date/$from_hour/$from_minute/$to_hour/$to_minute/$limit_time/$limit_count');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
       throw 'Failed to get calendar: ${response.statusCode}';
     }
-    List<Appointment> events = [];
+    List<SearchResultEvent> events = [];
     for (var group in jsonDecode(response.body)['data']) {
-      events.add(Appointment(
-          startTime: DateTime.parse(group['start_dateTime']),
-          endTime: DateTime.parse(group['end_dateTime'])
+      List<UserInformation> _members = [];
+      for (var member in group['members']) {
+        _members.add(UserInformation(
+          google_uid: '',
+          uid: member['uid'],
+          uname: member['uname'],
+          uicon: member['uicon'],
+          refreshToken: '',
+          mailAddress: '',
+        ));
+      }
+      events.add(SearchResultEvent(
+        startTime: DateTime.parse(group['start_dateTime']),
+        endTime: DateTime.parse(group['end_dateTime']),
+        count: group['weather'],
+        members: _members,
+        weather: -1,
+        reliability: '',
+      ));
+    }
+
+    return events;
+  }
+}
+
+class SearchContentScheduleWeather {
+  Future<List<SearchResultEvent>> searchContentScheduleWeather(
+      String? gid,
+      String? from_date,
+      String? to_date,
+      String? from_hour,
+      String? from_minute,
+      String? to_hour,
+      String? to_minute,
+      String? limit_time,
+      String? limit_count,
+      String? area_code,
+      String? sunny,
+      String? cloudy,
+      String? rainy,
+      String? snowy) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/content/events/'
+        '$from_date/$to_date/$from_hour/$from_minute/$to_hour/$to_minute/$limit_time/$limit_count/'
+        '$area_code/$sunny/$cloudy/$rainy/$snowy');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get calendar: ${response.statusCode}';
+    }
+    List<SearchResultEvent> events = [];
+    for (var group in jsonDecode(response.body)['data']) {
+      List<UserInformation> _members = [];
+      for (var member in group['members']) {
+        _members.add(UserInformation(
+          google_uid: '',
+          uid: member['uid'],
+          uname: member['uname'],
+          uicon: member['uicon'],
+          refreshToken: '',
+          mailAddress: '',
+        ));
+      }
+      events.add(SearchResultEvent(
+        startTime: DateTime.parse(group['start_dateTime']),
+        endTime: DateTime.parse(group['end_dateTime']),
+        count: group['count'],
+        members: _members,
+        weather: group['weather'],
+        reliability: group['reliability'] ?? '',
       ));
     }
 

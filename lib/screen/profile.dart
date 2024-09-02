@@ -41,19 +41,6 @@ class _ProfileState extends State<Profile> {
     final AuthService _auth = AuthService();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Sando',
-          style: TextStyle(
-            color: GlobalColor.MainCol,
-            fontSize: 40,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Pacifico',
-          ),
-        ),
-        backgroundColor: GlobalColor.SubCol,
-        centerTitle: true,
-      ),
       body: Stack(
         children: [
           Padding(

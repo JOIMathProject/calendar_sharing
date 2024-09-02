@@ -15,6 +15,7 @@ import '../services/APIcalls.dart';
 import 'createContents.dart';
 import '../setting/color.dart' as GlobalColor;
 import 'package:badges/badges.dart' as badge;
+
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -26,10 +27,10 @@ List<FriendRequestInformation> friendRequests = [];
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   late List<Widget> _children;
-  bool _isLoading = true;  // Loading state
+  bool _isLoading = true; // Loading state
   int unreadMessages = 0;
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _initializeApp();
     _children = [
@@ -40,8 +41,9 @@ class _MainScreenState extends State<MainScreen> {
     ];
     reloading();
   }
-  void reloading() async{
-    if (Provider.of<UserData>(context, listen: false).googleUser != null){
+
+  void reloading() async {
+    if (Provider.of<UserData>(context, listen: false).googleUser != null) {
       await new Future.delayed(new Duration(seconds: 2));
     }
     _reloadContents();
@@ -61,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
       print('Error during initialization: $e');
     } finally {
       setState(() {
-        _isLoading = false;  // Stop loading
+        _isLoading = false; // Stop loading
       });
     }
   }
@@ -73,13 +75,16 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _loadUserData() async {
-    GoogleSignIn? gUser = Provider.of<UserData>(context, listen: false).googleUser;
+    GoogleSignIn? gUser =
+        Provider.of<UserData>(context, listen: false).googleUser;
     if (gUser != null && gUser.currentUser != null) {
       try {
-        UserInformation userInfo = await GetUserGoogleUid().getUserGoogleUid(gUser.currentUser!.id);
+        UserInformation userInfo =
+            await GetUserGoogleUid().getUserGoogleUid(gUser.currentUser!.id);
         Provider.of<UserData>(context, listen: false).updateUserInfo(userInfo);
 
-        List<FriendInformation> friends = await GetFriends().getFriends(userInfo.uid);
+        List<FriendInformation> friends =
+            await GetFriends().getFriends(userInfo.uid);
         Provider.of<UserData>(context, listen: false).updateFriends(friends);
       } catch (e) {
         print('Error loading user data: $e');
@@ -93,7 +98,8 @@ class _MainScreenState extends State<MainScreen> {
       FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
       String? deviceId = await _firebaseMessaging.getToken();
       if (deviceId != null) {
-        AddDeviceID().addDeviceID(Provider.of<UserData>(context, listen: false).uid, deviceId);
+        AddDeviceID().addDeviceID(
+            Provider.of<UserData>(context, listen: false).uid, deviceId);
       }
     } catch (e) {
       print('Error getting device ID: $e');
@@ -122,11 +128,28 @@ class _MainScreenState extends State<MainScreen> {
     if (_isLoading) {
       return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(), // Or any other loading icon
+          child: Container(
+            width: 150.0, // Desired width
+            height: 150.0, // Desired height
+            child: Image.asset('assets/icon1.png'),
+          ),
         ),
       );
     }
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Sando',
+          style: TextStyle(
+            color: GlobalColor.MainCol,
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Pacifico',
+          ),
+        ),
+        backgroundColor: GlobalColor.SubCol,
+        centerTitle: true,
+      ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
@@ -135,8 +158,11 @@ class _MainScreenState extends State<MainScreen> {
         items: [
           BottomNavigationBarItem(
             icon: badge.Badge(
-              child: Icon(Icons.home,
-                color: _currentIndex != 0 ? GlobalColor.Unselected : GlobalColor.MainCol,
+              child: Icon(
+                Icons.home,
+                color: _currentIndex != 0
+                    ? GlobalColor.Unselected
+                    : GlobalColor.MainCol,
               ),
               badgeContent: Text(
                 unreadMessages.toString(),
@@ -147,19 +173,30 @@ class _MainScreenState extends State<MainScreen> {
             label: 'ホーム',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group,
-              color: _currentIndex != 1 ? GlobalColor.Unselected : GlobalColor.MainCol,
+            icon: Icon(
+              Icons.group,
+              color: _currentIndex != 1
+                  ? GlobalColor.Unselected
+                  : GlobalColor.MainCol,
             ),
             label: 'フレンド',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person
-              ,color: _currentIndex != 2 ? GlobalColor.Unselected : GlobalColor.MainCol,),
+            icon: Icon(
+              Icons.person,
+              color: _currentIndex != 2
+                  ? GlobalColor.Unselected
+                  : GlobalColor.MainCol,
+            ),
             label: 'プロフィール',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month
-              ,color: _currentIndex != 3 ? GlobalColor.Unselected : GlobalColor.MainCol,),
+            icon: Icon(
+              Icons.calendar_month,
+              color: _currentIndex != 3
+                  ? GlobalColor.Unselected
+                  : GlobalColor.MainCol,
+            ),
             label: 'マイコンテンツ',
           ),
         ],

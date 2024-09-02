@@ -78,16 +78,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
     List<FriendRequestInformation> requests = userData.receivedRequests;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Sando',
-          style: TextStyle(color: GlobalColor.MainCol,
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Pacifico'),
-        ),
-        backgroundColor: GlobalColor.SubCol,
-        centerTitle: true,
-      ),
       body: DefaultTabController(
         length: 2,
         child: Column(

@@ -27,6 +27,77 @@ class _SearchScheduleState extends State<SearchSchedule> {
   int minParticipants = 1;
   int GroupSize = 6;
 
+  bool considerWeather = false;
+  String? selectedRegion;
+  String? selectedCity;
+  bool isSunny = false;
+  bool isCloudy = false;
+  bool isRainy = false;
+  bool isSnowy = false;
+
+  List<String> regions = ['北海道','東北','関東甲信','東海','北陸','近畿','中国','四国','九州','沖縄'];
+  List<String> cities = [''];
+  List<String> _getCitiesForRegion(String region) {
+    switch (region) {
+      case '北海道':
+        return [
+          '宗谷地方', '上川・留萌地方', '網走・北見・紋別地方',
+          '十勝地方', '釧路・根室地方', '胆振・日高地方',
+          '石狩・空知・後志地方', '渡島・檜山地方'
+        ];
+      case '東北':
+        return [
+          '青森県', '岩手県', '宮城県',
+          '秋田県', '山形県', '福島県'
+        ];
+      case '関東甲信':
+        return [
+          '茨城県', '栃木県', '群馬県',
+          '埼玉県', '千葉県', '東京都',
+          '神奈川県', '山梨県', '長野県'
+        ];
+      case '東海':
+        return [
+          '岐阜県', '静岡県', '愛知県',
+          '三重県'
+        ];
+      case '北陸':
+        return [
+          '新潟県', '富山県', '石川県',
+          '福井県'
+        ];
+      case '近畿':
+        return [
+          '滋賀県', '京都府', '大阪府',
+          '兵庫県', '奈良県', '和歌山県'
+        ];
+      case '中国':
+        return [
+          '鳥取県', '島根県', '岡山県',
+          '広島県', '山口県'
+        ];
+      case '四国':
+        return [
+          '徳島県', '香川県', '愛媛県',
+          '高知県'
+        ];
+      case '九州':
+        return [
+          '福岡県', '佐賀県', '長崎県',
+          '熊本県', '大分県',
+          '宮崎県', '鹿児島県'
+        ];
+      case '沖縄':
+        return [
+          '沖縄本島地方', '大東島地方',
+          '宮古島地方', '石垣島地方',
+          '与那国島地方'
+        ];
+      default:
+        return ['Unknown'];
+    }
+  }
+
   void initState() {
     super.initState();
     _getGroupSize();
@@ -38,7 +109,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
   List<int> hours = List.generate(24, (index) => index);
   List<int> minHoursOptions = List.generate(8, (index) => index);
 
-  List<Appointment> searchResults = [];
+  List<SearchResultEvent> searchResults = [];
 
   List<int> getAvailableDays(int year, int month) {
     int lastDayOfMonth = DateTime(year, month + 1, 0).day;
@@ -103,30 +174,242 @@ class _SearchScheduleState extends State<SearchSchedule> {
     GroupSize = group.length;
     setState(() {});
   }
+  String getAreaCode(String region, String city) {
+    switch (region) {
+      case '北海道':
+        switch (city) {
+          case '宗谷地方':
+            return '011000';
+          case '上川・留萌地方':
+            return '012000';
+          case '網走・北見・紋別地方':
+            return '013000';
+          case '十勝地方':
+            return '014030';
+          case '釧路・根室地方':
+            return '015000';
+          case '胆振・日高地方':
+            return '016000';
+          case '石狩・空知・後志地方':
+            return '017000';
+          case '渡島・檜山地方':
+            return '018000';
+          default:
+            return 'Unknown';
+        }
+      case '東北':
+        switch (city) {
+          case '青森県':
+            return '020000';
+          case '岩手県':
+            return '030000';
+          case '宮城県':
+            return '040000';
+          case '秋田県':
+            return '050000';
+          case '山形県':
+            return '060000';
+          case '福島県':
+            return '070000';
+          default:
+            return 'Unknown';
+        }
+      case '関東甲信':
+        switch (city) {
+          case '茨城県':
+            return '080000';
+          case '栃木県':
+            return '090000';
+          case '群馬県':
+            return '100000';
+          case '埼玉県':
+            return '110000';
+          case '千葉県':
+            return '120000';
+          case '東京都':
+            return '130000';
+          case '神奈川県':
+            return '140000';
+          case '山梨県':
+            return '190000';
+          case '長野県':
+            return '200000';
+          default:
+            return 'Unknown';
+        }
+      case '東海':
+        switch (city) {
+          case '岐阜県':
+            return '210000';
+          case '静岡県':
+            return '220000';
+          case '愛知県':
+            return '230000';
+          case '三重県':
+            return '240000';
+          default:
+            return 'Unknown';
+        }
+      case '北陸':
+        switch (city) {
+          case '新潟県':
+            return '150000';
+          case '富山県':
+            return '160000';
+          case '石川県':
+            return '170000';
+          case '福井県':
+            return '180000';
+          default:
+            return 'Unknown';
+        }
+      case '近畿':
+        switch (city) {
+          case '滋賀県':
+            return '250000';
+          case '京都府':
+            return '260000';
+          case '大阪府':
+            return '270000';
+          case '兵庫県':
+            return '280000';
+          case '奈良県':
+            return '290000';
+          case '和歌山県':
+            return '300000';
+          default:
+            return 'Unknown';
+        }
+      case '中国':
+        switch (city) {
+          case '鳥取県':
+            return '310000';
+          case '島根県':
+            return '320000';
+          case '岡山県':
+            return '330000';
+          case '広島県':
+            return '340000';
+          case '山口県':
+            return '350000';
+          default:
+            return 'Unknown';
+        }
+      case '四国':
+        switch (city) {
+          case '徳島県':
+            return '360000';
+          case '香川県':
+            return '370000';
+          case '愛媛県':
+            return '380000';
+          case '高知県':
+            return '390000';
+          default:
+            return 'Unknown';
+        }
+      case '九州北部':
+        switch (city) {
+          case '福岡県':
+            return '400000';
+          case '佐賀県':
+            return '410000';
+          case '長崎県':
+            return '420000';
+          case '熊本県':
+            return '430000';
+          case '大分県':
+            return '440000';
+          default:
+            return 'Unknown';
+        }
+      case '九州南部・奄美':
+        switch (city) {
+          case '宮崎県':
+            return '450000';
+          case '鹿児島県':
+            return '460100';
+          case '奄美地方':
+            return '460040';
+          default:
+            return 'Unknown';
+        }
+      case '沖縄':
+        switch (city) {
+          case '沖縄本島地方':
+            return '471000';
+          case '大東島地方':
+            return '472000';
+          case '宮古島地方':
+            return '473000';
+          case '石垣島地方':
+            return '474000';
+          case '与那国島地方':
+            return '474010';
+          default:
+            return 'Unknown';
+        }
+      default:
+        return 'Unknown';
+    }
+  }
+
   Future<void> _searchSchedule() async {
-    String formatWithLeadingZero(int value) {
-      return value.toString().padLeft(2, '0');
+    if(considerWeather){
+      String formatWithLeadingZero(int value) {
+        return value.toString().padLeft(2, '0');
+      }
+
+      String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
+      String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
+      String formattedStartDateDay = formatWithLeadingZero(startDateDay);
+      String formattedEndDateDay = formatWithLeadingZero(endDateDay);
+      String formattedStartTime = formatWithLeadingZero(startTime);
+      String formattedEndTime = formatWithLeadingZero(endTime);
+      searchResults = await SearchContentScheduleWeather().searchContentScheduleWeather(
+        widget.groupId.toString(),
+        '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
+        '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
+        formattedStartTime,
+        '00',
+        formattedEndTime,
+        '00',
+        '${minHours * 60}',
+        '${GroupSize-minParticipants}',
+        getAreaCode(selectedRegion!, selectedCity!),
+        isSunny ? '1' : '0',
+        isCloudy ? '1' : '0',
+        isRainy ? '1' : '0',
+        isSnowy ? '1' : '0',
+      );
+      print(searchResults.length);
+      setState(() {});
+    }else{
+      String formatWithLeadingZero(int value) {
+        return value.toString().padLeft(2, '0');
+      }
+
+      String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
+      String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
+      String formattedStartDateDay = formatWithLeadingZero(startDateDay);
+      String formattedEndDateDay = formatWithLeadingZero(endDateDay);
+      String formattedStartTime = formatWithLeadingZero(startTime);
+      String formattedEndTime = formatWithLeadingZero(endTime);
+      searchResults = await SearchContentSchedule().searchContentSchedule(
+        widget.groupId,
+        '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
+        '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
+        formattedStartTime,
+        '00',
+        formattedEndTime,
+        '00',
+        '${minHours * 60}',
+        '${GroupSize-minParticipants}',
+      );
+      print(searchResults.length);
+      setState(() {});
     }
 
-    String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
-    String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
-    String formattedStartDateDay = formatWithLeadingZero(startDateDay);
-    String formattedEndDateDay = formatWithLeadingZero(endDateDay);
-    String formattedStartTime = formatWithLeadingZero(startTime);
-    String formattedEndTime = formatWithLeadingZero(endTime);
-    searchResults = await SearchContentSchedule().searchContentSchedule(
-      widget.groupId,
-      '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
-      '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
-      formattedStartTime,
-      '00',
-      formattedEndTime,
-      '00',
-      '${minHours * 60}',
-      '${GroupSize-minParticipants}',
-    );
-    print(searchResults.length);
-    setState(() {});
   }
   String formatDateTime(DateTime dateTime) {
     // Format month and day
@@ -296,6 +579,91 @@ class _SearchScheduleState extends State<SearchSchedule> {
               ],
             ),
             SizedBox(height: 16.0),
+            Row(
+              children: [
+                Text('天気も考慮する'),
+                Switch(
+                  value: considerWeather,
+                  onChanged: (bool value) {
+                    setState(() {
+                      considerWeather = value;
+                      if (considerWeather) {
+                        selectedRegion ??= regions.first;
+                        selectedCity ??= cities.first;
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+            // Display region and city dropdowns if considering weather
+            if (considerWeather) ...[
+              Row(
+                children: [
+                  SizedBox(width: 8.0),
+                  _buildDropdownString(regions, selectedRegion!, (newValue) {
+                    setState(() {
+                      selectedRegion = newValue;
+                      cities = _getCitiesForRegion(selectedRegion!);
+                      selectedCity = cities.first;
+                    });
+                  }, hintText: '地域を選択'),
+                  Spacer(flex:4),
+                ],
+              ),
+              Row(
+                children: [
+                  SizedBox(width: 8.0),
+                  _buildDropdownString(cities, selectedCity!, (newValue) {
+                    setState(() {
+                      selectedCity = newValue;
+                    });
+                  }, hintText: '市を選択'),
+                  Spacer(flex:4),
+                ],
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: isSunny,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isSunny = value!;
+                      });
+                    },
+                  ),
+                  Text('晴れ'),
+                  Checkbox(
+                    value: isCloudy,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isCloudy = value!;
+                      });
+                    },
+                  ),
+                  Text('曇り'),
+                  Checkbox(
+                    value: isRainy,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isRainy = value!;
+                      });
+                    },
+                  ),
+                  Text('雨'),
+                  Checkbox(
+                    value: isSnowy,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isSnowy = value!;
+                      });
+                    },
+                  ),
+                  Text('雪'),
+                ],
+              ),
+            ],
+            SizedBox(height: 16.0),
             Center(
               child: ElevatedButton(
                 onPressed: _searchSchedule,
@@ -307,11 +675,19 @@ class _SearchScheduleState extends State<SearchSchedule> {
               child: ListView.builder(
                 itemCount: searchResults.length,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(formatDateTime(searchResults[index].startTime)+
-                        ' ~ ' +
-                        formatDateTime(searchResults[index].endTime)),
-                  );
+                  if(considerWeather){
+                    return ListTile(
+                      title: Text(formatDateTime(searchResults[index].startTime)+
+                          ' ~ ' +
+                          formatDateTime(searchResults[index].endTime)),
+                    );
+                  }else{
+                    return ListTile(
+                      title: Text(formatDateTime(searchResults[index].startTime)+
+                          ' ~ ' +
+                          formatDateTime(searchResults[index].endTime)),
+                    );
+                  }
                 },
               ),
             ),
@@ -329,6 +705,22 @@ class _SearchScheduleState extends State<SearchSchedule> {
         onChanged: onChanged,
         items: options.map<DropdownMenuItem<int>>((int value) {
           return DropdownMenuItem<int>(
+            value: value,
+            child: Text(value.toString()),
+          );
+        }).toList(),
+      ),
+    );
+  }
+  Widget _buildDropdownString(List<String> options, String value, ValueChanged<String?> onChanged,{String? hintText}) {
+    return Expanded(
+      flex: 2,
+      child: DropdownButton<String>(
+        value: value,
+        onChanged: onChanged,
+        hint: hintText != null ? Text(hintText) : null,
+        items: options.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
             value: value,
             child: Text(value.toString()),
           );
