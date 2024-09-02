@@ -17,7 +17,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
   int startYear = DateTime.now().year;
   int endYear = DateTime.now().year;
   int startDateMonth = DateTime.now().month;
-  int endDateMonth = DateTime.now().month+1;
+  int endDateMonth = DateTime.now().month + 1;
   int startDateDay = DateTime.now().day;
   int endDateDay = DateTime.now().day;
   int startTime = 8;
@@ -35,64 +35,49 @@ class _SearchScheduleState extends State<SearchSchedule> {
   bool isRainy = false;
   bool isSnowy = false;
 
-  List<String> regions = ['北海道','東北','関東甲信','東海','北陸','近畿','中国','四国','九州','沖縄'];
+  List<String> regions = [
+    '北海道',
+    '東北',
+    '関東甲信',
+    '東海',
+    '北陸',
+    '近畿',
+    '中国',
+    '四国',
+    '九州',
+    '沖縄'
+  ];
   List<String> cities = [''];
   List<String> _getCitiesForRegion(String region) {
     switch (region) {
       case '北海道':
         return [
-          '宗谷地方', '上川・留萌地方', '網走・北見・紋別地方',
-          '十勝地方', '釧路・根室地方', '胆振・日高地方',
-          '石狩・空知・後志地方', '渡島・檜山地方'
+          '宗谷地方',
+          '上川・留萌地方',
+          '網走・北見・紋別地方',
+          '釧路・根室地方',
+          '胆振・日高地方',
+          '石狩・空知・後志地方',
+          '渡島・檜山地方'
         ];
       case '東北':
-        return [
-          '青森県', '岩手県', '宮城県',
-          '秋田県', '山形県', '福島県'
-        ];
+        return ['青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県'];
       case '関東甲信':
-        return [
-          '茨城県', '栃木県', '群馬県',
-          '埼玉県', '千葉県', '東京都',
-          '神奈川県', '山梨県', '長野県'
-        ];
+        return ['茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県', '山梨県', '長野県'];
       case '東海':
-        return [
-          '岐阜県', '静岡県', '愛知県',
-          '三重県'
-        ];
+        return ['岐阜県', '静岡県', '愛知県', '三重県'];
       case '北陸':
-        return [
-          '新潟県', '富山県', '石川県',
-          '福井県'
-        ];
+        return ['新潟県', '富山県', '石川県', '福井県'];
       case '近畿':
-        return [
-          '滋賀県', '京都府', '大阪府',
-          '兵庫県', '奈良県', '和歌山県'
-        ];
+        return ['滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県'];
       case '中国':
-        return [
-          '鳥取県', '島根県', '岡山県',
-          '広島県', '山口県'
-        ];
+        return ['鳥取県', '島根県', '岡山県', '広島県', '山口県'];
       case '四国':
-        return [
-          '徳島県', '香川県', '愛媛県',
-          '高知県'
-        ];
+        return ['徳島県', '香川県', '愛媛県', '高知県'];
       case '九州':
-        return [
-          '福岡県', '佐賀県', '長崎県',
-          '熊本県', '大分県',
-          '宮崎県', '鹿児島県'
-        ];
+        return ['福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県'];
       case '沖縄':
-        return [
-          '沖縄本島地方', '大東島地方',
-          '宮古島地方', '石垣島地方',
-          '与那国島地方'
-        ];
+        return ['沖縄本島地方', '大東島地方', '宮古島地方', '石垣島地方', '与那国島地方'];
       default:
         return ['Unknown'];
     }
@@ -114,13 +99,18 @@ class _SearchScheduleState extends State<SearchSchedule> {
   List<int> getAvailableDays(int year, int month) {
     int lastDayOfMonth = DateTime(year, month + 1, 0).day;
     DateTime selectedDate = DateTime(year, month, 1);
-    int startDayLimit = (selectedDate.isAfter(now) || selectedDate.isAtSameMomentAs(now)) ? 1 : now.day;
+    int startDayLimit =
+        (selectedDate.isAfter(now) || selectedDate.isAtSameMomentAs(now))
+            ? 1
+            : now.day;
 
     if (year == startYear && month == startDateMonth) {
       startDayLimit = startDateDay;
     }
-    return List.generate(lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
+    return List.generate(
+        lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
   }
+
   List<int> getAvailableDaysStart(int year, int month) {
     int lastDayOfMonth = DateTime(year, month + 1, 0).day;
     int startDayLimit = 1;
@@ -128,7 +118,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
     if (year == startYear && month == DateTime.now().month) {
       startDayLimit = DateTime.now().day;
     }
-    return List.generate(lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
+    return List.generate(
+        lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
   }
 
   List<int> getAvailableMonths(int year) {
@@ -137,7 +128,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
     if (year == startYear) {
       startMonthLimit = startDateMonth;
     }
-    return List.generate(12 - startMonthLimit + 1, (index) => startMonthLimit + index);
+    return List.generate(
+        12 - startMonthLimit + 1, (index) => startMonthLimit + index);
   }
 
   List<int> getAvailableMonthsStart(int year) {
@@ -146,14 +138,17 @@ class _SearchScheduleState extends State<SearchSchedule> {
     if (year == startYear) {
       startMonthLimit = DateTime.now().month;
     }
-    return List.generate(12 - startMonthLimit + 1, (index) => startMonthLimit + index);
+    return List.generate(
+        12 - startMonthLimit + 1, (index) => startMonthLimit + index);
   }
+
   List<int> getAvailableYears() {
     return years.where((year) {
       DateTime startDate = DateTime(startYear, startDateMonth, startDateDay);
       DateTime endDate = DateTime(year, endDateMonth, endDateDay);
       return endDate.isAfter(now) &&
-          endDate.isBefore(startDate.add(Duration(days: 182))); // Limit to 6 months
+          endDate.isBefore(
+              startDate.add(Duration(days: 182))); // Limit to 6 months
     }).toList();
   }
 
@@ -169,11 +164,13 @@ class _SearchScheduleState extends State<SearchSchedule> {
       });
     }
   }
-  Future<void> _getGroupSize() async{
+
+  Future<void> _getGroupSize() async {
     var group = await GetUserInGroup().getUserInGroup(widget.groupId);
     GroupSize = group.length;
     setState(() {});
   }
+
   String getAreaCode(String region, String city) {
     switch (region) {
       case '北海道':
@@ -184,8 +181,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
             return '012000';
           case '網走・北見・紋別地方':
             return '013000';
-          case '十勝地方':
-            return '014030';
           case '釧路・根室地方':
             return '015000';
           case '胆振・日高地方':
@@ -355,7 +350,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
   }
 
   Future<void> _searchSchedule() async {
-    if(considerWeather){
+    if (considerWeather) {
       String formatWithLeadingZero(int value) {
         return value.toString().padLeft(2, '0');
       }
@@ -366,7 +361,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
       String formattedEndDateDay = formatWithLeadingZero(endDateDay);
       String formattedStartTime = formatWithLeadingZero(startTime);
       String formattedEndTime = formatWithLeadingZero(endTime);
-      searchResults = await SearchContentScheduleWeather().searchContentScheduleWeather(
+      searchResults =
+          await SearchContentScheduleWeather().searchContentScheduleWeather(
         widget.groupId.toString(),
         '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
         '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
@@ -375,7 +371,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
         formattedEndTime,
         '00',
         '${minHours * 60}',
-        '${GroupSize-minParticipants}',
+        '${GroupSize - minParticipants}',
         getAreaCode(selectedRegion!, selectedCity!),
         isSunny ? '1' : '0',
         isCloudy ? '1' : '0',
@@ -384,7 +380,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
       );
       print(searchResults.length);
       setState(() {});
-    }else{
+    } else {
       String formatWithLeadingZero(int value) {
         return value.toString().padLeft(2, '0');
       }
@@ -404,13 +400,13 @@ class _SearchScheduleState extends State<SearchSchedule> {
         formattedEndTime,
         '00',
         '${minHours * 60}',
-        '${GroupSize-minParticipants}',
+        '${GroupSize - minParticipants}',
       );
       print(searchResults.length);
       setState(() {});
     }
-
   }
+
   String formatDateTime(DateTime dateTime) {
     // Format month and day
     String monthDay = DateFormat('M月d日').format(dateTime);
@@ -421,6 +417,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
     // Combine them
     return '$monthDay$hour';
   }
+
   @override
   Widget build(BuildContext context) {
     if (!hours.contains(startTime)) {
@@ -438,9 +435,11 @@ class _SearchScheduleState extends State<SearchSchedule> {
     if (!getAvailableDays(endYear, endDateMonth).contains(endDateDay)) {
       endDateDay = getAvailableDays(endYear, endDateMonth).first;
     }
-    List<int> availableStartDays = getAvailableDaysStart(startYear, startDateMonth);
+    List<int> availableStartDays =
+        getAvailableDaysStart(startYear, startDateMonth);
     if (!availableStartDays.contains(startDateDay)) {
-      startDateDay = availableStartDays.isNotEmpty ? availableStartDays.first : 1;
+      startDateDay =
+          availableStartDays.isNotEmpty ? availableStartDays.first : 1;
     }
 
     List<int> availableEndDays = getAvailableDays(endYear, endDateMonth);
@@ -464,205 +463,261 @@ class _SearchScheduleState extends State<SearchSchedule> {
               style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                _buildDropdown(getAvailableYears(), startYear, (newValue) {
-                  setState(() {
-                    startYear = newValue!;
-                    if (startYear == endYear && startDateMonth > endDateMonth) {
-                      endDateMonth = startDateMonth;
-                    }
-                    _adjustEndDate();
-                  });
-                }),
-                Text('年'),
-                SizedBox(width: 8.0),
-                _buildDropdown(getAvailableMonthsStart(startYear), startDateMonth, (newValue) {
-                  setState(() {
-                    startDateMonth = newValue!;
-                    if (!getAvailableDaysStart(startYear, startDateMonth).contains(startDateDay)) {
-                      startDateDay = getAvailableDaysStart(startYear, startDateMonth).first;
-                    }
-                    _adjustEndDate();
-                  });
-                }),
-                Text('月'),
-                SizedBox(width: 8.0),
-                _buildDropdown(getAvailableDaysStart(startYear, startDateMonth), startDateDay, (newValue) {
-                  setState(() {
-                    startDateDay = newValue!;
-                    _adjustEndDate();
-                  });
-                }),
-                Text('日 から '),
-                Spacer(flex: 2),
-              ],
-            ),
-            Row(
-              children: [
-                Spacer(flex: 2),
-                _buildDropdown(getAvailableYears(), endYear, (newValue) {
-                  setState(() {
-                    endYear = newValue!;
-                    _adjustEndDate();
-                  });
-                }),
-                Text('年'),
-                SizedBox(width: 8.0),
-                _buildDropdown(getAvailableMonths(endYear), endDateMonth, (newValue) {
-                  setState(() {
-                    endDateMonth = newValue!;
-                    _adjustEndDate();
-                  });
-                }),
-                Text('月'),
-                SizedBox(width: 8.0),
-                _buildDropdown(getAvailableDays(endYear, endDateMonth), endDateDay, (newValue) {
-                  setState(() {
-                    endDateDay = newValue!;
-                    if (!getAvailableDays(endYear, endDateMonth).contains(endDateDay)) {
-                      endDateDay = getAvailableDaysStart(endYear, endDateMonth).first;
-                    }
-                    _adjustEndDate();
-                  });
-                }),
-                Text('日まで'),
-                Spacer(flex: 1),
-              ],
-            ),
-            Row(
-              children: [
-                _buildDropdown(hours, startTime, (newValue) {
-                  setState(() {
-                    startTime = newValue!;
-                    if (startTime > endTime) {
-                      endTime = startTime;
-                    }
-                  });
-                }),
-                Text('時 から '),
-                SizedBox(width: 8.0),
-                _buildDropdown(hours.where((hour) => hour >= startTime).toList(), endTime, (newValue) {
-                  setState(() {
-                    endTime = newValue!;
-                  });
-                }),
-                Text('時まで'),
-                Spacer(flex: 5),
-              ],
-            ),
-            Row(
-              children: [
-                Text('最低'),
-                SizedBox(width: 8.0),
-                _buildDropdown(minHoursOptions, minHours, (newValue) {
-                  setState(() {
-                    minHours = newValue!;
-                  });
-                }),
-                Text('時間'),
-                Spacer(flex: 10),
-              ],
-            ),
-            Row(
-              children: [
-                Text('最低'),
-                SizedBox(width: 8.0),
-                _buildDropdown(List.generate(GroupSize, (index) => index + 1), minParticipants, (newValue) {
-                  setState(() {
-                    minParticipants = newValue!;
-                  });
-                }),
-                Text('人参加可能'),
-                Spacer(flex: 10),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                Text('天気も考慮する'),
-                Switch(
-                  value: considerWeather,
-                  onChanged: (bool value) {
-                    setState(() {
-                      considerWeather = value;
-                      if (considerWeather) {
-                        selectedRegion ??= regions.first;
-                        selectedCity ??= cities.first;
-                      }
-                    });
-                  },
+            Theme(
+              data: Theme.of(context).copyWith(
+                listTileTheme: ListTileTheme.of(context).copyWith(
+                  dense: true,
                 ),
-              ],
+              ),
+              child: ExpansionTile(
+                initiallyExpanded: true,
+                title: Text('検索詳細条件'),
+                dense: true,
+                children: [
+                  SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      _buildDropdown(getAvailableYears(), startYear,
+                          (newValue) {
+                        setState(() {
+                          startYear = newValue!;
+                          if (startYear == endYear &&
+                              startDateMonth > endDateMonth) {
+                            endDateMonth = startDateMonth;
+                          }
+                          _adjustEndDate();
+                        });
+                      }),
+                      Text('年'),
+                      SizedBox(width: 8.0),
+                      _buildDropdown(
+                          getAvailableMonthsStart(startYear), startDateMonth,
+                          (newValue) {
+                        setState(() {
+                          startDateMonth = newValue!;
+                          if (!getAvailableDaysStart(startYear, startDateMonth)
+                              .contains(startDateDay)) {
+                            startDateDay =
+                                getAvailableDaysStart(startYear, startDateMonth)
+                                    .first;
+                          }
+                          _adjustEndDate();
+                        });
+                      }),
+                      Text('月'),
+                      SizedBox(width: 8.0),
+                      _buildDropdown(
+                          getAvailableDaysStart(startYear, startDateMonth),
+                          startDateDay, (newValue) {
+                        setState(() {
+                          startDateDay = newValue!;
+                          _adjustEndDate();
+                        });
+                      }),
+                      Text('日 から '),
+                      Spacer(flex: 2),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Spacer(flex: 2),
+                      _buildDropdown(getAvailableYears(), endYear, (newValue) {
+                        setState(() {
+                          endYear = newValue!;
+                          _adjustEndDate();
+                        });
+                      }),
+                      Text('年'),
+                      SizedBox(width: 8.0),
+                      _buildDropdown(getAvailableMonths(endYear), endDateMonth,
+                          (newValue) {
+                        setState(() {
+                          endDateMonth = newValue!;
+                          _adjustEndDate();
+                        });
+                      }),
+                      Text('月'),
+                      SizedBox(width: 8.0),
+                      _buildDropdown(
+                          getAvailableDays(endYear, endDateMonth), endDateDay,
+                          (newValue) {
+                        setState(() {
+                          endDateDay = newValue!;
+                          if (!getAvailableDays(endYear, endDateMonth)
+                              .contains(endDateDay)) {
+                            endDateDay =
+                                getAvailableDaysStart(endYear, endDateMonth)
+                                    .first;
+                          }
+                          _adjustEndDate();
+                        });
+                      }),
+                      Text('日まで'),
+                      Spacer(flex: 1),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      _buildDropdown(hours, startTime, (newValue) {
+                        setState(() {
+                          startTime = newValue!;
+                          if (startTime > endTime) {
+                            endTime = startTime;
+                          }
+                        });
+                      }),
+                      Text('時 から '),
+                      SizedBox(width: 8.0),
+                      _buildDropdown(
+                          hours.where((hour) => hour >= startTime).toList(),
+                          endTime, (newValue) {
+                        setState(() {
+                          endTime = newValue!;
+                        });
+                      }),
+                      Text('時まで'),
+                      Spacer(flex: 5),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text('最低'),
+                      SizedBox(width: 8.0),
+                      _buildDropdown(minHoursOptions, minHours, (newValue) {
+                        setState(() {
+                          minHours = newValue!;
+                        });
+                      }),
+                      Text('時間'),
+                      Spacer(flex: 10),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text('最低'),
+                      SizedBox(width: 8.0),
+                      _buildDropdown(
+                          List.generate(GroupSize, (index) => index + 1),
+                          minParticipants, (newValue) {
+                        setState(() {
+                          minParticipants = newValue!;
+                        });
+                      }),
+                      Text('人参加可能'),
+                      Spacer(flex: 10),
+                    ],
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      Text('天気も考慮する'),
+                      Switch(
+                        value: considerWeather,
+                        onChanged: (bool value) {
+                          setState(() {
+                            considerWeather = value;
+                            if (considerWeather) {
+                              selectedRegion ??= regions.first;
+                              cities = _getCitiesForRegion(selectedRegion!);
+                              selectedCity = cities.first;
+                            }
+                          });
+                        },
+                        activeColor: GlobalColor.MainCol, // color of the toggle
+                        inactiveTrackColor:
+                            GlobalColor.SubCol, // color of the background
+                        inactiveThumbColor: GlobalColor
+                            .Unselected, // color of the thumb when the switch is off
+                      ),
+                    ],
+                  ),
+                  // Display region and city dropdowns if considering weather
+                  if (considerWeather) ...[
+                    Row(
+                      children: [
+                        SizedBox(width: 8.0),
+                        _buildDropdownString(regions, selectedRegion!,
+                            (newValue) {
+                          setState(() {
+                            selectedRegion = newValue;
+                            cities = _getCitiesForRegion(selectedRegion!);
+                            selectedCity = cities.first;
+                          });
+                        }, hintText: '地域を選択'),
+                        Spacer(flex: 10),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(width: 8.0),
+                        _buildDropdownString(cities, selectedCity!, (newValue) {
+                          setState(() {
+                            selectedCity = newValue;
+                          });
+                        }, hintText: '市を選択'),
+                        Spacer(flex: 4),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: isSunny,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isSunny = value!;
+                            });
+                          },
+                          activeColor: GlobalColor
+                              .SubCol, // color of the checkbox when selected
+                          checkColor:
+                              GlobalColor.MainCol, // color of the checkmark
+                        ),
+                        Text('晴れ'),
+                        Checkbox(
+                          value: isCloudy,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isCloudy = value!;
+                            });
+                          },
+                          activeColor: GlobalColor
+                              .SubCol, // color of the checkbox when selected
+                          checkColor:
+                              GlobalColor.MainCol, // color of the checkmark
+                        ),
+                        Text('曇り'),
+                        Checkbox(
+                          value: isRainy,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isRainy = value!;
+                            });
+                          },
+                          activeColor: GlobalColor
+                              .SubCol, // color of the checkbox when selected
+                          checkColor:
+                              GlobalColor.MainCol, // color of the checkmark
+                        ),
+                        Text('雨'),
+                        Checkbox(
+                          value: isSnowy,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isSnowy = value!;
+                            });
+                          },
+                          activeColor: GlobalColor
+                              .SubCol, // color of the checkbox when selected
+                          checkColor:
+                              GlobalColor.MainCol, // color of the checkmark
+                        ),
+                        Text('雪'),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
             ),
-            // Display region and city dropdowns if considering weather
-            if (considerWeather) ...[
-              Row(
-                children: [
-                  SizedBox(width: 8.0),
-                  _buildDropdownString(regions, selectedRegion!, (newValue) {
-                    setState(() {
-                      selectedRegion = newValue;
-                      cities = _getCitiesForRegion(selectedRegion!);
-                      selectedCity = cities.first;
-                    });
-                  }, hintText: '地域を選択'),
-                  Spacer(flex:4),
-                ],
-              ),
-              Row(
-                children: [
-                  SizedBox(width: 8.0),
-                  _buildDropdownString(cities, selectedCity!, (newValue) {
-                    setState(() {
-                      selectedCity = newValue;
-                    });
-                  }, hintText: '市を選択'),
-                  Spacer(flex:4),
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                    value: isSunny,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isSunny = value!;
-                      });
-                    },
-                  ),
-                  Text('晴れ'),
-                  Checkbox(
-                    value: isCloudy,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isCloudy = value!;
-                      });
-                    },
-                  ),
-                  Text('曇り'),
-                  Checkbox(
-                    value: isRainy,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isRainy = value!;
-                      });
-                    },
-                  ),
-                  Text('雨'),
-                  Checkbox(
-                    value: isSnowy,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isSnowy = value!;
-                      });
-                    },
-                  ),
-                  Text('雪'),
-                ],
-              ),
-            ],
             SizedBox(height: 16.0),
             Center(
               child: ElevatedButton(
@@ -675,19 +730,43 @@ class _SearchScheduleState extends State<SearchSchedule> {
               child: ListView.builder(
                 itemCount: searchResults.length,
                 itemBuilder: (context, index) {
-                  if(considerWeather){
-                    return ListTile(
-                      title: Text(formatDateTime(searchResults[index].startTime)+
-                          ' ~ ' +
-                          formatDateTime(searchResults[index].endTime)),
-                    );
-                  }else{
-                    return ListTile(
-                      title: Text(formatDateTime(searchResults[index].startTime)+
-                          ' ~ ' +
-                          formatDateTime(searchResults[index].endTime)),
-                    );
+                  // Determine the weather icon based on the weather code
+                  IconData weatherIcon;
+                  switch (searchResults[index].weather) {
+                    case -1:
+                      weatherIcon = Icons.help_outline; // '?' icon for -1
+                      break;
+                    case 0:
+                      weatherIcon = Icons.wb_sunny; // 'sun' icon for 0
+                      break;
+                    case 1:
+                      weatherIcon = Icons.cloud; // 'cloud' icon for 1
+                      break;
+                    case 2:
+                      weatherIcon = Icons.beach_access; // 'rain' icon for 2
+                      break;
+                    case 3:
+                      weatherIcon = Icons.ac_unit; // 'snow' icon for 3
+                      break;
+                    default:
+                      weatherIcon = Icons
+                          .help_outline; // '?' icon for unknown weather code
                   }
+
+                  return ListTile(
+                    title: Text(formatDateTime(searchResults[index].startTime) +
+                        ' ~ ' +
+                        formatDateTime(searchResults[index].endTime)),
+                    subtitle: Text('${searchResults[index].count}人参加できません'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        considerWeather ? Icon(weatherIcon) : Container(),
+                        SizedBox(width: 8.0),
+                        Text(searchResults[index].reliability ?? '-'),
+                      ],
+                    ),
+                  );
                 },
               ),
             ),
@@ -697,7 +776,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
     );
   }
 
-  Widget _buildDropdown(List<int> options, int value, ValueChanged<int?> onChanged) {
+  Widget _buildDropdown(
+      List<int> options, int value, ValueChanged<int?> onChanged) {
     return Expanded(
       flex: 2,
       child: DropdownButton<int>(
@@ -712,9 +792,12 @@ class _SearchScheduleState extends State<SearchSchedule> {
       ),
     );
   }
-  Widget _buildDropdownString(List<String> options, String value, ValueChanged<String?> onChanged,{String? hintText}) {
+
+  Widget _buildDropdownString(
+      List<String> options, String value, ValueChanged<String?> onChanged,
+      {String? hintText}) {
     return Expanded(
-      flex: 2,
+      flex: 4,
       child: DropdownButton<String>(
         value: value,
         onChanged: onChanged,

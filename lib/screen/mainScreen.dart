@@ -131,7 +131,7 @@ class _MainScreenState extends State<MainScreen> {
           child: Container(
             width: 150.0, // Desired width
             height: 150.0, // Desired height
-            child: Image.asset('assets/icon1.png'),
+            child: Image.asset('assets/icon.png'),
           ),
         ),
       );

@@ -4,21 +4,11 @@ import 'package:calendar_sharing/screen/ContentsSetting.dart';
 import 'package:calendar_sharing/screen/SearchSchedule.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:googleapis/admob/v1.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:rrule/rrule.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:googleapis_auth/auth_io.dart';
-import 'package:googleapis/calendar/v3.dart' as cal;
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import '../services/auth.dart';
 import '../setting/color.dart' as GlobalColor;
-import 'dart:ui' as ui;
 
 class Home extends StatefulWidget {
   final String? groupId;

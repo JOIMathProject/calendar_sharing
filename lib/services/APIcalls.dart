@@ -366,8 +366,6 @@ class GetGroupInfo {
         latest_message_time: latestMessageTime,
       ));
     }
-    //print everything
-    print("ghe");
     return groups;
   }
 }
@@ -960,7 +958,7 @@ class SearchContentSchedule {
       events.add(SearchResultEvent(
         startTime: DateTime.parse(group['start_dateTime']),
         endTime: DateTime.parse(group['end_dateTime']),
-        count: group['weather'],
+        count: group['count'],
         members: _members,
         weather: -1,
         reliability: '',
@@ -1015,7 +1013,7 @@ class SearchContentScheduleWeather {
         count: group['count'],
         members: _members,
         weather: group['weather'],
-        reliability: group['reliability'] ?? '',
+        reliability: group['reliabilities'] ?? '-',
       ));
     }
 
