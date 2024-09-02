@@ -471,7 +471,9 @@ class _SearchScheduleState extends State<SearchSchedule> {
               ),
               child: ExpansionTile(
                 initiallyExpanded: true,
-                title: Text('検索詳細条件'),
+                title: Text('${startYear}/${startDateMonth}/${startDateDay}~${endYear}/${endDateMonth}/${endDateDay}の${startTime}時から${endTime}時\n'
+                    '最低${minHours}時間以上/${minParticipants}人以上が参加可能\n'
+                    '${selectedRegion} ${selectedCity}    ${isSunny ? '晴れ/' : ''}${isCloudy ? '曇り/' : ''}${isRainy ? '雨/' : ''}${isSnowy ? '雪/' : ''}'),
                 dense: true,
                 children: [
                   SizedBox(height: 16.0),
@@ -722,7 +724,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
             Center(
               child: ElevatedButton(
                 onPressed: _searchSchedule,
-                child: Text('検索'),
+                child: Text('検索', style: TextStyle(fontSize: 20,color: GlobalColor.SubCol)),
               ),
             ),
             SizedBox(height: 16.0),
@@ -754,19 +756,57 @@ class _SearchScheduleState extends State<SearchSchedule> {
                   }
 
                   return ListTile(
-                    title: Text(formatDateTime(searchResults[index].startTime) +
-                        ' ~ ' +
-                        formatDateTime(searchResults[index].endTime)),
-                    subtitle: Text('${searchResults[index].count}人参加できません'),
+                    title: Text(
+                      '${formatDateTime(searchResults[index].startTime)} ~ ${formatDateTime(searchResults[index].endTime)}',
+                    ),
+                    subtitle: searchResults[index].count != 0
+                        ? Text('${searchResults[index].count}人参加できません')
+                        : Text('全員参加可能'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        IconButton(
+                          icon: Icon(Icons.warning, color: Colors.red),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Warning'),
+                                  content: Text('${searchResults[index].members[0].uname}ユーザーは参加できません.'),
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                      child: Text('Close'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return _addScheduleDialog();
+                              },
+                            );
+                          },
+                        ),
                         considerWeather ? Icon(weatherIcon) : Container(),
                         SizedBox(width: 8.0),
-                        Text(searchResults[index].reliability ?? '-'),
+                        Text(searchResults[index].reliability?.isNotEmpty == true
+                            ? searchResults[index].reliability
+                            : '--'),
                       ],
                     ),
                   );
+
                 },
               ),
             ),
@@ -775,7 +815,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
       ),
     );
   }
-
   Widget _buildDropdown(
       List<int> options, int value, ValueChanged<int?> onChanged) {
     return Expanded(
@@ -809,6 +848,20 @@ class _SearchScheduleState extends State<SearchSchedule> {
           );
         }).toList(),
       ),
+    );
+  }
+  AlertDialog _addScheduleDialog() {
+    return AlertDialog(
+      title: Text('Add Schedule'),
+      content: Text('Add the schedule at this date.'),
+      actions: <Widget>[
+        ElevatedButton(
+          child: Text('Close'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }
