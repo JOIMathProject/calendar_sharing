@@ -23,9 +23,9 @@ class _SignInState extends State<SignIn> {
           ),Flexible(
             flex: 4,
             child: FractionallySizedBox(
-              widthFactor: 0.5,
+              widthFactor: 1,
               child: Image.asset(
-                'assets/icon_transparent.png',
+                'assets/image/icon_transparent.jpg',
                 fit: BoxFit.cover,
               ),
             ),
@@ -36,13 +36,11 @@ class _SignInState extends State<SignIn> {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'Sando',
+                  'SANDO',
                   style: TextStyle(
+                    fontFamily: 'SmglMediumbold',
+                    fontSize: 65.0,
                     color: GlobalColor.MainCol,
-                    fontSize:
-                    50,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Pacifico',
                   ),
                 ),
               ),

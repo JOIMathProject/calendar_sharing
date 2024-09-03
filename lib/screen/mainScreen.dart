@@ -131,7 +131,7 @@ class _MainScreenState extends State<MainScreen> {
           child: Container(
             width: 150.0, // Desired width
             height: 150.0, // Desired height
-            child: Image.asset('assets/icon.png'),
+            child: Image.asset('assets/image/icon.jpg'),
           ),
         ),
       );
@@ -139,12 +139,12 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Sando',
+          'SANDO',
           style: TextStyle(
-            color: GlobalColor.MainCol,
-            fontSize: 40,
+            fontFamily: 'SmglRounded',
+            fontSize: 40.0,
             fontWeight: FontWeight.bold,
-            fontFamily: 'Pacifico',
+            color: GlobalColor.MainCol,
           ),
         ),
         backgroundColor: GlobalColor.SubCol,
