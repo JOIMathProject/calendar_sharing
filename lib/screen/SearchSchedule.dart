@@ -1,9 +1,8 @@
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
-import 'package:googleapis/chat/v1.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:flutter/cupertino.dart';
 
 class SearchSchedule extends StatefulWidget {
   final String? groupId;
@@ -92,10 +91,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
   List<int> months = List.generate(12, (index) => index + 1);
   List<int> days = List.generate(31, (index) => index + 1);
   List<int> hours = List.generate(24, (index) => index);
-  List<int> minHoursOptions = List.generate(8, (index) => index);
+  List<int> minHoursOptions = List.generate(18, (index) => index);
 
   List<SearchResultEvent> searchResults = [];
-
+  final expansionTileController = ExpansionTileController();
   List<int> getAvailableDays(int year, int month) {
     int lastDayOfMonth = DateTime(year, month + 1, 0).day;
     DateTime selectedDate = DateTime(year, month, 1);
@@ -350,6 +349,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
   }
 
   Future<void> _searchSchedule() async {
+    expansionTileController.collapse();
     if (considerWeather) {
       String formatWithLeadingZero(int value) {
         return value.toString().padLeft(2, '0');
@@ -470,10 +470,12 @@ class _SearchScheduleState extends State<SearchSchedule> {
                 ),
               ),
               child: ExpansionTile(
+                controller: expansionTileController,
                 initiallyExpanded: true,
-                title: Text('${startYear}/${startDateMonth}/${startDateDay}~${endYear}/${endDateMonth}/${endDateDay}の${startTime}時から${endTime}時\n'
+                title: Text(
+                    '${startYear}/${startDateMonth}/${startDateDay}~${endYear}/${endDateMonth}/${endDateDay}の${startTime}時から${endTime}時\n'
                     '最低${minHours}時間以上/${minParticipants}人以上が参加可能\n'
-                    '${selectedRegion} ${selectedCity}    ${isSunny ? '晴れ/' : ''}${isCloudy ? '曇り/' : ''}${isRainy ? '雨/' : ''}${isSnowy ? '雪/' : ''}'),
+                    '${selectedRegion != null ? selectedRegion : ''} ${selectedCity != null ? selectedCity : ''}    ${isSunny ? '晴れ/' : ''}${isCloudy ? '曇り/' : ''}${isRainy ? '雨/' : ''}${isSnowy ? '雪/' : ''}'),
                 dense: true,
                 children: [
                   SizedBox(height: 16.0),
@@ -724,7 +726,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
             Center(
               child: ElevatedButton(
                 onPressed: _searchSchedule,
-                child: Text('検索', style: TextStyle(fontSize: 20,color: GlobalColor.SubCol)),
+                child: Text('検索',
+                    style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
               ),
             ),
             SizedBox(height: 16.0),
@@ -765,48 +768,72 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
-                          icon: Icon(Icons.warning, color: Colors.red),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('Warning'),
-                                  content: Text('${searchResults[index].members[0].uname}ユーザーは参加できません.'),
-                                  actions: <Widget>[
-                                    ElevatedButton(
-                                      child: Text('Close'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        ),
+                        searchResults[index].members.length != 0
+                            ? IconButton(
+                                icon: Icon(Icons.warning, color: Colors.red),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('参加不可のユーザー'),
+                                        content: Container(
+                                          width: double.maxFinite,
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: searchResults[index]
+                                                .members
+                                                .length,
+                                            itemBuilder: (context, i) {
+                                              return Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundImage: NetworkImage(
+                                                        'https://calendar-files.woody1227.com/user_icon/${searchResults[index].members[i].uicon}'),
+                                                    radius: 20,
+                                                  ),
+                                                  SizedBox(
+                                                      width:
+                                                          10), // Space between image and text
+                                                  Text(
+                                                      '${searchResults[index].members[i].uname}'),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          ElevatedButton(
+                                            child: Text('Close'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              )
+                            : Container(),
+                        considerWeather ? Icon(weatherIcon) : Container(),
+                        SizedBox(width: 8.0),
+                        considerWeather
+                            ? Text(
+                                searchResults[index].reliability?.isNotEmpty ==
+                                        true
+                                    ? searchResults[index].reliability
+                                    : '--')
+                            : Container(),
                         IconButton(
                           icon: Icon(Icons.add),
                           onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return _addScheduleDialog();
-                              },
-                            );
+                            _showScheduleDialog(context, index);
                           },
                         ),
-                        considerWeather ? Icon(weatherIcon) : Container(),
-                        SizedBox(width: 8.0),
-                        Text(searchResults[index].reliability?.isNotEmpty == true
-                            ? searchResults[index].reliability
-                            : '--'),
                       ],
                     ),
                   );
-
                 },
               ),
             ),
@@ -815,6 +842,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
       ),
     );
   }
+
   Widget _buildDropdown(
       List<int> options, int value, ValueChanged<int?> onChanged) {
     return Expanded(
@@ -850,6 +878,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
       ),
     );
   }
+
   AlertDialog _addScheduleDialog() {
     return AlertDialog(
       title: Text('Add Schedule'),
@@ -862,6 +891,252 @@ class _SearchScheduleState extends State<SearchSchedule> {
           },
         ),
       ],
+    );
+  }
+
+  void _showScheduleDialog(BuildContext context, int index) {
+    // Initialize selected values
+    int selectedHour = searchResults[index].startTime.hour;
+    int selectedMinute = searchResults[index].startTime.minute;
+    int selectedDurationHours = 0;
+    int selectedDurationMinutes = 0;
+
+    bool sendToAll = false; // Initialize the checkbox state
+
+    // Time and duration limits
+    final int startHour = searchResults[index].startTime.hour;
+    final int endHour = searchResults[index].endTime.hour;
+    final int startMinute = searchResults[index].startTime.minute;
+    final int endMinute = searchResults[index].endTime.minute;
+
+    // Function to show the main dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('予定を追加'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Hour Picker
+                  Text('予定開始時刻'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 150,
+                        width: 50,
+                        child: CupertinoPicker(
+                          itemExtent: 32.0,
+                          onSelectedItemChanged: (int index) {
+                            setState(() {
+                              selectedHour = startHour + index;
+                              if (selectedHour == startHour) {
+                                if (selectedMinute < startMinute) {
+                                  selectedMinute = startMinute;
+                                }
+                              }
+                              if (selectedHour == endHour) {
+                                if (selectedMinute > endMinute) {
+                                  selectedMinute = endMinute;
+                                }
+                              }
+                            });
+                          },
+                          children: List.generate(
+                            endHour - startHour + 1,
+                            (int index) => Text('${startHour + index}時'),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        height: 150,
+                        width: 50,
+                        child: CupertinoPicker(
+                          itemExtent: 32.0,
+                          onSelectedItemChanged: (int index) {
+                            setState(() {
+                              selectedMinute = index;
+                              if (selectedHour == startHour &&
+                                  selectedMinute < startMinute) {
+                                selectedMinute = startMinute;
+                              }
+                              if (selectedHour == endHour &&
+                                  selectedMinute > endMinute) {
+                                selectedMinute = endMinute;
+                              }
+                            });
+                          },
+                          children: List.generate(
+                            60,
+                            (int index) {
+                              final formattedMinute =
+                                  index < 10 ? '0$index' : '$index';
+                              return Text('$formattedMinute分');
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 30),
+                  // Duration Picker
+                  Text('予定長さ'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 100,
+                        width: 50,
+                        child: CupertinoPicker(
+                          itemExtent: 32.0,
+                          onSelectedItemChanged: (int index) {
+                            setState(() {
+                              selectedDurationHours = index;
+                            });
+                          },
+                          children: List.generate(
+                            endHour - startHour + 1,
+                            (int index) => Text('$index h'),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        height: 100,
+                        width: 50,
+                        child: CupertinoPicker(
+                          itemExtent: 32.0,
+                          onSelectedItemChanged: (int index) {
+                            setState(() {
+                              selectedDurationMinutes =
+                                  index * 5; // 5 minute intervals
+                            });
+                          },
+                          children: List.generate(
+                            12,
+                            (int index) => Text('${index * 5} m'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                ElevatedButton(
+                  child: Text('予定追加リクエストの送信'),
+                  onPressed: () {
+                    final totalSelectedTimeInMinutes =
+                        (selectedHour * 60 + selectedMinute);
+                    final totalSelectedDurationInMinutes =
+                        (selectedDurationHours * 60 + selectedDurationMinutes);
+                    final totalEndTimeInMinutes =
+                        (searchResults[index].endTime.hour * 60 +
+                            searchResults[index].endTime.minute);
+
+                    if (totalSelectedTimeInMinutes +
+                            totalSelectedDurationInMinutes <=
+                        totalEndTimeInMinutes) {
+                      if(totalSelectedDurationInMinutes == 0){
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('エラー'),
+                              content: Text('予定の長さを指定してください。'),
+                              actions: <Widget>[
+                                ElevatedButton(
+                                  child: Text('閉じる'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                      else if (searchResults[index].members.length != 0) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('予定追加リクエストの送信先'),
+                              actions: <Widget>[
+                                ElevatedButton(
+                                  child: Text('参加できる人のみに送信'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                ElevatedButton(
+                                  child: Text('参加できない人にも送信'),
+                                  onPressed: () {
+                                    // Perform the request sending logic here
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                ElevatedButton(
+                                  child: Text('キャンセル'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        // Proceed with the request
+                        // Implement the logic to handle sending the request
+                        if (sendToAll || searchResults[index].members.isEmpty) {
+                          // Handle sending to all or when there are no members
+                          Navigator.of(context).pop(); // Close the dialog
+                        } else {
+                          // Handle the logic when members exist but the checkbox is unchecked
+                          Navigator.of(context).pop(); // Close the dialog
+                          // Implement further logic if needed
+                        }
+                      }
+                    } else {
+                      // Show error message if the duration is invalid
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('エラー'),
+                            content: Text('選択した時間は終了時間を超えています。'),
+                            actions: <Widget>[
+                              ElevatedButton(
+                                child: Text('閉じる'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
+                ElevatedButton(
+                  child: Text('キャンセル'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

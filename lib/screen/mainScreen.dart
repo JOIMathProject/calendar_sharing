@@ -141,9 +141,8 @@ class _MainScreenState extends State<MainScreen> {
         title: Text(
           'SANDO',
           style: TextStyle(
-            fontFamily: 'SmglRounded',
-            fontSize: 40.0,
-            fontWeight: FontWeight.bold,
+            fontFamily: 'SmglMediumbold',
+            fontSize: 50.0,
             color: GlobalColor.MainCol,
           ),
         ),
