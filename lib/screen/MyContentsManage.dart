@@ -145,7 +145,9 @@ class _MyContentsManageState extends State<MyContentsManage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => CreateMyContents()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => CreateMyContents())).then(
+              (value) => _reloadContents()
+          );
         },
         child: Icon(Icons.add, color: GlobalColor.SubCol),
         backgroundColor: GlobalColor.MainCol,
