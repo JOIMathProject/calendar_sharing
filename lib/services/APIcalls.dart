@@ -653,10 +653,13 @@ class GetMyContents {
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
     final response = await http.get(url);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
     }
     List<MyContentsInformation> contents = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return contents;
+    }
     for (var group in jsonDecode(response.body)['data']) {
       contents.add(MyContentsInformation(
         cid: group['cid'],
@@ -810,9 +813,34 @@ class DeleteMyContents {
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid');
     final response = await http.delete(url);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
+  }
+}
+
+class GetMyContentCalendars {
+  Future<List<CalendarInformation>> getMyContentCalenders(String? uid,
+      String? cid) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    List<CalendarInformation> contents = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return contents;
+    }
+    for (var group in jsonDecode(response.body)['data']) {
+      contents.add(CalendarInformation(
+        calendar_id: group['calendar_id'] ?? 'default',
+        summary: group['summary'] ?? 'default',
+        discription: group['discription'] ?? 'default',
+      ));
+    }
+    return contents;
   }
 }
 

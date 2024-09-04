@@ -113,7 +113,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => AddFriend()));
+              MaterialPageRoute(builder: (context) => AddFriend())).then(
+                  (value) => () {
+                _fetchFriends();
+                _fetchReceivedRequests();
+                setState(() {});
+              }
+          );
         },
         child: Icon(Icons.person_add, color: GlobalColor.SubCol),
         backgroundColor: GlobalColor.MainCol,
@@ -386,7 +392,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         builder: (context) =>
                             FriendProfile(friend: filteredFriends[index]),
                       ),
-                    );
+                    ).then((value) => () {
+                      _fetchFriends();
+                      _fetchReceivedRequests();
+                      setState(() {});
+                    });
                   },
                 );
               },
