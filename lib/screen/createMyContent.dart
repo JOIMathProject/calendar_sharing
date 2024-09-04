@@ -91,16 +91,47 @@ class _CreateMyContentsState extends State<CreateMyContents> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  if (selectedCalendars.isNotEmpty) {
+                  if (selectedCalendars.isNotEmpty && title.isNotEmpty) {
                     // Code to make content with selected calendars
                     _makeContent(selectedCalendars);
-                  } else {
-                    // Show a message if no calendar is selected
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('最低でも一つはカレンダーを選択してください')),
+                    Navigator.pop(context);
+                  } else if(title.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('エラー'),
+                          content: Text('タイトルを指定してください'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }else{
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('エラー'),
+                          content: Text('カレンダーを最低一つ指定してください'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   }
-                  Navigator.pop(context);
                 },
                 child: Text('作成', style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
                 style: ElevatedButton.styleFrom(
