@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../services/auth.dart';
 import '../setting/color.dart' as GlobalColor;
+import 'package:badges/badges.dart' as badge;
 
 class Home extends StatefulWidget {
   final String? groupId;
@@ -107,17 +108,21 @@ class _HomeState extends State<Home> {
           color: GlobalColor.SubCol,
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ReceiveEventrequest(eventReq: _requests,
-                    gid: widget.groupId,usedContent: usedContent,),
-                ),
-              );
-            },
+          badge.Badge(
+            showBadge: _requests.isNotEmpty,
+            badgeContent: Text(""),
+            child: IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReceiveEventrequest(eventReq: _requests,
+                      gid: widget.groupId,usedContent: usedContent,),
+                  ),
+                );
+              },
+            ),
           ),
           IconButton(
             icon: Icon(
