@@ -347,7 +347,7 @@ class GetGroupDetail {
     return GroupDetail(
       gid: responseBody['gid'] ?? '',
       gname: responseBody['gname'] ?? '',
-      gicon: responseBody['gicon'] ?? 'default_icon.png',
+      gicon: responseBody['gicon'] ?? '',
       is_friends: responseBody['is_friends'] ?? '0',
     );
   }
@@ -377,7 +377,7 @@ class GetGroupInfo {
         id: group['id'] ?? 0,
         gid: group['gid'] ?? 'default',
         gname: group['gname'] ?? 'default',
-        gicon: group['gicon'] ?? 'default_icon.png',
+        gicon: group['gicon'] ?? '',
         is_friends: group['is_friends'] ?? '0',
         unread_messages: int.parse(group['unread_count']) ?? 0,
         latest_message: group['latest_message']['content'] ?? '',
@@ -599,7 +599,7 @@ class GetGroupCalendar {
         'https://calendar-api.woody1227.com/groups/$gid/content/events/$from/$to');
     final response = await http.get(url);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
     }
 

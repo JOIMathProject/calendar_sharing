@@ -22,8 +22,10 @@ class Home extends StatefulWidget {
   Home(
       {required this.groupId,
       required this.groupName,
+       required this.firstVisit,
+
       this.startOnChatScreen = false
-      , this.firstVisit = false});
+      });
 
   @override
   _HomeState createState() => _HomeState();
@@ -40,18 +42,23 @@ class _HomeState extends State<Home> {
   int _currentPage = 0;
   CalendarView _currentView = CalendarView.week;
   MyContentsInformation? usedContent;
-
-  List<MyContentsInformation> calendars = [];
   List<Appointment> GroupCal = [];
+
+
+  List<MyContentsInformation> _MyContents = [];
+  List<CalendarInformation> _MyCalendar = [];
+  MyContentsInformation? selectedContent;
+  CalendarInformation? selectedCalendar;
 
   @override
   void initState() {
+    print('yaid');
     super.initState();
     _pageController =
         PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
     _currentPage = widget.startOnChatScreen ? 1 : 0;
     _showFab = !widget.startOnChatScreen;
-    _getMyContents(Provider.of<UserData>(context, listen: false).uid);
+    _initializeData();
     _getTimeRegions();
     Timer.periodic(Duration(seconds: 10), (timer) {
       if (!mounted) {
@@ -61,22 +68,136 @@ class _HomeState extends State<Home> {
       _getCalendar();
     });
   }
-  Future<void> _getMyContents(String? uid) async {
-    calendars = await GetMyContents().getMyContents(uid);
-    calendars.insert(0, MyContentsInformation(cid: '', cname: 'None'));
-    usedContent = await _getCurrentUserContent(widget.groupId!, uid!);
-    setState(() {});
+  Future<void> _initializeData() async {
+    await _getMyContents(Provider.of<UserData>(context, listen: false).uid);
+
+    if (widget.firstVisit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showFirstVisitDialog());
+    }
   }
+  Future<void> _getMyContents(String? uid) async {
+    _MyCalendar = await GetMyCalendars().getMyCalendars(uid);
+    _MyContents = await GetMyContents().getMyContents(uid);
+    _MyContents.insert(0, MyContentsInformation(cid: '', cname: 'None'));
+    usedContent = await _getCurrentUserContent(widget.groupId!, uid!);
+    selectedContent = _MyContents.isNotEmpty ? _MyContents[0] : null;
+    selectedCalendar = _MyCalendar.isNotEmpty ? _MyCalendar[0] : null;
+    if (mounted) {
+      setState(() {});
+    }
+  }
+  Future<void> _addContentToGroup(String gid, String cid) async {
+    await AddContentsToGroup().addContentsToGroup(gid, cid);
+  }
+
+  Future<void> _removeContentFromGroup(String gid, String cid) async {
+    await RemoveContentsFromGroup().removeContentsFromGroup(gid, cid);
+  }
+  void _showFirstVisitDialog() {
+    TextEditingController contentController = TextEditingController();
+    TextEditingController calendarController = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents dialog from being dismissed by touching outside
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+            return false;
+          },
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: Text('Select Content and Calendar'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("表示コンテンツを選択"),
+                    if (_MyContents.isNotEmpty)
+                      DropdownButton<MyContentsInformation>(
+                        value: selectedContent,
+                        items: _MyContents.map((MyContentsInformation content) {
+                          return DropdownMenuItem<MyContentsInformation>(
+                            value: content,
+                            child: Text(content.cname),
+                          );
+                        }).toList(),
+                        onChanged: (MyContentsInformation? newValue) async {
+                          if (newValue != null) {
+                            if (selectedContent?.cid != '') {
+                              await _removeContentFromGroup(widget.groupId!, selectedContent!.cid);
+                            }
+                            setState(() {
+                              selectedContent = newValue;
+                            });
+                            if (newValue.cname != 'None') {
+                              await _addContentToGroup(widget.groupId!, newValue.cid);
+                            }
+                          }
+                        },
+                      ),
+                    SizedBox(height: 20),
+                    Text("予定追加先カレンダーを選択"),
+                    if (_MyCalendar.isNotEmpty)
+                      DropdownButton<CalendarInformation>(
+                        value: selectedCalendar,
+                        items: _MyCalendar.map((CalendarInformation content) {
+                          return DropdownMenuItem<CalendarInformation>(
+                            value: content,
+                            child: Text(content.summary),
+                          );
+                        }).toList(),
+                        onChanged: (CalendarInformation? newValue) {
+                          setState(() {
+                            selectedCalendar = newValue;
+                          });
+                        },
+                      ),
+                  ],
+                ),
+                actions: <Widget>[TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+                  TextButton(
+                    child: Text('Submit'),
+                    onPressed: selectedCalendar != null
+                        ? () {
+                      String contentName = contentController.text;
+                      String calendarName = calendarController.text;
+
+                      // Handle the submitted data here, e.g., save the selections
+                      Navigator.of(context).pop();
+                    }
+                        : null, // Disable the button if no calendar is selected
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
 
   Future<MyContentsInformation?> _getCurrentUserContent(String gid, String uid) async {
     List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(gid);
     if (contents?.isNotEmpty == true) {
-      return calendars.firstWhere(
+      return _MyContents.firstWhere(
             (content) => contents!.any((groupContent) => groupContent.uid == uid && content.cid == groupContent.cid),
-        orElse: () => calendars[0],
+        orElse: () => _MyContents[0],
       );
     }
-    return calendars[0];
+    return _MyContents[0];
   }
   Future<void> _getCalendar() async {
     List<ContentsInformation>? contents =
@@ -90,7 +211,9 @@ class _HomeState extends State<Home> {
         }
       }
     }
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
   Future<void> _getReceivedEvent() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
@@ -98,7 +221,9 @@ class _HomeState extends State<Home> {
     if (requests?.isNotEmpty == true) {
         _requests = requests;
     }
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
   @override
   Widget build(BuildContext context) {

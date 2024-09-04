@@ -25,7 +25,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
   List<MyContentsInformation> _MyContents = [];
   List<CalendarInformation> _MyCalendar = [];
   List<UserInformation> users = [];
-  String selectedIcon = 'default_icon.png';
+  String selectedIcon = '';
   MyContentsInformation? selectedContent;
   CalendarInformation? selectedCalendar;
   bool isEditingGName = false;

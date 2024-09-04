@@ -113,6 +113,7 @@ class _FriendProfileState extends State<FriendProfile> {
                             groupId: groupId,
                             groupName: widget.friend.uid,
                             startOnChatScreen: false,
+                            firstVisit: false,
                           ),
                         ),
                       );
@@ -143,6 +144,7 @@ class _FriendProfileState extends State<FriendProfile> {
                             groupId: groupId,
                             groupName: widget.friend.uid,
                             startOnChatScreen: true,
+                            firstVisit: false,
                           ),
                         ),
                       );
