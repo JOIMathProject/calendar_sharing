@@ -1104,3 +1104,12 @@ class ReceiveEventRequest{
     }
   }
 }
+class RejectEventRequest{
+  Future<void> rejectEventRequest(String? uid,String? uid2,String? gid,String? event_request_id) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid/$uid2/$event_request_id');
+    final response = await http.delete(url);
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to send event request: ${response.statusCode}';
+    }
+  }
+}

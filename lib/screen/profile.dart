@@ -7,6 +7,7 @@ import '../services/UserData.dart';
 import '../services/APIcalls.dart';
 import '../setting/color.dart' as GlobalColor;
 import '../services/auth.dart';
+import 'package:image/image.dart' as img;
 
 class Profile extends StatefulWidget {
   @override
@@ -21,9 +22,26 @@ class _ProfileState extends State<Profile> {
   TextEditingController usernameController = TextEditingController();
 
   Future<XFile?> getImageFromGallery() async {
-    return await imagePicker.pickImage(source: ImageSource.gallery);
-  }
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
 
+    if (pickedFile != null) {
+      final imageBytes = await File(pickedFile.path).readAsBytes();
+      final image = img.decodeImage(imageBytes);
+
+      // Check if the image needs to be rotated
+      final rotatedImage = img.bakeOrientation(image!);
+
+      // Encode the corrected image
+      final correctedBytes = img.encodeJpg(rotatedImage);
+
+      // Save the corrected image to a temporary file
+      final correctedFile = await File(pickedFile.path).writeAsBytes(correctedBytes);
+
+      return XFile(correctedFile.path);
+    }
+
+    return null;
+  }
   @override
   void dispose() {
     uidController.dispose();

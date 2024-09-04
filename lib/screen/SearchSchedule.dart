@@ -908,6 +908,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
     final int startMinute = searchResults[index].startTime.minute;
     final int endMinute = searchResults[index].endTime.minute;
 
+    int exceedTime = 0; //0 not exceeding, 1 exceeded but cancelled 2 exceeded and continued
     // Function to show the main dialog
     showDialog(
       context: context,
@@ -998,7 +999,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             });
                           },
                           children: List.generate(
-                            endHour - startHour + 1,
+                            //endHour - startHour + 1,
+                            24,
                             (int index) => Text('$index h'),
                           ),
                         ),
@@ -1029,6 +1031,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                 ElevatedButton(
                   child: Text('予定追加リクエストの送信'),
                   onPressed: () {
+                    exceedTime = 0;
                     final totalSelectedTimeInMinutes =
                         (selectedHour * 60 + selectedMinute);
                     final totalSelectedDurationInMinutes =
@@ -1040,6 +1043,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     if (totalSelectedTimeInMinutes +
                             totalSelectedDurationInMinutes >
                         totalEndTimeInMinutes) {
+                      exceedTime = 1;
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -1049,7 +1053,46 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 '選択した時間は終了時間を超えています。一部ユーザーが参加不可能になる可能性がありますが続行しますか？'),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: Text('閉じる'),
+                                child: Text('続行'),
+                                onPressed: () {
+                                  for (var request in users) {
+                                    SendRequest(
+                                        request.uid,
+                                        'test',
+                                        DateTime(
+                                            searchResults[index]
+                                                .startTime
+                                                .year,
+                                            searchResults[index]
+                                                .startTime
+                                                .month,
+                                            searchResults[index]
+                                                .startTime
+                                                .day,
+                                            selectedHour,
+                                            selectedMinute),
+                                        DateTime(
+                                            searchResults[index]
+                                                .startTime
+                                                .year,
+                                            searchResults[index]
+                                                .startTime
+                                                .month,
+                                            searchResults[index]
+                                                .startTime
+                                                .day,
+                                            selectedHour +
+                                                selectedDurationHours,
+                                            selectedMinute +
+                                                selectedDurationMinutes));
+                                  }
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                  print('done');
+                                },
+                              ),
+                              ElevatedButton(
+                                child: Text('キャンセル'),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -1059,6 +1102,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                         },
                       );
                     }
+                    if(exceedTime == 1) return;
                     if (totalSelectedDurationInMinutes == 0) {
                       showDialog(
                         context: context,
@@ -1077,6 +1121,40 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           );
                         },
                       );
+                    }else if (searchResults[index].members.length == 0 || exceedTime == 2) {
+                      for (var request in users) {
+                        SendRequest(
+                            request.uid,
+                            'test',
+                            DateTime(
+                                searchResults[index]
+                                    .startTime
+                                    .year,
+                                searchResults[index]
+                                    .startTime
+                                    .month,
+                                searchResults[index]
+                                    .startTime
+                                    .day,
+                                selectedHour,
+                                selectedMinute),
+                            DateTime(
+                                searchResults[index]
+                                    .startTime
+                                    .year,
+                                searchResults[index]
+                                    .startTime
+                                    .month,
+                                searchResults[index]
+                                    .startTime
+                                    .day,
+                                selectedHour +
+                                    selectedDurationHours,
+                                selectedMinute +
+                                    selectedDurationMinutes));
+
+                        Navigator.of(context).pop();
+                      }
                     }
                     else if (searchResults[index].members.length != 0) {
                       showDialog(
@@ -1139,8 +1217,32 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                     SendRequest(
                                         request.uid,
                                         'test',
-                                        searchResults[index].startTime,
-                                        searchResults[index].endTime);
+                                        DateTime(
+                                            searchResults[index]
+                                                .startTime
+                                                .year,
+                                            searchResults[index]
+                                                .startTime
+                                                .month,
+                                            searchResults[index]
+                                                .startTime
+                                                .day,
+                                            selectedHour,
+                                            selectedMinute),
+                                        DateTime(
+                                            searchResults[index]
+                                                .startTime
+                                                .year,
+                                            searchResults[index]
+                                                .startTime
+                                                .month,
+                                            searchResults[index]
+                                                .startTime
+                                                .day,
+                                            selectedHour +
+                                                selectedDurationHours,
+                                            selectedMinute +
+                                                selectedDurationMinutes));
                                   }
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
@@ -1156,15 +1258,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           );
                         },
                       );
-                    }
-                    else {
-                      for (var request in users) {
-                        SendRequest(
-                            request.uid,
-                            'test',
-                            searchResults[index].startTime,
-                            searchResults[index].endTime);
-                      }
                     }
                   },
                 ),

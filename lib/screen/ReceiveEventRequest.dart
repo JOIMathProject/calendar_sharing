@@ -27,13 +27,11 @@ class _receivedEventRequest extends State<ReceiveEventrequest> {
   void _acceptRequest(eventRequest request) {
     ReceiveEventRequest().receiveEventRequest(uid, request.uid, widget.gid, request.event_request_id, 'calendar_id');
     print("Accepted request from ${request.uname}");
-    // You can also call an API or update the backend here.
   }
 
   void _denyRequest(eventRequest request) {
-    // Implement the logic for denying the event request here.
+    RejectEventRequest().rejectEventRequest(uid, request.uid, widget.gid, request.event_request_id);
     print("Denied request from ${request.uname}");
-    // You can also call an API or update the backend here.
   }
 
   @override

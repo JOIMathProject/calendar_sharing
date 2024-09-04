@@ -17,11 +17,13 @@ class Home extends StatefulWidget {
   final String? groupId;
   final String? groupName;
   final bool startOnChatScreen;
+  final bool firstVisit;
 
   Home(
       {required this.groupId,
       required this.groupName,
-      this.startOnChatScreen = false});
+      this.startOnChatScreen = false
+      , this.firstVisit = false});
 
   @override
   _HomeState createState() => _HomeState();
