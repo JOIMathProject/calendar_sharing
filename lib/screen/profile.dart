@@ -118,10 +118,10 @@ class _ProfileState extends State<Profile> {
                           .updateUserID(userData.uid, uidController.text);
                       Provider.of<UserData>(context, listen: false).uid =
                           uidController.text;
-                      setState(() {
-                        isEditingUID = false;
-                      });
                     }
+                    setState(() {
+                      isEditingUID = false;
+                    });
                   },
                 ),
                 buildProfileField(
@@ -141,10 +141,10 @@ class _ProfileState extends State<Profile> {
                           .updateUserName(userData.uid, usernameController.text);
                       Provider.of<UserData>(context, listen: false).uname =
                           usernameController.text;
-                      setState(() {
-                        isEditingUsername = false;
-                      });
                     }
+                    setState(() {
+                      isEditingUsername = false;
+                    });
                   },
                 ),
                 SizedBox(height: 20),
@@ -196,7 +196,9 @@ class _ProfileState extends State<Profile> {
               ),
             ),
           )
-              : Text('$label: ${controller.text}', style: TextStyle(fontSize: 18)),
+              : Text(
+              label == 'ユーザーID'?'$label: @${controller.text}':'$label: ${controller.text}',
+              style: TextStyle(fontSize: 18)),
           IconButton(
             icon: Icon(isEditing ? Icons.check : Icons.edit),
             onPressed: isEditing ? onSave : onEditToggle,

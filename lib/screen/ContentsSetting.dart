@@ -233,10 +233,10 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 if (gnameController.text.isNotEmpty &&
                     gnameController.text != _groupDetail.gname) {
                   _changeGroupName(gnameController.text);
-                  setState(() {
-                    isEditingGName = false;
-                  });
                 }
+                setState(() {
+                  isEditingGName = false;
+                });
               },
             ),
             Text('ユーザー', style: bigFont),
