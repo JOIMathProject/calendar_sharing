@@ -5,6 +5,7 @@ import 'MyContent.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'createMyContent.dart';
 import '../setting/color.dart' as GlobalColor;
+import 'package:calendar_sharing/screen/MyContentSetting.dart';
 
 class MyContentsManage extends StatefulWidget {
   @override
@@ -104,6 +105,20 @@ class _MyContentsManageState extends State<MyContentsManage> {
                       ),
                       child: ListTile(
                         title: Text(contents[index].cname),
+                        trailing: IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MyContentSetting(
+                                  cid: contents[index].cid,
+                                  contentsName: contents[index].cname,
+                                ),
+                              ),
+                            ).then((value) => _reloadContents());
+                          },
+                        ),
                         onTap: () {
                           Navigator.push(
                             context,
