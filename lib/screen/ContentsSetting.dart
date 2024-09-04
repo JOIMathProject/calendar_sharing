@@ -6,7 +6,9 @@ import '../setting/color.dart' as GlobalColor;
 
 class ContentsSetting extends StatefulWidget {
   final String? groupId;
-  ContentsSetting({required this.groupId});
+  final MyContentsInformation? usedCalendar;
+  ContentsSetting({required this.groupId
+    , required this.usedCalendar});
 
   @override
   _ContentsSettingState createState() => _ContentsSettingState();
@@ -31,28 +33,11 @@ class _ContentsSettingState extends State<ContentsSetting> {
   void initState() {
     super.initState();
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    _getMyContents(uid!);
+    selectedContent = widget.usedCalendar;
     _getGroupUsers();
     _getGroupDetail();
   }
 
-  Future<void> _getMyContents(String uid) async {
-    calendars = await GetMyContents().getMyContents(uid);
-    calendars.insert(0, MyContentsInformation(cid: '', cname: 'None'));
-    selectedContent = await _getCurrentUserContent(widget.groupId!, uid);
-    setState(() {});
-  }
-
-  Future<MyContentsInformation?> _getCurrentUserContent(String gid, String uid) async {
-    List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(gid);
-    if (contents?.isNotEmpty == true) {
-      return calendars.firstWhere(
-            (content) => contents!.any((groupContent) => groupContent.uid == uid && content.cid == groupContent.cid),
-        orElse: () => calendars[0],
-      );
-    }
-    return calendars[0];
-  }
 
   Future<void> _getGroupUsers() async {
     users = await GetUserInGroup().getUserInGroup(widget.groupId!);
@@ -189,7 +174,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
             ElevatedButton(
               onPressed: () async {
                 await _removeUserFromGroup(widget.groupId!, currentUserUid!);
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
               child: Text('グループを離れる'),

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:calendar_sharing/screen/ChatScreen.dart';
 import 'package:calendar_sharing/screen/ContentsSetting.dart';
+import 'package:calendar_sharing/screen/ReceiveEventRequest.dart';
 import 'package:calendar_sharing/screen/SearchSchedule.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
@@ -28,12 +30,15 @@ class _HomeState extends State<Home> {
   var httpClientO = null;
   var googleCalendarApiO = null;
   List<Appointment> _events = [];
+  List<eventRequest> _requests = [];
   final AuthService _auth = AuthService();
   late PageController _pageController;
   bool _showFab = true;
   int _currentPage = 0;
   CalendarView _currentView = CalendarView.week;
+  MyContentsInformation? usedContent;
 
+  List<MyContentsInformation> calendars = [];
   List<Appointment> GroupCal = [];
 
   @override
@@ -43,10 +48,33 @@ class _HomeState extends State<Home> {
         PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
     _currentPage = widget.startOnChatScreen ? 1 : 0;
     _showFab = !widget.startOnChatScreen;
+    _getMyContents(Provider.of<UserData>(context, listen: false).uid);
     _getTimeRegions();
-    _getCalendar();
+    Timer.periodic(Duration(seconds: 10), (timer) {
+      if (!mounted) {
+        _getReceivedEvent();
+        timer.cancel();
+      }
+      _getCalendar();
+    });
+  }
+  Future<void> _getMyContents(String? uid) async {
+    calendars = await GetMyContents().getMyContents(uid);
+    calendars.insert(0, MyContentsInformation(cid: '', cname: 'None'));
+    usedContent = await _getCurrentUserContent(widget.groupId!, uid!);
+    setState(() {});
   }
 
+  Future<MyContentsInformation?> _getCurrentUserContent(String gid, String uid) async {
+    List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(gid);
+    if (contents?.isNotEmpty == true) {
+      return calendars.firstWhere(
+            (content) => contents!.any((groupContent) => groupContent.uid == uid && content.cid == groupContent.cid),
+        orElse: () => calendars[0],
+      );
+    }
+    return calendars[0];
+  }
   Future<void> _getCalendar() async {
     List<ContentsInformation>? contents =
         await GetContentInGroup().getContentInGroup(widget.groupId);
@@ -61,7 +89,14 @@ class _HomeState extends State<Home> {
     }
     setState(() {});
   }
-
+  Future<void> _getReceivedEvent() async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    List<eventRequest>? requests = await GetEventRequest().getEventRequest(uid,widget.groupId);
+    if (requests?.isNotEmpty == true) {
+        _requests = requests;
+    }
+    setState(() {});
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +107,18 @@ class _HomeState extends State<Home> {
           color: GlobalColor.SubCol,
         ),
         actions: [
-
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReceiveEventrequest(eventReq: _requests,
+                    gid: widget.groupId,usedContent: usedContent,),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(
               _currentPage == 0
@@ -105,6 +151,7 @@ class _HomeState extends State<Home> {
                 MaterialPageRoute(
                   builder: (context) => ContentsSetting(
                     groupId: widget.groupId,
+                    usedCalendar: usedContent,
                   ),
                 ),
               );

@@ -158,6 +158,24 @@ class SearchResultEvent {
   });
 }
 
+class eventRequest{
+  String event_request_id;
+  String uid;
+  String uname;
+  String uicon;
+  String summary;
+  DateTime startTime;
+  DateTime endTime;
+  eventRequest({
+    required this.event_request_id,
+    required this.uid,
+    required this.uname,
+    required this.uicon,
+    required this.summary,
+    required this.startTime,
+    required this.endTime,
+  });
+}
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -414,7 +432,7 @@ class DeleteUserFromGroup {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/members/$deleteUid');
     final response = await http.delete(url);
-    if (response.statusCode != 200 || response.statusCode != 204) {
+    if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
   }
@@ -764,7 +782,6 @@ class AddCalendarToContents {
     }
   }
 }
-
 class GetMyContentsSchedule {
   Future<List<Appointment>> getMyContentsSchedule(
       String? uid, String? cid, String? from, String? to) async {
@@ -1018,5 +1035,72 @@ class SearchContentScheduleWeather {
     }
 
     return events;
+  }
+}
+
+class GetEventRequest {
+  Future<List<eventRequest>> getEventRequest(
+      String? uid, String? gid) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/event_requests/$uid/receive');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to get event request: ${response.statusCode}';
+    }
+    List<eventRequest> requests = [];
+    if (jsonDecode(response.body)['data'] == null) {
+      return requests;
+    }
+    for (var group in jsonDecode(response.body)['data']) {
+      requests.add(eventRequest(
+        event_request_id: group['event_request_id'],
+        uid: group['uid'],
+        uname: group['uname'],
+        uicon: group['uicon'],
+        summary: group['summary'],
+        startTime: DateTime.parse(group['start_dateTime']),
+        endTime: DateTime.parse(group['end_dateTime']),
+      ));
+    }
+    return requests;
+  }
+}
+class SendEventRequest{
+  Future<void> sendEventRequest(String? uid,String? uid2, String? gid, String? summary, DateTime? startTime, DateTime? endTime) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uid1": uid,
+        "uid2": uid2,
+        "summary": summary,
+        "description": '',
+        "start_dateTime": startTime.toString().substring(0,19),
+        "end_dateTime": endTime.toString().substring(0,19),
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to send event request: ${response.statusCode}';
+    }
+  }
+}
+class ReceiveEventRequest{
+  Future<void> receiveEventRequest(String? uid,String? uid2,String? gid,String? event_request_id, String? calendar_id) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "uid1": uid,
+        "uid2": uid2,
+        "event_request_id": event_request_id,
+        "calendar_id": calendar_id,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to send event request: ${response.statusCode}';
+    }
   }
 }

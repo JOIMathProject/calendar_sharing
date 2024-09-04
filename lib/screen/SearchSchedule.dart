@@ -1,8 +1,12 @@
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
+import 'package:googleapis/bigquerydatatransfer/v1.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+
+import '../services/UserData.dart';
 
 class SearchSchedule extends StatefulWidget {
   final String? groupId;
@@ -92,6 +96,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
   List<int> days = List.generate(31, (index) => index + 1);
   List<int> hours = List.generate(24, (index) => index);
   List<int> minHoursOptions = List.generate(18, (index) => index);
+  List<UserInformation> users = [];
 
   List<SearchResultEvent> searchResults = [];
   final expansionTileController = ExpansionTileController();
@@ -108,6 +113,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
     }
     return List.generate(
         lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
+  }
+
+  Future<void> _getGroupUsers() async {
+    users = await GetUserInGroup().getUserInGroup(widget.groupId!);
   }
 
   List<int> getAvailableDaysStart(int year, int month) {
@@ -879,19 +888,11 @@ class _SearchScheduleState extends State<SearchSchedule> {
     );
   }
 
-  AlertDialog _addScheduleDialog() {
-    return AlertDialog(
-      title: Text('Add Schedule'),
-      content: Text('Add the schedule at this date.'),
-      actions: <Widget>[
-        ElevatedButton(
-          child: Text('Close'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
-    );
+  void SendRequest(
+      String uid2, String Summary, DateTime startTime, DateTime endTime) async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    await SendEventRequest().sendEventRequest(
+        uid, uid2, widget.groupId, Summary, startTime, endTime);
   }
 
   void _showScheduleDialog(BuildContext context, int index) {
@@ -900,8 +901,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
     int selectedMinute = searchResults[index].startTime.minute;
     int selectedDurationHours = 0;
     int selectedDurationMinutes = 0;
-
-    bool sendToAll = false; // Initialize the checkbox state
 
     // Time and duration limits
     final int startHour = searchResults[index].startTime.hour;
@@ -1039,79 +1038,15 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             searchResults[index].endTime.minute);
 
                     if (totalSelectedTimeInMinutes +
-                            totalSelectedDurationInMinutes <=
+                            totalSelectedDurationInMinutes >
                         totalEndTimeInMinutes) {
-                      if(totalSelectedDurationInMinutes == 0){
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('エラー'),
-                              content: Text('予定の長さを指定してください。'),
-                              actions: <Widget>[
-                                ElevatedButton(
-                                  child: Text('閉じる'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                      else if (searchResults[index].members.length != 0) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('予定追加リクエストの送信先'),
-                              actions: <Widget>[
-                                ElevatedButton(
-                                  child: Text('参加できる人のみに送信'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                ElevatedButton(
-                                  child: Text('参加できない人にも送信'),
-                                  onPressed: () {
-                                    // Perform the request sending logic here
-                                    Navigator.of(context).pop();
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                ElevatedButton(
-                                  child: Text('キャンセル'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      } else {
-                        // Proceed with the request
-                        // Implement the logic to handle sending the request
-                        if (sendToAll || searchResults[index].members.isEmpty) {
-                          // Handle sending to all or when there are no members
-                          Navigator.of(context).pop(); // Close the dialog
-                        } else {
-                          // Handle the logic when members exist but the checkbox is unchecked
-                          Navigator.of(context).pop(); // Close the dialog
-                          // Implement further logic if needed
-                        }
-                      }
-                    } else {
-                      // Show error message if the duration is invalid
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: Text('エラー'),
-                            content: Text('選択した時間は終了時間を超えています。'),
+                            content: Text(
+                                '選択した時間は終了時間を超えています。一部ユーザーが参加不可能になる可能性がありますが続行しますか？'),
                             actions: <Widget>[
                               ElevatedButton(
                                 child: Text('閉じる'),
@@ -1123,6 +1058,113 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           );
                         },
                       );
+                    }
+                    if (totalSelectedDurationInMinutes == 0) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('エラー'),
+                            content: Text('予定の長さを指定してください。'),
+                            actions: <Widget>[
+                              ElevatedButton(
+                                child: Text('閉じる'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                    else if (searchResults[index].members.length != 0) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('予定追加リクエストの送信先'),
+                            actions: <Widget>[
+                              ElevatedButton(
+                                child: Text('参加できる人のみに送信'),
+                                onPressed: () {
+                                  for (var request in users) {
+                                    bool canJoin = true;
+                                    for (var member
+                                        in searchResults[index].members) {
+                                      if (request.uid == member.uid) {
+                                        canJoin = false;
+                                      }
+                                    }
+                                    if (canJoin) {
+                                      SendRequest(
+                                          request.uid,
+                                          'test',
+                                          DateTime(
+                                              searchResults[index]
+                                                  .startTime
+                                                  .year,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .month,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .day,
+                                              selectedHour,
+                                              selectedMinute),
+                                          DateTime(
+                                              searchResults[index]
+                                                  .startTime
+                                                  .year,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .month,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .day,
+                                              selectedHour +
+                                                  selectedDurationHours,
+                                              selectedMinute +
+                                                  selectedDurationMinutes));
+                                    }
+                                  }
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              ElevatedButton(
+                                child: Text('参加できない人にも送信'),
+                                onPressed: () {
+                                  for (var request in users) {
+                                    SendRequest(
+                                        request.uid,
+                                        'test',
+                                        searchResults[index].startTime,
+                                        searchResults[index].endTime);
+                                  }
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              ElevatedButton(
+                                child: Text('キャンセル'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                    else {
+                      for (var request in users) {
+                        SendRequest(
+                            request.uid,
+                            'test',
+                            searchResults[index].startTime,
+                            searchResults[index].endTime);
+                      }
                     }
                   },
                 ),
