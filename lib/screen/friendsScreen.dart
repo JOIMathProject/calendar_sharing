@@ -9,6 +9,8 @@ import '../setting/color.dart' as GlobalColor;
 import 'package:calendar_sharing/setting/size_config.dart';
 
 class FriendsScreen extends StatefulWidget {
+  const FriendsScreen({super.key});
+
   @override
   _FriendsScreenState createState() => _FriendsScreenState();
 }
@@ -56,7 +58,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Future<void> _fetchReceivedRequests() async {
     try {
       UserData userData = Provider.of<UserData>(context, listen: false);
-      String? uid = userData.uid;
       List<FriendRequestInformation> receivedRequests =
       await GetReceiveFriendRequest().getReceiveFriendRequest(userData.uid);
       List<FriendRequestInformation> sentRequests =
@@ -83,7 +84,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
         child: Column(
           children: [
             TabBar(
-              tabs: [
+              tabs: const [
                 Tab(text: 'フレンド'),
                 Tab(text: 'リクエスト'),
               ],
@@ -121,8 +122,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
               }
           );
         },
-        child: Icon(Icons.person_add, color: GlobalColor.SubCol),
         backgroundColor: GlobalColor.MainCol,
+        child: Icon(Icons.person_add, color: GlobalColor.SubCol),
       ),
     );
   }
@@ -150,8 +151,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                 radius: 25,
                                 backgroundColor: Colors.white,
                                 backgroundImage: NetworkImage(
-                                    "https://calendar-files.woody1227.com/user_icon/" +
-                                        requests[index].uicon),
+                                    "https://calendar-files.woody1227.com/user_icon/${requests[index].uicon}"),
                               ),
                               SizedBox(width: SizeConfig.blockSizeHorizontal!*3),
                               // 名前
@@ -160,7 +160,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                 children: [
                                   Text(
                                     requests[index].uname,
-                                    style: TextStyle(fontSize: 25),
+                                    style: const TextStyle(fontSize: 25),
                                   ),
                                   Text(
                                     'リクエストを受信しています',
@@ -171,10 +171,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                   ),
                                 ],
                               ),
-                              Spacer(),
+                              const Spacer(),
                               // 承認ボタン
                               IconButton(
-                                icon: Icon(Icons.check),
+                                icon: const Icon(Icons.check),
                                 onPressed: () async {
                                   await AcceptFriendRequest()
                                       .acceptFriendRequest(
@@ -185,7 +185,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               ),
                               // 拒否ボタン
                               IconButton(
-                                icon: Icon(Icons.close),
+                                icon: const Icon(Icons.close),
                                 onPressed: () async {
                                   await DeleteFriendRequest()
                                       .deleteFriendRequest(
@@ -210,8 +210,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                 radius: 25,
                                 backgroundColor: Colors.white,
                                 backgroundImage: NetworkImage(
-                                    "https://calendar-files.woody1227.com/user_icon/" +
-                                        requests[index].uicon),
+                                    "https://calendar-files.woody1227.com/user_icon/${requests[index].uicon}"),
                               ),
                               SizedBox(width: SizeConfig.blockSizeHorizontal!*3),
                               // 名前
@@ -243,10 +242,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                   ),
                                 ],
                               ),
-                              Spacer(),
+                              const Spacer(),
                               // 削除ボタン
                               IconButton(
-                                icon: Icon(Icons.close),
+                                icon: const Icon(Icons.close),
                                 onPressed: () async {
                                   await DeleteFriendRequest()
                                       .deleteFriendRequest(requests[index].uid,userData.uid);
@@ -307,13 +306,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
       SizedBox(height: SizeConfig.blockSizeVertical!*2),
       if (friends.isNotEmpty)
       Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: TextField(
           controller: _searchController,
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
             hintText: '検索',
-            prefixIcon: Icon(Icons.search, size: 20.0),
+            prefixIcon: const Icon(Icons.search, size: 20.0),
             fillColor: GlobalColor.Unselected,
             filled: true,
             border: OutlineInputBorder(
@@ -322,7 +321,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
             ),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
-              icon: Icon(Icons.clear),
+              icon: const Icon(Icons.clear),
               onPressed: () {
                 _searchController.clear();
                 setState(() {});  // Refresh the widget to update UI
@@ -336,7 +335,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
         ),
 
       ),
-      SizedBox(height: 10),
+      const SizedBox(height: 10),
       if (filteredFriends.isNotEmpty)
         Expanded(
           child: RefreshIndicator(
@@ -357,8 +356,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               radius: 25,
                               backgroundColor: Colors.white,
                               backgroundImage: NetworkImage(
-                                  "https://calendar-files.woody1227.com/user_icon/" +
-                                      filteredFriends[index].uicon),
+                                  "https://calendar-files.woody1227.com/user_icon/${filteredFriends[index].uicon}"),
                             ),
                             SizedBox(width: SizeConfig.blockSizeHorizontal!*3),
                             // 名前
@@ -384,8 +382,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     ),
                   ),
                   onTap: () {
-                    // フレンドのプロフィールに飛ばす
-                    print(filteredFriends[index].uid);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
