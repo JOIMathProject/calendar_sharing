@@ -17,6 +17,7 @@ class _MyContentSettingState extends State<MyContentSetting> {
   String title = '';
   List<CalendarInformation> calendars = [];
   List<CalendarInformation> selectedCalendars = [];
+  final List<CalendarInformation> selectedCalendarsFirst = [];
   final TextEditingController titleController = TextEditingController();
 
   @override
@@ -29,21 +30,35 @@ class _MyContentSettingState extends State<MyContentSetting> {
   void initState() {
     super.initState();
     titleController.text = widget.contentsName!;
+    title = widget.contentsName!;
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    _getCalendars(uid!);
-    //get selected calendars
-    _getSelectedCalendars(uid!, widget.cid!);
+    _reloadContents();
+  }
+
+  void _reloadContents() async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    if (uid != null) {
+      await _getCalendars(uid);
+      await _getSelectedCalendars(uid, widget.cid!);
+      setState((){});
+    }
   }
 
   Future<void> _getCalendars(String uid) async {
     calendars = await GetMyCalendars().getMyCalendars(uid);
-    setState(() {}); // Trigger a rebuild once the content is loaded
   }
 
   Future<void> _getSelectedCalendars(String uid, String cid) async {
-    selectedCalendars = await GetMyContentCalendars().getMyContentCalenders(uid, cid);
-    print(selectedCalendars.length);
-    setState(() {}); // Trigger a rebuild once the content is loaded
+    final selectedCalendarsTmp = await GetMyContentCalendars().getMyContentCalenders(uid, cid);
+    selectedCalendars = [];
+    for (var calendar in calendars){
+      for (var selectedCalendar in selectedCalendarsTmp){
+        if (calendar.calendar_id == selectedCalendar.calendar_id){
+          selectedCalendars.add(calendar);
+          selectedCalendarsFirst.add(calendar);
+        }
+      }
+    }
   }
 
   @override
@@ -73,11 +88,22 @@ class _MyContentSettingState extends State<MyContentSetting> {
             Text('カレンダーの編集', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             Expanded(child: _buildCalendarList(context)),
-            ElevatedButton(
-              onPressed: () {
-                _showDeleteConfirmationDialog(context, widget.cid!, widget.contentsName!);
-              },
-              child: Text('マイコンテンツを削除'),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _showDeleteConfirmationDialog(context, widget.cid!, widget.contentsName!);
+                  },
+                  child: Text('マイコンテンツを削除'),
+                ),
+                Spacer(),
+                ElevatedButton(
+                  onPressed: () {
+                    _updateMyContent(context, widget.cid!, title, selectedCalendars);
+                  },
+                  child: Text('保存'),
+                ),
+              ],
             ),
           ],
         ),
@@ -99,9 +125,14 @@ class _MyContentSettingState extends State<MyContentSetting> {
               onChanged: (bool? value) {
                 setState(() {
                   if (value == true){
-                    selectedCalendars.add(calendar);
+                    if (!selectedCalendars.contains(calendar)){
+                      selectedCalendars.add(calendar);
+                    }
                   }else{
-                    selectedCalendars.remove(calendar);
+                    //存在するかどうか
+                    if(selectedCalendars.contains(calendar)){
+                      selectedCalendars.remove(calendar);
+                    }
                   }
                 });
               },
@@ -141,5 +172,48 @@ class _MyContentSettingState extends State<MyContentSetting> {
         );
       },
     );
+  }
+  void _updateMyContent(BuildContext context, String cid, String title, List<CalendarInformation> selectedCalendars) async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    if (title.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('タイトルを入力してください')),
+      );
+      return;
+    }
+    if (selectedCalendars.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('最低でも一つはカレンダーを選択してください')),
+      );
+      return;
+    }
+    if (title != widget.contentsName){
+      _updateContents(uid!, cid, title);
+    }
+    _updateCalendars(uid!, cid, selectedCalendars);
+    Navigator.of(context).pop();
+  }
+  void _updateCalendars(String uid, String cid, List<CalendarInformation> selectedCalendars) async {
+    List<CalendarInformation> addCalendars = [];
+    List<CalendarInformation> deleteCalendars = [];
+    for (var calendar in selectedCalendars){
+      if (!selectedCalendarsFirst.contains(calendar)){
+        addCalendars.add(calendar);
+      }
+    }
+    for (var calendar in selectedCalendarsFirst){
+      if (!selectedCalendars.contains(calendar)){
+        deleteCalendars.add(calendar);
+      }
+    }
+    for (var calendar in addCalendars){
+      await AddCalendarToContents().addCalendarToContents(uid!, cid, calendar.calendar_id);
+    }
+    for (var calendar in deleteCalendars){
+      await DeleteCalendarFromContents().deleteCalendarFromContents(uid!, cid, calendar.calendar_id);
+    }
+  }
+  void _updateContents(String uid, String cid, String title) async {
+    await UpdateMyContents().updateContents(uid, cid, title);
   }
 }

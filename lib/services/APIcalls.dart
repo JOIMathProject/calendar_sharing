@@ -785,6 +785,17 @@ class AddCalendarToContents {
     }
   }
 }
+class DeleteCalendarFromContents {
+  Future<void> deleteCalendarFromContents(
+      String? uid, String? cid, String? calendar_id) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars/$calendar_id');
+    final response = await http.delete(url);
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw 'Failed to delete contents: ${response.statusCode}';
+    }
+  }
+}
 class GetMyContentsSchedule {
   Future<List<Appointment>> getMyContentsSchedule(
       String? uid, String? cid, String? from, String? to) async {
@@ -815,6 +826,23 @@ class DeleteMyContents {
 
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
+    }
+  }
+}
+
+class UpdateMyContents {
+  Future<void> updateContents(String uid, String cid, String cname) async {
+    final url =
+        Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "cname": cname,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to update contents: ${response.statusCode}';
     }
   }
 }
