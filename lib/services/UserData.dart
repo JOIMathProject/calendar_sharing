@@ -16,6 +16,8 @@ class UserData extends ChangeNotifier {
   String? mailAddress;
   List<FriendInformation> friends = [];
   List<FriendRequestInformation> receivedRequests = [];
+  List<MyContentsInformation> MyContents = [];
+  List<CalendarInformation> MyCalendar = [];
 
   void updateGoogleUser(GoogleSignIn? newGoogleUser) {
     googleUser = newGoogleUser;
@@ -29,6 +31,15 @@ class UserData extends ChangeNotifier {
     refreshToken = userInfo.refreshToken;
     mailAddress = userInfo.mailAddress;
     cacheUserInfo();
+    notifyListeners();
+  }
+  void updateMyContents(List<MyContentsInformation> newContents) {
+    MyContents = newContents;
+    MyContents.insert(0, MyContentsInformation(cid: '', cname: 'なし'));
+    notifyListeners();
+  }
+  void updateMyCalendar(List<CalendarInformation> newCalendar) {
+    MyCalendar = newCalendar;
     notifyListeners();
   }
   void updateFriends(List<FriendInformation> newFriends) {
