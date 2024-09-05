@@ -25,6 +25,7 @@ class _WrapperState extends State<Wrapper> {
     forceCodeForRefreshToken: false,
     serverClientId: '213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com',
   );
+  bool _trySilent = false;
   @override
   void initState() {
     super.initState();
@@ -33,8 +34,10 @@ class _WrapperState extends State<Wrapper> {
   Future<void> _initializeApp() async {
     try {
       await _signInSilently();
+      _trySilent = true;
     } catch (e) {
       print('Error during initialization: $e');
+      _trySilent = true;
     }
   }
 
@@ -52,7 +55,17 @@ class _WrapperState extends State<Wrapper> {
   @override
   Widget build(BuildContext context) {
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
-
+    if(!_trySilent){
+      return Scaffold(
+        body: Center(
+          child: Container(
+            width: 150.0, // Desired width
+            height: 150.0, // Desired height
+            child: Image.asset('assets/image/icon.jpg'),
+          ),
+        ),
+      );
+    }
     if (gUser != null && gUser.currentUser != null) {
       return MainScreen(); // Show the main screen if the user is logged in
     } else {
