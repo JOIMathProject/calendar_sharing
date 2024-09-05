@@ -111,6 +111,12 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _reloadContents() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     if (uid != null) {
+      var _MyCalendar = await GetMyCalendars().getMyCalendars(uid);
+      var _MyContents = await GetMyContents().getMyContents(uid);
+      Provider.of<UserData>(context, listen: false)
+          .updateMyContents(_MyContents);
+      Provider.of<UserData>(context, listen: false)
+          .updateMyCalendar(_MyCalendar);
       contents = await GetGroupInfo().getGroupInfo(uid);
       _children[0] = ContentsManage(contents: contents);
       //contentsのunread_messagesの合計

@@ -58,6 +58,8 @@ class _HomeState extends State<Home> {
         PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
     _currentPage = widget.startOnChatScreen ? 1 : 0;
     _showFab = !widget.startOnChatScreen;
+    _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
+    _MyContents = Provider.of<UserData>(context, listen: false).MyContents;
     _initializeData();
     _getTimeRegions();
     Timer.periodic(Duration(seconds: 10), (timer) {
@@ -70,15 +72,11 @@ class _HomeState extends State<Home> {
   }
   Future<void> _initializeData() async {
     await _getMyContents(Provider.of<UserData>(context, listen: false).uid);
-
     if (widget.firstVisit) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _showFirstVisitDialog());
     }
   }
   Future<void> _getMyContents(String? uid) async {
-    _MyCalendar = await GetMyCalendars().getMyCalendars(uid);
-    _MyContents = await GetMyContents().getMyContents(uid);
-    _MyContents.insert(0, MyContentsInformation(cid: '', cname: 'None'));
     usedContent = await _getCurrentUserContent(widget.groupId!, uid!);
     selectedContent = _MyContents.isNotEmpty ? _MyContents[0] : null;
     selectedCalendar = _MyCalendar.isNotEmpty ? _MyCalendar[0] : null;
@@ -168,13 +166,9 @@ class _HomeState extends State<Home> {
                     child: Text('Submit'),
                     onPressed: selectedCalendar != null
                         ? () {
-                      String contentName = contentController.text;
-                      String calendarName = calendarController.text;
-
-                      // Handle the submitted data here, e.g., save the selections
                       Navigator.of(context).pop();
                     }
-                        : null, // Disable the button if no calendar is selected
+                        : null,
                   ),
                 ],
               );

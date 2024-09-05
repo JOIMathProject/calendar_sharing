@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 
 import '../services/UserData.dart';
 
+enum SortOrder { time, participants }
+
 class SearchSchedule extends StatefulWidget {
   final String? groupId;
   SearchSchedule({required this.groupId});
@@ -427,6 +429,17 @@ class _SearchScheduleState extends State<SearchSchedule> {
     return '$monthDay$hour';
   }
 
+  SortOrder _sortOrder = SortOrder.time; // Default sorting order
+  void _sortList() {
+    setState(() {
+      if (_sortOrder == SortOrder.time) {
+        searchResults.sort((a, b) => a.startTime.compareTo(b.startTime));
+      } else if (_sortOrder == SortOrder.participants) {
+        searchResults.sort((a, b) => a.count.compareTo(b.count));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!hours.contains(startTime)) {
@@ -733,11 +746,34 @@ class _SearchScheduleState extends State<SearchSchedule> {
             ),
             SizedBox(height: 16.0),
             Center(
-              child: ElevatedButton(
-                onPressed: _searchSchedule,
-                child: Text('検索',
-                    style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
-              ),
+              child: Row(children: [
+                ElevatedButton(
+                  onPressed: _searchSchedule,
+                  child: Text('検索',
+                      style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
+                ),
+                DropdownButton<SortOrder>(
+                  value: _sortOrder,
+                  items: [
+                    DropdownMenuItem(
+                      value: SortOrder.time,
+                      child: Text('時間'),
+                    ),
+                    DropdownMenuItem(
+                      value: SortOrder.participants,
+                      child: Text('参加人数'),
+                    ),
+                  ],
+                  onChanged: (SortOrder? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _sortOrder = newValue;
+                        _sortList(); // Sort the list when option changes
+                      });
+                    }
+                  },
+                ),
+              ]),
             ),
             SizedBox(height: 16.0),
             Expanded(
@@ -908,7 +944,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
     final int startMinute = searchResults[index].startTime.minute;
     final int endMinute = searchResults[index].endTime.minute;
 
-    int exceedTime = 0; //0 not exceeding, 1 exceeded but cancelled 2 exceeded and continued
+    int exceedTime =
+        0; //0 not exceeding, 1 exceeded but cancelled 2 exceeded and continued
     // Function to show the main dialog
     showDialog(
       context: context,
@@ -1060,27 +1097,19 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                         request.uid,
                                         'test',
                                         DateTime(
-                                            searchResults[index]
-                                                .startTime
-                                                .year,
+                                            searchResults[index].startTime.year,
                                             searchResults[index]
                                                 .startTime
                                                 .month,
-                                            searchResults[index]
-                                                .startTime
-                                                .day,
+                                            searchResults[index].startTime.day,
                                             selectedHour,
                                             selectedMinute),
                                         DateTime(
-                                            searchResults[index]
-                                                .startTime
-                                                .year,
+                                            searchResults[index].startTime.year,
                                             searchResults[index]
                                                 .startTime
                                                 .month,
-                                            searchResults[index]
-                                                .startTime
-                                                .day,
+                                            searchResults[index].startTime.day,
                                             selectedHour +
                                                 selectedDurationHours,
                                             selectedMinute +
@@ -1102,7 +1131,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                         },
                       );
                     }
-                    if(exceedTime == 1) return;
+                    if (exceedTime == 1) return;
                     if (totalSelectedDurationInMinutes == 0) {
                       showDialog(
                         context: context,
@@ -1121,42 +1150,28 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           );
                         },
                       );
-                    }else if (searchResults[index].members.length == 0 || exceedTime == 2) {
+                    } else if (searchResults[index].members.length == 0 ||
+                        exceedTime == 2) {
                       for (var request in users) {
                         SendRequest(
                             request.uid,
                             'test',
                             DateTime(
-                                searchResults[index]
-                                    .startTime
-                                    .year,
-                                searchResults[index]
-                                    .startTime
-                                    .month,
-                                searchResults[index]
-                                    .startTime
-                                    .day,
+                                searchResults[index].startTime.year,
+                                searchResults[index].startTime.month,
+                                searchResults[index].startTime.day,
                                 selectedHour,
                                 selectedMinute),
                             DateTime(
-                                searchResults[index]
-                                    .startTime
-                                    .year,
-                                searchResults[index]
-                                    .startTime
-                                    .month,
-                                searchResults[index]
-                                    .startTime
-                                    .day,
-                                selectedHour +
-                                    selectedDurationHours,
-                                selectedMinute +
-                                    selectedDurationMinutes));
+                                searchResults[index].startTime.year,
+                                searchResults[index].startTime.month,
+                                searchResults[index].startTime.day,
+                                selectedHour + selectedDurationHours,
+                                selectedMinute + selectedDurationMinutes));
 
                         Navigator.of(context).pop();
                       }
-                    }
-                    else if (searchResults[index].members.length != 0) {
+                    } else if (searchResults[index].members.length != 0) {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -1218,27 +1233,19 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                         request.uid,
                                         'test',
                                         DateTime(
-                                            searchResults[index]
-                                                .startTime
-                                                .year,
+                                            searchResults[index].startTime.year,
                                             searchResults[index]
                                                 .startTime
                                                 .month,
-                                            searchResults[index]
-                                                .startTime
-                                                .day,
+                                            searchResults[index].startTime.day,
                                             selectedHour,
                                             selectedMinute),
                                         DateTime(
-                                            searchResults[index]
-                                                .startTime
-                                                .year,
+                                            searchResults[index].startTime.year,
                                             searchResults[index]
                                                 .startTime
                                                 .month,
-                                            searchResults[index]
-                                                .startTime
-                                                .day,
+                                            searchResults[index].startTime.day,
                                             selectedHour +
                                                 selectedDurationHours,
                                             selectedMinute +
