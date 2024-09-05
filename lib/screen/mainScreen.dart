@@ -29,6 +29,7 @@ class _MainScreenState extends State<MainScreen> {
   late List<Widget> _children;
   bool _isLoading = true; // Loading state
   int unreadMessages = 0;
+  int receivedRequestsCount = 0;
   @override
   void initState() {
     super.initState();
@@ -52,6 +53,7 @@ class _MainScreenState extends State<MainScreen> {
         timer.cancel();
       }
       _reloadContents();
+      _fetchReceivedRequests();
     });
   }
 
@@ -107,7 +109,6 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  //任意の引数
   Future<void> _reloadContents() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     if (uid != null) {
@@ -126,6 +127,24 @@ class _MainScreenState extends State<MainScreen> {
       }
       unreadMessages = unreadMessagescnt;
       setState(() {});
+    }
+  }
+
+  Future<void> _fetchReceivedRequests() async {
+    try {
+      UserData userData = Provider.of<UserData>(context, listen: false);
+      String? uid = userData.uid;
+      List<FriendRequestInformation> receivedRequests =
+      await GetReceiveFriendRequest().getReceiveFriendRequest(userData.uid);
+      List<FriendRequestInformation> sentRequests =
+      await GetSentFriendRequest().getSentFriendRequest(userData.uid);
+      receivedRequestsCount = receivedRequests.length;
+      //二つをくっつける
+      receivedRequests.addAll(sentRequests);
+      Provider.of<UserData>(context, listen: false)
+          .updateReceivedRequests(receivedRequests);
+    } catch (e) {
+      print("Error fetching requests: $e");
     }
   }
 
@@ -178,11 +197,18 @@ class _MainScreenState extends State<MainScreen> {
             label: 'ホーム',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.group,
-              color: _currentIndex != 1
-                  ? GlobalColor.Unselected
-                  : GlobalColor.MainCol,
+            icon: badge.Badge(
+              child: Icon(
+                Icons.group,
+                color: _currentIndex != 1
+                    ? GlobalColor.Unselected
+                    : GlobalColor.MainCol,
+              ),
+              badgeContent: Text(
+                receivedRequestsCount.toString(),
+                style: TextStyle(color: Colors.white),
+              ),
+              showBadge: receivedRequestsCount != 0,
             ),
             label: 'フレンド',
           ),
