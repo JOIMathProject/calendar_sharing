@@ -1,5 +1,7 @@
+import 'package:calendar_sharing/screen/CreateUser.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/admin/directory_v1.dart';
 import 'package:googleapis/calendar/v3.dart' as googleAPI;
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +9,7 @@ import 'UserData.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
 
 class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -61,11 +64,24 @@ class AuthService {
       } catch (e) {
         // If the user does not exist (i.e., a 404 error is returned), create the user
         if (e.toString().contains('404')) {
+          //ここでユーザー登録のページに飛ばし、ユーザー情報を入力後、戻ってきたときにユーザー情報を登録する
+          UserinfoIcon userInformation = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CreateUserScreen()),
+          );
+          late final String icon;
+          final imageFile = userInformation.imageFile;
+          if (imageFile != null) {
+            List<int> imageBytes = await File(imageFile.path).readAsBytesSync();
+            icon = base64Encode(imageBytes);
+          } else {
+            icon = 'default.png';
+          }
           await CreateUser().createUser(UserInformation(
             google_uid: result.id,
-            uid: result.id,
-            uname: result.email,
-            uicon: 'default.png',
+            uid: userInformation.userInformation.uid,
+            uname: userInformation.userInformation.uname,
+            uicon: icon,
             refreshToken: data['refresh_token'],
             mailAddress: result.email,
           ));
