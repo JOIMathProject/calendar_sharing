@@ -211,7 +211,7 @@ class _ContentsManageState extends State<ContentsManage>
                       builder: (context) => Home(
                         groupId: filteredContents?[index].gid,
                         groupName: filteredContents?[index].gname,
-                        firstVisit: true,
+                        firstVisit: filteredContents![index].is_opened=='0',
                         startOnChatScreen: true,
                       ),
                     ),
@@ -230,7 +230,7 @@ class _ContentsManageState extends State<ContentsManage>
                   groupId: filteredContents?[index].gid,
                   groupName: filteredContents?[index].gname,
                   startOnChatScreen: false,
-                  firstVisit: true,
+                  firstVisit: filteredContents![index].is_opened=='0',
                 ),
               ),
             );

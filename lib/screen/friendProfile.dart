@@ -18,7 +18,6 @@ class _FriendProfileState extends State<FriendProfile> {
   Future<String?> _checkFriend(String uid, String friendUid) async {
     return await CheckFriend().checkFriend(uid, friendUid);
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,6 +104,8 @@ class _FriendProfileState extends State<FriendProfile> {
                         Provider.of<UserData>(context, listen: false).uid;
                     String? groupId =
                         await _checkFriend(uid!, widget.friend.uid);
+
+                    bool opened = await GetOpened().getOpened(uid, groupId!);
                     if (groupId != null) {
                       Navigator.push(
                         context,
@@ -113,7 +114,7 @@ class _FriendProfileState extends State<FriendProfile> {
                             groupId: groupId,
                             groupName: widget.friend.uid,
                             startOnChatScreen: false,
-                            firstVisit: false,
+                            firstVisit: opened,
                           ),
                         ),
                       );
@@ -136,6 +137,7 @@ class _FriendProfileState extends State<FriendProfile> {
                         Provider.of<UserData>(context, listen: false).uid;
                     String? groupId =
                         await _checkFriend(uid!, widget.friend.uid);
+                    bool opened = await GetOpened().getOpened(uid, groupId!);
                     if (groupId != null) {
                       Navigator.push(
                         context,
@@ -144,7 +146,7 @@ class _FriendProfileState extends State<FriendProfile> {
                             groupId: groupId,
                             groupName: widget.friend.uid,
                             startOnChatScreen: true,
-                            firstVisit: false,
+                            firstVisit: opened,
                           ),
                         ),
                       );
