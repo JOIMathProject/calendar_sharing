@@ -7,6 +7,7 @@ import 'package:calendar_sharing/screen/SearchSchedule.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/calendar/v3.dart' as ggl;
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../services/auth.dart';
@@ -22,10 +23,8 @@ class Home extends StatefulWidget {
   Home(
       {required this.groupId,
       required this.groupName,
-       required this.firstVisit,
-
-      this.startOnChatScreen = false
-      });
+      required this.firstVisit,
+      this.startOnChatScreen = false});
 
   @override
   _HomeState createState() => _HomeState();
@@ -44,7 +43,6 @@ class _HomeState extends State<Home> {
   MyContentsInformation? usedContent;
   List<Appointment> GroupCal = [];
 
-
   List<MyContentsInformation> _MyContents = [];
   List<CalendarInformation> _MyCalendar = [];
   MyContentsInformation? selectedContent;
@@ -52,7 +50,6 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    print('yaid');
     super.initState();
     _pageController =
         PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
@@ -70,12 +67,15 @@ class _HomeState extends State<Home> {
       _getCalendar();
     });
   }
+
   Future<void> _initializeData() async {
     await _getMyContents(Provider.of<UserData>(context, listen: false).uid);
     if (widget.firstVisit) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _showFirstVisitDialog());
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _showFirstVisitDialog());
     }
   }
+
   Future<void> _getMyContents(String? uid) async {
     usedContent = await _getCurrentUserContent(widget.groupId!, uid!);
     selectedContent = _MyContents.isNotEmpty ? _MyContents[0] : null;
@@ -84,6 +84,7 @@ class _HomeState extends State<Home> {
       setState(() {});
     }
   }
+
   Future<void> _addContentToGroup(String gid, String cid) async {
     await AddContentsToGroup().addContentsToGroup(gid, cid);
   }
@@ -91,13 +92,24 @@ class _HomeState extends State<Home> {
   Future<void> _removeContentFromGroup(String gid, String cid) async {
     await RemoveContentsFromGroup().removeContentsFromGroup(gid, cid);
   }
-  void _showFirstVisitDialog() {
-    TextEditingController contentController = TextEditingController();
-    TextEditingController calendarController = TextEditingController();
 
+  Future<void> _addCalendarToGroup(
+      String gid, String? uid, String calendar_id) async {
+    await SetGroupPrimaryCalendar()
+        .setGroupPrimaryCalendar(gid, uid, calendar_id);
+  }
+
+  Future<void> _removeCalendarFromGroup(
+      String gid, String? uid, calendar_id) async {
+    await DeleteGroupPrimaryCalendar()
+        .deleteGroupPrimaryCalendar(gid, uid, calendar_id);
+  }
+
+  void _showFirstVisitDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevents dialog from being dismissed by touching outside
+      barrierDismissible:
+          false, // Prevents dialog from being dismissed by touching outside
       builder: (BuildContext context) {
         return WillPopScope(
           onWillPop: () async {
@@ -124,15 +136,9 @@ class _HomeState extends State<Home> {
                         }).toList(),
                         onChanged: (MyContentsInformation? newValue) async {
                           if (newValue != null) {
-                            if (selectedContent?.cid != '') {
-                              await _removeContentFromGroup(widget.groupId!, selectedContent!.cid);
-                            }
                             setState(() {
                               selectedContent = newValue;
                             });
-                            if (newValue.cname != 'None') {
-                              await _addContentToGroup(widget.groupId!, newValue.cid);
-                            }
                           }
                         },
                       ),
@@ -147,29 +153,48 @@ class _HomeState extends State<Home> {
                             child: Text(content.summary),
                           );
                         }).toList(),
-                        onChanged: (CalendarInformation? newValue) {
-                          setState(() {
-                            selectedCalendar = newValue;
-                          });
+                        onChanged: (CalendarInformation? newValue) async {
+                          if (newValue != null) {
+                            setState(() {
+                              selectedCalendar = newValue;
+                            });
+                          }
                         },
                       ),
                   ],
                 ),
-                actions: <Widget>[TextButton(
-                  child: Text('Cancel'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                ),
+                actions: <Widget>[
                   TextButton(
-                    child: Text('Submit'),
-                    onPressed: selectedCalendar != null
-                        ? () {
+                    child: Text('キャンセル'),
+                    onPressed: () {
                       Navigator.of(context).pop();
-                    }
-                        : null,
+                      Navigator.of(context).pop();
+                    },
                   ),
+                  TextButton(
+                      child: Text('登録'),
+                      onPressed: () async {
+                        print('dasda');
+                        if(selectedContent?.cname != 'なし'){
+                          await _addContentToGroup(
+                              widget.groupId!, selectedContent!.cid);
+                        }
+                        print('dasafafadfadfafda');
+                        print(widget.groupId!);
+                        print(Provider.of<UserData>(context, listen: false).uid);
+                        print(selectedCalendar!.calendar_id);
+                        print('sdad');
+                        await _addCalendarToGroup(
+                          widget.groupId!,
+                          Provider.of<UserData>(context, listen: false).uid,
+                          selectedCalendar!.calendar_id,
+                        );
+                        print('aaaaaaaaaaaaaaaaadasdasdasdadda');
+                        await SetOpened().setOpened(
+                            Provider.of<UserData>(context, listen: false).uid,
+                            widget.groupId!);
+                        Navigator.of(context).pop();
+                      }),
                 ],
               );
             },
@@ -179,20 +204,20 @@ class _HomeState extends State<Home> {
     );
   }
 
-
-
-
-
-  Future<MyContentsInformation?> _getCurrentUserContent(String gid, String uid) async {
-    List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(gid);
+  Future<MyContentsInformation?> _getCurrentUserContent(
+      String gid, String uid) async {
+    List<ContentsInformation>? contents =
+        await GetContentInGroup().getContentInGroup(gid);
     if (contents?.isNotEmpty == true) {
       return _MyContents.firstWhere(
-            (content) => contents!.any((groupContent) => groupContent.uid == uid && content.cid == groupContent.cid),
+        (content) => contents!.any((groupContent) =>
+            groupContent.uid == uid && content.cid == groupContent.cid),
         orElse: () => _MyContents[0],
       );
     }
     return _MyContents[0];
   }
+
   Future<void> _getCalendar() async {
     List<ContentsInformation>? contents =
         await GetContentInGroup().getContentInGroup(widget.groupId);
@@ -209,16 +234,19 @@ class _HomeState extends State<Home> {
       setState(() {});
     }
   }
+
   Future<void> _getReceivedEvent() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    List<eventRequest>? requests = await GetEventRequest().getEventRequest(uid,widget.groupId);
+    List<eventRequest>? requests =
+        await GetEventRequest().getEventRequest(uid, widget.groupId);
     if (requests?.isNotEmpty == true) {
-        _requests = requests;
+      _requests = requests;
     }
     if (mounted) {
       setState(() {});
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -238,8 +266,11 @@ class _HomeState extends State<Home> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ReceiveEventrequest(eventReq: _requests,
-                      gid: widget.groupId,usedContent: usedContent,),
+                    builder: (context) => ReceiveEventrequest(
+                      eventReq: _requests,
+                      gid: widget.groupId,
+                      usedContent: usedContent,
+                    ),
                   ),
                 );
               },
@@ -299,8 +330,7 @@ class _HomeState extends State<Home> {
               SfCalendar(
                   key: ValueKey(_currentView),
                   view: _currentView,
-                  allowedViews: <CalendarView>
-                  [
+                  allowedViews: <CalendarView>[
                     CalendarView.day,
                     CalendarView.week,
                   ],
@@ -327,8 +357,8 @@ class _HomeState extends State<Home> {
                   timeSlotViewSettings: TimeSlotViewSettings(
                     timeFormat: 'H:mm',
                   ),
-                  appointmentBuilder:
-                      (BuildContext context, CalendarAppointmentDetails details) {
+                  appointmentBuilder: (BuildContext context,
+                      CalendarAppointmentDetails details) {
                     final Appointment appointment = details.appointments.first;
                     return Container(
                       padding: EdgeInsets.all(5),

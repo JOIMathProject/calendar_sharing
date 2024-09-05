@@ -57,6 +57,7 @@ class GroupInformation {
   final int unread_messages;
   final String latest_message;
   final DateTime latest_message_time;
+  final String is_opened;
   GroupInformation(
       {required this.id,
       required this.gid,
@@ -65,7 +66,8 @@ class GroupInformation {
       required this.is_friends,
       required this.unread_messages,
       required this.latest_message,
-      required this.latest_message_time});
+      required this.latest_message_time,
+      required this.is_opened});
 }
 
 class MyContentsInformation {
@@ -382,6 +384,7 @@ class GetGroupInfo {
         unread_messages: int.parse(group['unread_count']) ?? 0,
         latest_message: group['latest_message']['content'] ?? '',
         latest_message_time: latestMessageTime,
+        is_opened: group['is_opened'],
       ));
     }
     return groups;
@@ -604,6 +607,9 @@ class GetGroupCalendar {
     }
 
     List<Appointment> events = [];
+    if(jsonDecode(response.body)['data'] == null){
+      return events;
+    }
     for (var group in jsonDecode(response.body)['data']) {
       int count = group['count'];
       // Ensure count is capped between 0 and 10
@@ -803,7 +809,7 @@ class GetMyContentsSchedule {
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$from/$to');
     final response = await http.get(url);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get calendar: ${response.statusCode}';
     }
     List<Appointment> events = [];
@@ -1167,5 +1173,75 @@ class RejectEventRequest{
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to send event request: ${response.statusCode}';
     }
+  }
+}
+class GetOpened {
+  Future<bool> getOpened(String? uid, String? gid) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/group/$gid/opened');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to get opened information: ${response.statusCode}';
+    }
+
+    final responseBody = jsonDecode(response.body);
+    return responseBody['is_opened'];
+  }
+}
+class SetOpened {
+  Future<void> setOpened(String? uid, String? gid) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/group/$gid/opened');
+    final response = await http.put(url);
+
+    if (response.statusCode != 200 && response.statusCode != 404 && response.statusCode != 201) {
+      throw 'Failed to get opened information: ${response.statusCode}';
+    }
+    return;
+  }
+}
+class GetGroupPrimaryCalendar{
+  Future<String> getGroupPrimaryCalendar(String? gid,String? uid) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar');
+    final response = await http.get(url);
+
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to get primary calendar: ${response.statusCode}';
+    }
+
+    final responseBody = jsonDecode(response.body);
+    return responseBody['calendar_id'];
+  }
+}
+class SetGroupPrimaryCalendar{
+  Future<void> setGroupPrimaryCalendar(String? gid,String? uid,String? calendar_id) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "calendar_id": calendar_id,
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 404 && response.statusCode != 201) {
+      throw 'Failed to set primary calendar: ${response.statusCode}';
+    }
+    return;
+  }
+}
+class DeleteGroupPrimaryCalendar{
+  Future<void> deleteGroupPrimaryCalendar(String? gid,String? uid,String? calendar_id) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar/$calendar_id');
+    final response = await http.delete(url);
+
+    if (response.statusCode != 200 && response.statusCode != 404) {
+      throw 'Failed to delete primary calendar: ${response.statusCode}';
+    }
+    return;
   }
 }
