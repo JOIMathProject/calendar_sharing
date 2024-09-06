@@ -18,20 +18,31 @@ class ReceiveEventrequest extends StatefulWidget {
 
 class _receivedEventRequest extends State<ReceiveEventrequest> {
   String? uid;
+  String? primaryCalendar;
   @override
   void initState() {
     super.initState();
     uid = Provider.of<UserData>(context, listen: false).uid;
   }
-
-  void _acceptRequest(eventRequest request) {
-    ReceiveEventRequest().receiveEventRequest(uid, request.uid, widget.gid, request.event_request_id, 'calendar_id');
+  Future<void> getPrimaryCalendar() async {
+    primaryCalendar = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(widget.gid,uid);
+  }
+  Future<void> _acceptRequest(eventRequest request) async {
+    await getPrimaryCalendar();
+    print('uid: $uid gid: ${widget.gid} request: ${request.uid} ${request.event_request_id} ${primaryCalendar}');
+    ReceiveEventRequest().receiveEventRequest(uid, request.uid, widget.gid, request.event_request_id,primaryCalendar );
+    widget.eventReq.remove(request);
     print("Accepted request from ${request.uname}");
+    setState(() {
+    });
   }
 
   void _denyRequest(eventRequest request) {
     RejectEventRequest().rejectEventRequest(uid, request.uid, widget.gid, request.event_request_id);
     print("Denied request from ${request.uname}");
+    widget.eventReq.remove(request);
+    setState(() {
+    });
   }
 
   @override
@@ -50,7 +61,7 @@ class _receivedEventRequest extends State<ReceiveEventrequest> {
             margin: EdgeInsets.all(8.0),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundImage: NetworkImage(request.uicon),
+                backgroundImage: NetworkImage('https://calendar-files.woody1227.com/user_icon/${request.uicon}'),
               ),
               title: Text(request.uname),
               subtitle: Column(

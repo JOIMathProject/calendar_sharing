@@ -91,6 +91,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
   void initState() {
     super.initState();
     _getGroupSize();
+    _getGroupUsers();
   }
 
   List<int> years = List.generate(10, (index) => DateTime.now().year + index);
@@ -430,15 +431,24 @@ class _SearchScheduleState extends State<SearchSchedule> {
   }
 
   SortOrder _sortOrder = SortOrder.time; // Default sorting order
+
   void _sortList() {
     setState(() {
       if (_sortOrder == SortOrder.time) {
         searchResults.sort((a, b) => a.startTime.compareTo(b.startTime));
       } else if (_sortOrder == SortOrder.participants) {
-        searchResults.sort((a, b) => a.count.compareTo(b.count));
+        searchResults.sort((a, b) {
+          int countComparison = a.count.compareTo(b.count);
+          if (countComparison != 0) {
+            return countComparison;
+          } else {
+            return a.startTime.compareTo(b.startTime);
+          }
+        });
       }
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -746,35 +756,40 @@ class _SearchScheduleState extends State<SearchSchedule> {
             ),
             SizedBox(height: 16.0),
             Center(
-              child: Row(children: [
-                ElevatedButton(
-                  onPressed: _searchSchedule,
-                  child: Text('検索',
-                      style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
-                ),
-                DropdownButton<SortOrder>(
-                  value: _sortOrder,
-                  items: [
-                    DropdownMenuItem(
-                      value: SortOrder.time,
-                      child: Text('時間'),
-                    ),
-                    DropdownMenuItem(
-                      value: SortOrder.participants,
-                      child: Text('参加人数'),
-                    ),
-                  ],
-                  onChanged: (SortOrder? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _sortOrder = newValue;
-                        _sortList(); // Sort the list when option changes
-                      });
-                    }
-                  },
-                ),
-              ]),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center, // Center the contents
+                children: [
+                  ElevatedButton(
+                    onPressed: _searchSchedule,
+                    child: Text('検索',
+                        style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
+                  ),
+                  SizedBox(width: 20), // Add spacing between the button and dropdown
+                  DropdownButton<SortOrder>(
+                    value: _sortOrder,
+                    items: [
+                      DropdownMenuItem(
+                        value: SortOrder.time,
+                        child: Text('時間'),
+                      ),
+                      DropdownMenuItem(
+                        value: SortOrder.participants,
+                        child: Text('参加人数'),
+                      ),
+                    ],
+                    onChanged: (SortOrder? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _sortOrder = newValue;
+                          _sortList(); // Sort the list when option changes
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
+
             SizedBox(height: 16.0),
             Expanded(
               child: ListView.builder(
@@ -924,9 +939,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
     );
   }
 
-  void SendRequest(
-      String uid2, String Summary, DateTime startTime, DateTime endTime) async {
+  Future<void> SendRequest(String uid2, String Summary, DateTime startTime, DateTime endTime)
+  async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
+    print('uid: $uid uid2: $uid2 Summary: $Summary startTime: $startTime endTime: $endTime');
     await SendEventRequest().sendEventRequest(
         uid, uid2, widget.groupId, Summary, startTime, endTime);
   }
@@ -1152,6 +1168,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
                       );
                     } else if (searchResults[index].members.length == 0 ||
                         exceedTime == 2) {
+                      print(users.length ==0 );
+                      print('hadsda');
                       for (var request in users) {
                         SendRequest(
                             request.uid,
@@ -1168,7 +1186,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 searchResults[index].startTime.day,
                                 selectedHour + selectedDurationHours,
                                 selectedMinute + selectedDurationMinutes));
-
+print('hadsda');
                         Navigator.of(context).pop();
                       }
                     } else if (searchResults[index].members.length != 0) {

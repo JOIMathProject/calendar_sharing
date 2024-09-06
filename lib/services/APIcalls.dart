@@ -195,7 +195,7 @@ class CreateUser {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Failed to create user: ${response.statusCode}';
+      throw 'Failed to create user: ${response.statusCode} ${response.body}';
     }
   }
 }
@@ -212,7 +212,7 @@ class ChangeUserProfile {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Failed to create user: ${response.statusCode}';
+      throw 'Failed to change user: ${response.statusCode}';
     }
   }
 }
@@ -361,12 +361,15 @@ class GetGroupInfo {
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups/detail');
     final response = await http.get(url);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
     }
 
     //responseの中のdataの中のuidだけをListにして返す
     List<GroupInformation> groups = [];
+    if(jsonDecode(response.body)['data'] == null){
+      return groups;
+    }
     for (var group in jsonDecode(response.body)['data']) {
       DateTime latestMessageTime;
       if (group['latest_message']['sent_time'] != null) {
@@ -558,7 +561,7 @@ class UpdateUserID {
       }),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Failed to create user: ${response.statusCode}';
+      throw 'Failed to update user id: ${response.statusCode}';
     }
   }
 }
@@ -574,7 +577,7 @@ class UpdateUserName {
       }),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Failed to create user: ${response.statusCode}';
+      throw 'Failed to update username: ${response.statusCode}';
     }
   }
 }
@@ -590,7 +593,7 @@ class UpdateUserImage {
       }),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Failed to create user: ${response.statusCode}';
+      throw 'Failed to update userImage: ${response.statusCode}';
     }
   }
 }
@@ -683,10 +686,13 @@ class GetMyCalendars {
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/calendars');
     final response = await http.get(url);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
     }
     List<CalendarInformation> contents = [];
+    if(jsonDecode(response.body)['data'] == null){
+      return contents;
+    }
     for (var group in jsonDecode(response.body)['data']) {
       contents.add(CalendarInformation(
         calendar_id: group['calendar_id'] ?? 'default',
@@ -1104,7 +1110,7 @@ class GetEventRequest {
   Future<List<eventRequest>> getEventRequest(
       String? uid, String? gid) async {
     final url = Uri.parse(
-        'https://calendar-api.woody1227.com/groups/event_requests/$uid/receive');
+        'https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid/receive');
     final response = await http.get(url);
 
     if (response.statusCode != 200 && response.statusCode != 404) {
@@ -1170,18 +1176,18 @@ class RejectEventRequest{
   Future<void> rejectEventRequest(String? uid,String? uid2,String? gid,String? event_request_id) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid/$uid2/$event_request_id');
     final response = await http.delete(url);
-    if (response.statusCode != 200 && response.statusCode != 201) {
+    if (response.statusCode != 200 && response.statusCode != 201&& response.statusCode != 204 && response.statusCode != 404) {
       throw 'Failed to send event request: ${response.statusCode}';
     }
   }
 }
 class GetOpened {
-  Future<bool> getOpened(String? uid, String? gid) async {
+  Future<String> getOpened(String? uid, String? gid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/group/$gid/opened');
     final response = await http.get(url);
 
-    if (response.statusCode != 200 && response.statusCode != 404) {
+    if (response.statusCode != 200) {
       throw 'Failed to get opened information: ${response.statusCode}';
     }
 

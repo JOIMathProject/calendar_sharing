@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:badges/badges.dart';
 import 'package:calendar_sharing/screen/ChatScreen.dart';
 import 'package:calendar_sharing/screen/ContentsSetting.dart';
 import 'package:calendar_sharing/screen/ReceiveEventRequest.dart';
@@ -57,13 +58,15 @@ class _HomeState extends State<Home> {
     _showFab = !widget.startOnChatScreen;
     _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
     _MyContents = Provider.of<UserData>(context, listen: false).MyContents;
+    _getReceivedEvent();
     _initializeData();
     _getTimeRegions();
+    _getCalendar();
     Timer.periodic(Duration(seconds: 10), (timer) {
       if (!mounted) {
-        _getReceivedEvent();
         timer.cancel();
       }
+      _getReceivedEvent();
       _getCalendar();
     });
   }
@@ -120,7 +123,7 @@ class _HomeState extends State<Home> {
           child: StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: Text('Select Content and Calendar'),
+                title: Text('カレンダーとコンテンツを選択'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -179,17 +182,14 @@ class _HomeState extends State<Home> {
                           await _addContentToGroup(
                               widget.groupId!, selectedContent!.cid);
                         }
-                        print('dasafafadfadfafda');
                         print(widget.groupId!);
                         print(Provider.of<UserData>(context, listen: false).uid);
                         print(selectedCalendar!.calendar_id);
-                        print('sdad');
                         await _addCalendarToGroup(
                           widget.groupId!,
                           Provider.of<UserData>(context, listen: false).uid,
                           selectedCalendar!.calendar_id,
                         );
-                        print('aaaaaaaaaaaaaaaaadasdasdasdadda');
                         await SetOpened().setOpened(
                             Provider.of<UserData>(context, listen: false).uid,
                             widget.groupId!);
@@ -237,6 +237,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _getReceivedEvent() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
+    print('$uid  + ${widget.groupId}');
     List<eventRequest>? requests =
         await GetEventRequest().getEventRequest(uid, widget.groupId);
     if (requests?.isNotEmpty == true) {
@@ -258,23 +259,23 @@ class _HomeState extends State<Home> {
         ),
         actions: [
           badge.Badge(
-            showBadge: _requests.isNotEmpty,
-            badgeContent: Text(""),
-            child: IconButton(
-              icon: Icon(Icons.notifications),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReceiveEventrequest(
-                      eventReq: _requests,
-                      gid: widget.groupId,
-                      usedContent: usedContent,
+              showBadge: _requests.isNotEmpty,
+              position: BadgePosition.topEnd(top: 10, end: 10),
+              child: IconButton(
+                icon: Icon(Icons.notifications, size: 30),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReceiveEventrequest(
+                        eventReq: _requests,
+                        gid: widget.groupId,
+                        usedContent: usedContent,
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
           ),
           IconButton(
             icon: Icon(
@@ -377,7 +378,7 @@ class _HomeState extends State<Home> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Text('参加メンバー'),
+                            title: Text('予定あり'),
                             content: Text(appointment.subject),
                             actions: <Widget>[
                               TextButton(

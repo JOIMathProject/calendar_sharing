@@ -84,40 +84,43 @@ class _ContentsManageState extends State<ContentsManage>
               ),
             ),
           ),
-          TabBar(
-            controller: _tabController,
-            tabs: [
-              Tab(text: 'すべて'),
-              Tab(text: 'フレンド'),
-              Tab(text: 'グループ'),
-            ],
-            indicator: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: GlobalColor.MainCol,
-                  width: 3.0,
-                ),
-              ),
+          Expanded(
+            child: DefaultTabController(
+              length: 3,
+              child:
+              Column(
+                children:[
+                  TabBar(
+                    tabs: const [
+                      Tab(text: 'すべて'),
+                      Tab(text: 'フレンド'),
+                      Tab(text: 'グループ'),
+                    ],
+                    indicator: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: GlobalColor.MainCol,
+                          width: 3.0,
+                        ),
+                      ),
+                    ),
+                    labelStyle: TextStyle(fontSize: 16.0),
+                    dividerColor: GlobalColor.Unselected,
+                    labelColor: GlobalColor.MainCol,
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildContentList(_filteredContents()),
+                        _buildContentList(
+                            _filteredContents(isPersonal: true)),
+                        _buildContentList(_filteredContents(isGroup: true)),
+                      ],
+                    ),
+                  ),
+                ],),
             ),
-            labelStyle: TextStyle(fontSize: 16.0),
-            labelColor: GlobalColor.MainCol,
           ),
-          if (contents.isNotEmpty)
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildContentList(_filteredContents()), // All
-                  _buildContentList(
-                      _filteredContents(isPersonal: true)), // Personal
-                  _buildContentList(_filteredContents(isGroup: true)), // Group
-                ],
-              ),
-            )
-          else
-            Center(
-              child: Text('No contents found'),
-            ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -159,6 +162,35 @@ class _ContentsManageState extends State<ContentsManage>
   }
 
   Widget _buildContentList(List<GroupInformation>? filteredContents) {
+    if(filteredContents!.isEmpty){
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,  // Center vertically
+                children: [
+                  Icon(
+                    Icons.group_off_sharp,
+                    size: 200,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  Text(
+                    'コンテンツなし',
+                    style: TextStyle(
+                      fontSize: 30,
+                      color: Colors.black.withOpacity(0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return ListView.builder(
       itemCount: filteredContents?.length,
       itemBuilder: (context, index) {
@@ -211,7 +243,7 @@ class _ContentsManageState extends State<ContentsManage>
                       builder: (context) => Home(
                         groupId: filteredContents?[index].gid,
                         groupName: filteredContents?[index].gname,
-                        firstVisit: filteredContents![index].is_opened=='0',
+                        firstVisit: filteredContents![index].is_opened == '0',
                         startOnChatScreen: true,
                       ),
                     ),
@@ -230,7 +262,7 @@ class _ContentsManageState extends State<ContentsManage>
                   groupId: filteredContents?[index].gid,
                   groupName: filteredContents?[index].gname,
                   startOnChatScreen: false,
-                  firstVisit: filteredContents![index].is_opened=='0',
+                  firstVisit: filteredContents![index].is_opened == '0',
                 ),
               ),
             );

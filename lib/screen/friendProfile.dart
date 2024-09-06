@@ -105,7 +105,7 @@ class _FriendProfileState extends State<FriendProfile> {
                     String? groupId =
                         await _checkFriend(uid!, widget.friend.uid);
 
-                    bool opened = await GetOpened().getOpened(uid, groupId!);
+                    bool opened = await GetOpened().getOpened(uid, groupId!) == 1;
                     if (groupId != null) {
                       Navigator.push(
                         context,
@@ -137,7 +137,7 @@ class _FriendProfileState extends State<FriendProfile> {
                         Provider.of<UserData>(context, listen: false).uid;
                     String? groupId =
                         await _checkFriend(uid!, widget.friend.uid);
-                    bool opened = await GetOpened().getOpened(uid, groupId!);
+                    bool opened = await GetOpened().getOpened(uid, groupId!) == 1;
                     if (groupId != null) {
                       Navigator.push(
                         context,
