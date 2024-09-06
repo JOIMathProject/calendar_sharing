@@ -138,7 +138,6 @@ class _AddFriendState extends State<AddFriend> {
                     ],
                   );
                 } else {
-                  print(snapshot.error.toString());
                   return Column(
                     children: [
                       Icon(

@@ -38,15 +38,27 @@ class _ContentsSettingState extends State<ContentsSetting> {
     gicon: '',
     is_friends: '0',
   );
-
+  String? uid;
   @override
   void initState() {
     super.initState();
-    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    uid = Provider.of<UserData>(context, listen: false).uid;
     _getMyContents(uid!);
     _getGroupUsers();
     _getGroupDetail();
     _friends = Provider.of<UserData>(context, listen: false).friends;
+  }
+
+  Future<void> _addCalendarToGroup(
+      String? gid, String? uid, String? calendar_id) async {
+    await SetGroupPrimaryCalendar()
+        .setGroupPrimaryCalendar(gid, uid, calendar_id);
+  }
+
+  Future<void> _removeCalendarFromGroup(
+      String? gid, String? uid, String? calendar_id) async {
+    await DeleteGroupPrimaryCalendar()
+        .deleteGroupPrimaryCalendar(gid, uid, calendar_id);
   }
 
   Future<XFile?> getImageFromGallery() async {
@@ -73,10 +85,14 @@ class _ContentsSettingState extends State<ContentsSetting> {
   }
 
   Future<void> _getMyContents(String uid) async {
-    _MyCalendar = await GetMyCalendars().getMyCalendars(uid);
-    _MyContents = await GetMyContents().getMyContents(uid);
-    _MyContents.insert(0, MyContentsInformation(cid: '', cname: 'None'));
+    _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
+    _MyContents = Provider.of<UserData>(context, listen: false).MyContents;
     selectedContent = await _getCurrentUserContent(widget.groupId!, uid);
+    String selectedCalId = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(widget.groupId,uid);
+    selectedCalendar = _MyCalendar.firstWhere(
+      (element) => element.calendar_id == selectedCalId,
+      orElse: () => _MyCalendar[0],
+    );
     setState(() {});
   }
 
@@ -107,7 +123,6 @@ class _ContentsSettingState extends State<ContentsSetting> {
       isEditingGName = false; // Exit edit mode
     });
   }
-
   Future<void> _changeGroupIcon(String gicon) async {
     await UpdateGroupName().updateGroupName(widget.groupId, gicon);
     setState(() {});
@@ -401,13 +416,14 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 onChanged: (CalendarInformation? newValue) async {
                   if (newValue != null) {
                     if (selectedCalendar?.summary != '') {
-                      //await _removeContentFromGroup(widget.groupId!, selectedCalendar!.summary);
+                      await _removeCalendarFromGroup(widget.groupId, uid, selectedCalendar?.calendar_id);
                     }
                     setState(() {
                       selectedCalendar = newValue;
                     });
                     if (newValue.summary != 'None') {
                       //await _addContentToGroup(widget.groupId!, newValue.summary);
+                      await _addCalendarToGroup(widget.groupId, uid, selectedCalendar?.calendar_id);
                     }
                   }
                 },

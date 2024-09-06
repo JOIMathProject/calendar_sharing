@@ -5,6 +5,7 @@ import 'package:calendar_sharing/screen/ChatScreen.dart';
 import 'package:calendar_sharing/screen/ContentsSetting.dart';
 import 'package:calendar_sharing/screen/ReceiveEventRequest.dart';
 import 'package:calendar_sharing/screen/SearchSchedule.dart';
+import 'package:calendar_sharing/screen/friendContentsSetting.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +21,13 @@ class Home extends StatefulWidget {
   final String? groupName;
   final bool startOnChatScreen;
   final bool firstVisit;
+  bool is_frined;
 
   Home(
       {required this.groupId,
       required this.groupName,
       required this.firstVisit,
+      required this.is_frined,
       this.startOnChatScreen = false});
 
   @override
@@ -177,14 +180,10 @@ class _HomeState extends State<Home> {
                   TextButton(
                       child: Text('登録'),
                       onPressed: () async {
-                        print('dasda');
                         if(selectedContent?.cname != 'なし'){
                           await _addContentToGroup(
                               widget.groupId!, selectedContent!.cid);
                         }
-                        print(widget.groupId!);
-                        print(Provider.of<UserData>(context, listen: false).uid);
-                        print(selectedCalendar!.calendar_id);
                         await _addCalendarToGroup(
                           widget.groupId!,
                           Provider.of<UserData>(context, listen: false).uid,
@@ -237,7 +236,6 @@ class _HomeState extends State<Home> {
 
   Future<void> _getReceivedEvent() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    print('$uid  + ${widget.groupId}');
     List<eventRequest>? requests =
         await GetEventRequest().getEventRequest(uid, widget.groupId);
     if (requests?.isNotEmpty == true) {
@@ -307,10 +305,12 @@ class _HomeState extends State<Home> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ContentsSetting(
+                  builder: (context) =>
+                      !widget.is_frined ? ContentsSetting(
                     groupId: widget.groupId,
                     usedCalendar: usedContent,
-                  ),
+
+                  ):friendContentsSetting(groupId: widget.groupId, usedCalendar: usedContent),
                 ),
               );
             },

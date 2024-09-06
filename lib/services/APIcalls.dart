@@ -299,7 +299,7 @@ class CheckFriend {
   }
 }
 
-class AddDeviceID {
+class AddDeviceID {//TEMPORARY UNAVAILABLE
   Future<void> addDeviceID(String? uid, String? deviceID) async {
     final url =
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/deviceids');
@@ -311,7 +311,7 @@ class AddDeviceID {
         "device_id": deviceID,
       }),
     );
-    if (response.statusCode != 200 && response.statusCode != 201) {
+    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 500) {
       throw 'Failed to add deviceID: ${response.statusCode}';
     }
   }

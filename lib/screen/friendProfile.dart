@@ -115,6 +115,7 @@ class _FriendProfileState extends State<FriendProfile> {
                             groupName: widget.friend.uid,
                             startOnChatScreen: false,
                             firstVisit: opened,
+                            is_frined: true,
                           ),
                         ),
                       );
@@ -147,6 +148,7 @@ class _FriendProfileState extends State<FriendProfile> {
                             groupName: widget.friend.uid,
                             startOnChatScreen: true,
                             firstVisit: opened,
+                            is_frined: true,
                           ),
                         ),
                       );

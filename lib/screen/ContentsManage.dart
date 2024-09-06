@@ -245,6 +245,7 @@ class _ContentsManageState extends State<ContentsManage>
                         groupName: filteredContents?[index].gname,
                         firstVisit: filteredContents![index].is_opened == '0',
                         startOnChatScreen: true,
+                        is_frined: filteredContents[index].is_friends == '1',
                       ),
                     ),
                   );
@@ -263,6 +264,7 @@ class _ContentsManageState extends State<ContentsManage>
                   groupName: filteredContents?[index].gname,
                   startOnChatScreen: false,
                   firstVisit: filteredContents![index].is_opened == '0',
+                  is_frined: filteredContents[index].is_friends == '1',
                 ),
               ),
             );
