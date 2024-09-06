@@ -81,13 +81,12 @@ class _ProfileState extends State<Profile> {
                           onTap: () async {
                             XFile? image = await getImageFromGallery();
                             if (image != null) {
-                              List<int> imageBytes =
-                              await File(image.path).readAsBytesSync();
+                              List<int> imageBytes = await File(image.path).readAsBytesSync();
                               String base64Image = base64Encode(imageBytes);
-                              print('updating$base64Image');
+                              print('$base64Image');
                               await UpdateUserImage()
                                   .updateUserImage(userData.uid, base64Image);
-                              setState(() {}); // Refresh the widget to update UI
+                              setState(() {});
                             }
                           },
                           child: CircleAvatar(

@@ -11,16 +11,16 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/PushNotification.dart';
 
 void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  PushNotificationService().init();
+  //WidgetsFlutterBinding.ensureInitialized();
+  //await Firebase.initializeApp(
+  //  options: DefaultFirebaseOptions.currentPlatform,
+  //);
+  //PushNotificationService().init();
 
-  final messagingInstance = FirebaseMessaging.instance;
-  messagingInstance.requestPermission();
-  final fcmToken = await messagingInstance.getToken();
-  debugPrint('FCM TOKEN: $fcmToken');
+  //final messagingInstance = FirebaseMessaging.instance;
+  //messagingInstance.requestPermission();
+  //final fcmToken = await messagingInstance.getToken();
+  //debugPrint('FCM TOKEN: $fcmToken');
 
   runApp(
       ChangeNotifierProvider(create: (context) => UserData(),
@@ -43,11 +43,10 @@ class MyApp extends StatelessWidget {
         SfGlobalLocalizations.delegate
       ],
       supportedLocales: [
-        const Locale('zh'),
-        const Locale('ar'),
         const Locale('ja'),
       ],
       locale: const Locale('ja'),
+      debugShowCheckedModeBanner: false,
       theme: appTheme,
       home: Wrapper(),
     );

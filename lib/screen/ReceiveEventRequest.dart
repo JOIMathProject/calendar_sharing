@@ -63,14 +63,14 @@ class _receivedEventRequest extends State<ReceiveEventrequest> {
               leading: CircleAvatar(
                 backgroundImage: NetworkImage('https://calendar-files.woody1227.com/user_icon/${request.uicon}'),
               ),
-              title: Text(request.uname),
+              title: Text(request.uname, style: TextStyle(color: GlobalColor.SubCol)),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(request.summary),
+                  Text(request.summary, style: TextStyle(color: GlobalColor.SubCol)),
                   Text(
                     "${request.startTime} - ${request.endTime}",
-                    style: TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 12, color: GlobalColor.SubCol),
                   ),
                 ],
               ),
@@ -79,13 +79,18 @@ class _receivedEventRequest extends State<ReceiveEventrequest> {
                 children: [
                   ElevatedButton(
                     onPressed: () => _acceptRequest(request),
-                    child: Text("Accept"),
-
+                    child: Text("Accept", style: TextStyle(color: GlobalColor.MainCol)),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(GlobalColor.SubCol),
+                    )
                   ),
                   SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () => _denyRequest(request),
-                    child: Text("Deny"),
+                    child: Text("Deny", style: TextStyle(color: GlobalColor.MainCol)),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(GlobalColor.SubCol),
+                      )
                   ),
                 ],
               ),
