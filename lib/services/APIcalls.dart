@@ -1251,3 +1251,25 @@ class DeleteGroupPrimaryCalendar{
     return;
   }
 }
+class AddEventToTheCalendar{
+  Future<void> addEventToTheCalendar(String? uid,String? calendar_id,String? summary,String? description,DateTime? start_dateTime,DateTime? end_dateTime) async {
+    print('addEventToTheCalendar: $uid, $calendar_id, $summary, $description, $start_dateTime, $end_dateTime');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/calendars/$calendar_id/events');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        "summary": summary,
+        "description": description,
+        "start_dateTime": start_dateTime.toString().substring(0,19),
+        "end_dateTime": end_dateTime.toString().substring(0,19),
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add event to the calendar: ${response.statusCode}';
+    }
+    return;
+  }
+}

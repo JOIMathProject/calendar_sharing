@@ -92,6 +92,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
     super.initState();
     _getGroupSize();
     _getGroupUsers();
+    getPrimaryCalendar();
   }
 
   List<int> years = List.generate(10, (index) => DateTime.now().year + index);
@@ -117,9 +118,13 @@ class _SearchScheduleState extends State<SearchSchedule> {
     return List.generate(
         lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
   }
-
+  String? primaryCalendar;
+  Future<void> getPrimaryCalendar() async {
+    primaryCalendar = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(widget.groupId,Provider.of<UserData>(context, listen: false).uid);
+  }
   Future<void> _getGroupUsers() async {
     users = await GetUserInGroup().getUserInGroup(widget.groupId!);
+    users.remove(users.firstWhere((element) => element.uid == Provider.of<UserData>(context, listen: false).uid));
   }
 
   List<int> getAvailableDaysStart(int year, int month) {
@@ -390,6 +395,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
         isRainy ? '1' : '0',
         isSnowy ? '1' : '0',
       );
+
+      searchResults.removeWhere((result) =>
+          result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
+      );
       print(searchResults.length);
       setState(() {});
     } else {
@@ -414,6 +423,9 @@ class _SearchScheduleState extends State<SearchSchedule> {
         '${minHours * 60}',
         '${GroupSize - minParticipants}',
       );
+      searchResults.removeWhere((result) =>
+          result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
+      );
       print(searchResults.length);
       setState(() {});
     }
@@ -434,6 +446,9 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
   void _sortList() {
     setState(() {
+      searchResults.removeWhere((result) =>
+          result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
+      );
       if (_sortOrder == SortOrder.time) {
         searchResults.sort((a, b) => a.startTime.compareTo(b.startTime));
       } else if (_sortOrder == SortOrder.participants) {
@@ -938,7 +953,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
       ),
     );
   }
-
   Future<void> SendRequest(String uid2, String Summary, DateTime startTime, DateTime endTime)
   async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
@@ -946,7 +960,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
     await SendEventRequest().sendEventRequest(
         uid, uid2, widget.groupId, Summary, startTime, endTime);
   }
-
+  Future<void> AddSchedule(String Summary, DateTime startTime, DateTime endTime)async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    AddEventToTheCalendar().addEventToTheCalendar(uid, primaryCalendar, Summary, '', startTime, endTime);
+  }
   void _showScheduleDialog(BuildContext context, int index) {
     // Initialize selected values
     int selectedHour = searchResults[index].startTime.hour;
@@ -959,7 +976,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
     final int endHour = searchResults[index].endTime.hour;
     final int startMinute = searchResults[index].startTime.minute;
     final int endMinute = searchResults[index].endTime.minute;
-
+    final SummaryEditor = TextEditingController();
+    String Summary = '';
     int exceedTime =
         0; //0 not exceeding, 1 exceeded but cancelled 2 exceeded and continued
     // Function to show the main dialog
@@ -973,16 +991,29 @@ class _SearchScheduleState extends State<SearchSchedule> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Hour Picker
+                  // Input field for the summary
+                  TextField(
+                    controller: SummaryEditor,
+                    decoration: InputDecoration(
+                      labelText: '予定名',
+                      contentPadding: EdgeInsets.symmetric(vertical: 10), // Reduce vertical padding
+                    ),
+                    onChanged: (String value) {
+                      setState(() {
+                        Summary = value;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 10), // Reduce spacing between widgets
                   Text('予定開始時刻'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        height: 150,
-                        width: 50,
+                        height: 100, // Reduce height
+                        width: 45,   // Adjust width if necessary
                         child: CupertinoPicker(
-                          itemExtent: 32.0,
+                          itemExtent: 28.0, // Reduce item height
                           onSelectedItemChanged: (int index) {
                             setState(() {
                               selectedHour = startHour + index;
@@ -1000,34 +1031,31 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           },
                           children: List.generate(
                             endHour - startHour + 1,
-                            (int index) => Text('${startHour + index}時'),
+                                (int index) => Text('${startHour + index}時'),
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      SizedBox(width: 8), // Reduce width
                       Container(
-                        height: 150,
-                        width: 50,
+                        height: 100, // Reduce height
+                        width: 45,   // Adjust width if necessary
                         child: CupertinoPicker(
-                          itemExtent: 32.0,
+                          itemExtent: 28.0, // Reduce item height
                           onSelectedItemChanged: (int index) {
                             setState(() {
                               selectedMinute = index;
-                              if (selectedHour == startHour &&
-                                  selectedMinute < startMinute) {
+                              if (selectedHour == startHour && selectedMinute < startMinute) {
                                 selectedMinute = startMinute;
                               }
-                              if (selectedHour == endHour &&
-                                  selectedMinute > endMinute) {
+                              if (selectedHour == endHour && selectedMinute > endMinute) {
                                 selectedMinute = endMinute;
                               }
                             });
                           },
                           children: List.generate(
                             60,
-                            (int index) {
-                              final formattedMinute =
-                                  index < 10 ? '0$index' : '$index';
+                                (int index) {
+                              final formattedMinute = index < 10 ? '0$index' : '$index';
                               return Text('$formattedMinute分');
                             },
                           ),
@@ -1035,44 +1063,42 @@ class _SearchScheduleState extends State<SearchSchedule> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 30),
+                  SizedBox(height: 20), // Reduce vertical space
                   // Duration Picker
                   Text('予定長さ'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        height: 100,
-                        width: 50,
+                        height: 80,  // Reduce height
+                        width: 45,   // Adjust width if necessary
                         child: CupertinoPicker(
-                          itemExtent: 32.0,
+                          itemExtent: 28.0, // Reduce item height
                           onSelectedItemChanged: (int index) {
                             setState(() {
                               selectedDurationHours = index;
                             });
                           },
                           children: List.generate(
-                            //endHour - startHour + 1,
                             24,
-                            (int index) => Text('$index h'),
+                                (int index) => Text('$index h'),
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      SizedBox(width: 8), // Reduce width
                       Container(
-                        height: 100,
-                        width: 50,
+                        height: 80,  // Reduce height
+                        width: 45,   // Adjust width if necessary
                         child: CupertinoPicker(
-                          itemExtent: 32.0,
+                          itemExtent: 28.0, // Reduce item height
                           onSelectedItemChanged: (int index) {
                             setState(() {
-                              selectedDurationMinutes =
-                                  index * 5; // 5 minute intervals
+                              selectedDurationMinutes = index * 5; // 5 minute intervals
                             });
                           },
                           children: List.generate(
                             12,
-                            (int index) => Text('${index * 5} m'),
+                                (int index) => Text('${index * 5} m'),
                           ),
                         ),
                       ),
@@ -1080,6 +1106,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                   ),
                 ],
               ),
+
               actions: <Widget>[
                 ElevatedButton(
                   child: Text('予定追加リクエストの送信'),
@@ -1111,7 +1138,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                   for (var request in users) {
                                     SendRequest(
                                         request.uid,
-                                        'test',
+                                        Summary,
                                         DateTime(
                                             searchResults[index].startTime.year,
                                             searchResults[index]
@@ -1131,6 +1158,23 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                             selectedMinute +
                                                 selectedDurationMinutes));
                                   }
+                                  AddSchedule(Summary, DateTime(
+                                      searchResults[index].startTime.year,
+                                      searchResults[index]
+                                          .startTime
+                                          .month,
+                                      searchResults[index].startTime.day,
+                                      selectedHour,
+                                      selectedMinute), DateTime(
+                                      searchResults[index].startTime.year,
+                                      searchResults[index]
+                                          .startTime
+                                          .month,
+                                      searchResults[index].startTime.day,
+                                      selectedHour +
+                                          selectedDurationHours,
+                                      selectedMinute +
+                                          selectedDurationMinutes));
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                   print('done');
@@ -1168,12 +1212,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                       );
                     } else if (searchResults[index].members.length == 0 ||
                         exceedTime == 2) {
-                      print(users.length ==0 );
-                      print('hadsda');
                       for (var request in users) {
                         SendRequest(
                             request.uid,
-                            'test',
+                            Summary,
                             DateTime(
                                 searchResults[index].startTime.year,
                                 searchResults[index].startTime.month,
@@ -1186,9 +1228,26 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 searchResults[index].startTime.day,
                                 selectedHour + selectedDurationHours,
                                 selectedMinute + selectedDurationMinutes));
-print('hadsda');
-                        Navigator.of(context).pop();
+
                       }
+                      AddSchedule(Summary, DateTime(
+                          searchResults[index].startTime.year,
+                          searchResults[index]
+                              .startTime
+                              .month,
+                          searchResults[index].startTime.day,
+                          selectedHour,
+                          selectedMinute), DateTime(
+                          searchResults[index].startTime.year,
+                          searchResults[index]
+                              .startTime
+                              .month,
+                          searchResults[index].startTime.day,
+                          selectedHour +
+                              selectedDurationHours,
+                          selectedMinute +
+                              selectedDurationMinutes));
+                      Navigator.of(context).pop();
                     } else if (searchResults[index].members.length != 0) {
                       showDialog(
                         context: context,
@@ -1210,35 +1269,39 @@ print('hadsda');
                                     if (canJoin) {
                                       SendRequest(
                                           request.uid,
-                                          'test',
+                                          Summary,
                                           DateTime(
-                                              searchResults[index]
-                                                  .startTime
-                                                  .year,
-                                              searchResults[index]
-                                                  .startTime
-                                                  .month,
-                                              searchResults[index]
-                                                  .startTime
-                                                  .day,
+                                              searchResults[index].startTime.year,
+                                              searchResults[index].startTime.month,
+                                              searchResults[index].startTime.day,
                                               selectedHour,
                                               selectedMinute),
                                           DateTime(
-                                              searchResults[index]
-                                                  .startTime
-                                                  .year,
-                                              searchResults[index]
-                                                  .startTime
-                                                  .month,
-                                              searchResults[index]
-                                                  .startTime
-                                                  .day,
-                                              selectedHour +
-                                                  selectedDurationHours,
-                                              selectedMinute +
-                                                  selectedDurationMinutes));
+                                              searchResults[index].startTime.year,
+                                              searchResults[index].startTime.month,
+                                              searchResults[index].startTime.day,
+                                              selectedHour + selectedDurationHours,
+                                              selectedMinute + selectedDurationMinutes));
                                     }
                                   }
+
+                                  AddSchedule(Summary, DateTime(
+                                      searchResults[index].startTime.year,
+                                      searchResults[index]
+                                          .startTime
+                                          .month,
+                                      searchResults[index].startTime.day,
+                                      selectedHour,
+                                      selectedMinute), DateTime(
+                                      searchResults[index].startTime.year,
+                                      searchResults[index]
+                                          .startTime
+                                          .month,
+                                      searchResults[index].startTime.day,
+                                      selectedHour +
+                                          selectedDurationHours,
+                                      selectedMinute +
+                                          selectedDurationMinutes));
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                 },
@@ -1249,26 +1312,38 @@ print('hadsda');
                                   for (var request in users) {
                                     SendRequest(
                                         request.uid,
-                                        'test',
+                                        Summary,
                                         DateTime(
                                             searchResults[index].startTime.year,
-                                            searchResults[index]
-                                                .startTime
-                                                .month,
+                                            searchResults[index].startTime.month,
                                             searchResults[index].startTime.day,
                                             selectedHour,
                                             selectedMinute),
                                         DateTime(
                                             searchResults[index].startTime.year,
-                                            searchResults[index]
-                                                .startTime
-                                                .month,
+                                            searchResults[index].startTime.month,
                                             searchResults[index].startTime.day,
-                                            selectedHour +
-                                                selectedDurationHours,
-                                            selectedMinute +
-                                                selectedDurationMinutes));
+                                            selectedHour + selectedDurationHours,
+                                            selectedMinute + selectedDurationMinutes));
                                   }
+
+                                  AddSchedule(Summary, DateTime(
+                                      searchResults[index].startTime.year,
+                                      searchResults[index]
+                                          .startTime
+                                          .month,
+                                      searchResults[index].startTime.day,
+                                      selectedHour,
+                                      selectedMinute), DateTime(
+                                      searchResults[index].startTime.year,
+                                      searchResults[index]
+                                          .startTime
+                                          .month,
+                                      searchResults[index].startTime.day,
+                                      selectedHour +
+                                          selectedDurationHours,
+                                      selectedMinute +
+                                          selectedDurationMinutes));
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                 },
