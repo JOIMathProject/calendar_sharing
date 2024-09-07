@@ -58,10 +58,33 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
       // Correct the orientation if needed
       final rotatedImage = img.bakeOrientation(image);
 
-      // Encode the corrected image back into bytes
-      final correctedBytes = img.encodeJpg(rotatedImage);
+      int width = rotatedImage.width;
+      int height = rotatedImage.height;
+      int squareSide = width < height ? width : height;
 
-      // Convert the bytes to a base64 string
+      int targetSize = squareSide < 256 ? squareSide : 256;
+
+      int offsetX = (width - squareSide) ~/ 2;
+      int offsetY = (height - squareSide) ~/ 2;
+      final croppedImage = img.copyCrop(
+        rotatedImage,
+        x: offsetX,
+        y: offsetY,
+        width: squareSide,
+        height: squareSide,
+        radius: 0,
+        antialias: true,
+      );
+
+      final resizedImage = img.copyResize(
+        croppedImage,
+        width: targetSize,
+        height: targetSize,
+        interpolation: img.Interpolation.average,
+      );
+
+      final correctedBytes = img.encodeJpg(resizedImage);
+
       final base64String = base64Encode(correctedBytes);
       return base64String;
     }

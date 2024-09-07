@@ -266,7 +266,7 @@ class _ContentsManageState extends State<ContentsManage>
                                   filteredContents[index].latest_message_time),
                         ),
                         IconButton(
-                          icon: Icon(Icons.chat, color: GlobalColor.Unselected),
+                          icon: Icon(Icons.chat, color: GlobalColor.bottomBar),
                           onPressed: () {
                             Navigator.push(
                               context,
