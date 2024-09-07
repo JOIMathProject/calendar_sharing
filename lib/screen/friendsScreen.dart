@@ -1,6 +1,7 @@
 import 'package:calendar_sharing/screen/addFriends.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/chat/v1.dart';
 import 'package:provider/provider.dart';
 import '../services/APIcalls.dart';
 import '../services/UserData.dart';
@@ -92,12 +93,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
               tabs: [
                 const Tab(text: 'フレンド'),
                 Tab(
-                  child: badge.Badge(
-                    badgeContent: null,
-                    showBadge: receivedRequestCount > 0,
-                    child: const Text('リクエスト'),
-                  )
-                ),
+                    child: badge.Badge(
+                  badgeContent: null,
+                  showBadge: receivedRequestCount > 0,
+                  child: const Text('リクエスト'),
+                )),
               ],
               indicator: BoxDecoration(
                 border: Border(
@@ -278,34 +278,48 @@ class _FriendsScreenState extends State<FriendsScreen> {
         else
           Expanded(
             child: RefreshIndicator(
-              onRefresh: _fetchReceivedRequests,
+              onRefresh: _fetchFriends,
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.no_accounts,
-                            size: 200,
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                          Text(
-                            'リクエストなし',
-                            style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.black.withOpacity(0.5),
+                    physics: const AlwaysScrollableScrollPhysics(), // Ensure it can always scroll
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight, // Make sure the box fills the available height
+                      ),
+                      child: Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Spacer(flex: 1),
+                                Icon(
+                                  Icons.no_accounts,
+                                  size: 35,
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  '表示できる情報がありません',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                ),
+                                Spacer(flex: 1),
+                              ],
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   );
                 },
               ),
             ),
-          ),
+          )
       ],
     );
   }
@@ -416,35 +430,49 @@ class _FriendsScreenState extends State<FriendsScreen> {
         )
       else
         Expanded(
-          child: RefreshIndicator(
-            onRefresh: _fetchFriends,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
+        child: RefreshIndicator(
+          onRefresh: _fetchFriends,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(), // Ensure it can always scroll
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight, // Make sure the box fills the available height
+                  ),
                   child: Center(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.no_accounts,
-                          size: 200,
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                        Text(
-                          'フレンドなし',
-                          style: TextStyle(
-                            fontSize: 30,
-                            color: Colors.black.withOpacity(0.5),
-                          ),
+                        Row(
+                          children: [
+                            Spacer(flex: 1),
+                            Icon(
+                              Icons.no_accounts,
+                              size: 35,
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              '表示できる情報がありません',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                            ),
+                            Spacer(flex: 1),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
-        )
+        ),
+      )
     ]);
   }
 }

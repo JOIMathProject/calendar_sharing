@@ -186,25 +186,42 @@ class _ContentsManageState extends State<ContentsManage>
             ? LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center, // Center vertically
-                        children: [
-                          Icon(
-                            Icons.group_off_sharp,
-                            size: 200,
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                          Text(
-                            'コンテンツなし',
-                            style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.black.withOpacity(0.5),
+                    physics:
+                        AlwaysScrollableScrollPhysics(), // Ensures the refresh indicator can always be triggered
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints
+                            .maxHeight, // Make sure the box fills the available height
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .center, // Center the content within the Row
+                                children: [
+                                  Icon(
+                                    Icons.group_off_sharp,
+                                    size: 35,
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    '表示できる情報がありません',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black.withOpacity(0.5),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   );
