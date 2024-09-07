@@ -571,7 +571,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                   ),
                   Row(
                     children: [
-                      Spacer(flex: 2),
+                      Spacer(flex: 1),
                       _buildDropdown(getAvailableYears(), endYear, (newValue) {
                         setState(() {
                           endYear = newValue!;
@@ -695,7 +695,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             selectedCity = cities.first;
                           });
                         }, hintText: '地域を選択'),
-                        Spacer(flex: 10),
+                        Spacer(flex: 8),
                       ],
                     ),
                     Row(
@@ -706,7 +706,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             selectedCity = newValue;
                           });
                         }, hintText: '市を選択'),
-                        Spacer(flex: 4),
+                        Spacer(flex: 3),
                       ],
                     ),
                     Row(
