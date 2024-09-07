@@ -76,6 +76,8 @@ class _MyContentState extends State<MyContent> {
         timeZone: 'Japan',
         headerHeight: 50,
         dataSource: MeetingDataSource(events),
+        showWeekNumber: true,
+        showDatePickerButton: true,
         headerDateFormat: 'yyyy MMMM',
         selectionDecoration: BoxDecoration(
           color: Colors.transparent,

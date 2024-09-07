@@ -333,10 +333,6 @@ class _HomeState extends State<Home> {
               SfCalendar(
                   key: ValueKey(_currentView),
                   view: _currentView,
-                  allowedViews: <CalendarView>[
-                    CalendarView.day,
-                    CalendarView.week,
-                  ],
                   timeZone: 'Japan',
                   headerHeight: 50,
                   dataSource: MeetingDataSource(GroupCal),
