@@ -495,6 +495,7 @@ class UpdateGroupIcon {
         "gicon": gicon,
       }),
     );
+    print('$gid  $gicon success!');
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to create group: ${response.statusCode}';
     }

@@ -21,26 +21,35 @@ class _ProfileState extends State<Profile> {
   TextEditingController uidController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
 
-  Future<XFile?> getImageFromGallery() async {
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+  Future<String?> getImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      // Read the image file as bytes
       final imageBytes = await File(pickedFile.path).readAsBytes();
+
+      // Decode the image bytes
       final image = img.decodeImage(imageBytes);
+      if (image == null) {
+        return null; // Could not decode the image
+      }
 
-      // Check if the image needs to be rotated
-      final rotatedImage = img.bakeOrientation(image!);
+      // Resize the image to 256x256
+      final resizedImage = img.copyResize(image, width: 256, height: 256);
 
-      // Encode the corrected image
+      // Correct the orientation if needed
+      final rotatedImage = img.bakeOrientation(resizedImage);
+
+      // Encode the corrected image back into bytes
       final correctedBytes = img.encodeJpg(rotatedImage);
 
-      // Save the corrected image to a temporary file
-      final correctedFile = await File(pickedFile.path).writeAsBytes(correctedBytes);
-
-      return XFile(correctedFile.path);
+      // Convert the bytes to a base64 string
+      final base64String = base64Encode(correctedBytes);
+      return base64String;
     }
 
-    return null;
+    return null; // No image was picked
   }
   @override
   void dispose() {
@@ -79,13 +88,10 @@ class _ProfileState extends State<Profile> {
                         right: 0,
                         child: GestureDetector(
                           onTap: () async {
-                            XFile? image = await getImageFromGallery();
+                            String? image = await getImageFromGallery();
                             if (image != null) {
-                              List<int> imageBytes = await File(image.path).readAsBytesSync();
-                              String base64Image = base64Encode(imageBytes);
-                              print('$base64Image');
                               await UpdateUserImage()
-                                  .updateUserImage(userData.uid, base64Image);
+                                  .updateUserImage(userData.uid, image);
                               setState(() {});
                             }
                           },

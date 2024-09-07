@@ -47,6 +47,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
     _getGroupUsers();
     _getGroupDetail();
     _friends = Provider.of<UserData>(context, listen: false).friends;
+    gnameController.text = _groupDetail.gname;
   }
 
   Future<void> _addCalendarToGroup(
@@ -61,29 +62,37 @@ class _ContentsSettingState extends State<ContentsSetting> {
         .deleteGroupPrimaryCalendar(gid, uid, calendar_id);
   }
 
-  Future<XFile?> getImageFromGallery() async {
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+
+  Future<String?> getImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      // Read the image file as bytes
       final imageBytes = await File(pickedFile.path).readAsBytes();
+
+      // Decode the image bytes
       final image = img.decodeImage(imageBytes);
+      if (image == null) {
+        return null; // Could not decode the image
+      }
 
-      // Check if the image needs to be rotated
-      final rotatedImage = img.bakeOrientation(image!);
+      // Resize the image to 256x256
+      final resizedImage = img.copyResize(image, width: 256, height: 256);
 
-      // Encode the corrected image
+      // Correct the orientation if needed
+      final rotatedImage = img.bakeOrientation(resizedImage);
+
+      // Encode the corrected image back into bytes
       final correctedBytes = img.encodeJpg(rotatedImage);
 
-      // Save the corrected image to a temporary file
-      final correctedFile =
-          await File(pickedFile.path).writeAsBytes(correctedBytes);
-
-      return XFile(correctedFile.path);
+      // Convert the bytes to a base64 string
+      final base64String = base64Encode(correctedBytes);
+      return base64String;
     }
 
-    return null;
+    return null; // No image was picked
   }
-
   Future<void> _getMyContents(String uid) async {
     _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
     _MyContents = Provider.of<UserData>(context, listen: false).MyContents;
@@ -124,7 +133,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
     });
   }
   Future<void> _changeGroupIcon(String gicon) async {
-    await UpdateGroupName().updateGroupName(widget.groupId, gicon);
+    await UpdateGroupIcon().updateGroupIcon(widget.groupId, gicon);
     setState(() {});
   }
 
@@ -187,7 +196,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
   @override
   Widget build(BuildContext context) {
     String? currentUserUid = Provider.of<UserData>(context, listen: false).uid;
-    gnameController.text = _groupDetail.gname;
+    //gnameController.text = _groupDetail.gname;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalColor.SubCol,
@@ -205,9 +214,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 CircleAvatar(
                   radius: 50,
                   backgroundImage: NetworkImage(
-                    _groupDetail.is_friends == '1'
-                        ? "https://calendar-files.woody1227.com/user_icon/${_groupDetail.gicon}"
-                        : "https://calendar-files.woody1227.com/group_icon/${_groupDetail.gicon}",
+                        "https://calendar-files.woody1227.com/group_icon/${_groupDetail.gicon}",
                   ),
                 ),
                 Positioned(
@@ -215,13 +222,9 @@ class _ContentsSettingState extends State<ContentsSetting> {
                   right: 0,
                   child: GestureDetector(
                     onTap: () async {
-                      XFile? image = await getImageFromGallery();
+                      String? image = await getImageFromGallery();
                       if (image != null) {
-                        List<int> imageBytes =
-                            await File(image.path).readAsBytesSync();
-                        String base64Image = base64Encode(imageBytes);
-                        print('updating$base64Image');
-                        _changeGroupIcon(base64Image);
+                        _changeGroupIcon(image);
                         setState(() {}); // Refresh the widget to update UI
                       }
                     },
