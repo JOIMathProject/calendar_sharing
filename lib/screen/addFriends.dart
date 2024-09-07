@@ -23,8 +23,8 @@ class _AddFriendState extends State<AddFriend> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Spacer(flex: 1), // Adds flexible space at the top
-            Text(
+            const Spacer(flex: 1), // Adds flexible space at the top
+            const Text(
               'フレンドリクエストを送る',
               style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
@@ -51,7 +51,7 @@ class _AddFriendState extends State<AddFriend> {
                           ),
                           suffixIcon: addFriendID.isNotEmpty
                               ? IconButton(
-                            icon: Icon(Icons.clear),
+                            icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
                               addFriendID = '';
@@ -71,7 +71,7 @@ class _AddFriendState extends State<AddFriend> {
                 ],
               ),
             ),
-            Spacer(flex: 5), // Adds more space between the TextField and the button
+            const Spacer(flex: 5), // Adds more space between the TextField and the button
             Padding(
               padding: const EdgeInsets.all(16.0), // Adjust padding as needed
               child: SizedBox(
@@ -109,7 +109,7 @@ class _AddFriendState extends State<AddFriend> {
 
   AlertDialog addFriendResultDialog(Future<void> addFriend) {
     return AlertDialog(
-      title: Text('フレンドの追加'),
+      title: const Text('フレンドの追加'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -117,7 +117,7 @@ class _AddFriendState extends State<AddFriend> {
             future: addFriend,
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.waiting && !snapshot.hasError) {
-                return Column(
+                return const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -130,7 +130,7 @@ class _AddFriendState extends State<AddFriend> {
                 );
               } else if (snapshot.hasError) {
                 if (snapshot.error == 'Failed to add friend: 409') {
-                  return Column(
+                  return const Column(
                     children: [
                       Icon(
                         Icons.error,
@@ -140,10 +140,22 @@ class _AddFriendState extends State<AddFriend> {
                       Text('すでにフレンドもしくは送信済みです', style: TextStyle(fontSize: 20)),
                     ],
                   );
+                }else if(snapshot.error == 'Failed to add friend: 404'){
+                  return const Column(
+                    children: [
+                      Icon(
+                        Icons.error,
+                        color: Colors.red,
+                        size: 50,
+                      ),
+                      Text('ユーザーが見つかりません', style: TextStyle(fontSize: 20)),
+                    ],
+                  );
+
                 } else {
                   return Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.error,
                         color: Colors.red,
                         size: 50,
