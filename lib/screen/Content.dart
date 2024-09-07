@@ -128,7 +128,7 @@ class _HomeState extends State<Home> {
           child: StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: Text('カレンダーとコンテンツを選択'),
+                title: Text('カレンダーと\nコンテンツを選択'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

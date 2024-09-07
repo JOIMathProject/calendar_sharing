@@ -94,8 +94,10 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _reloadContents() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     if (uid != null) {
-      var _MyCalendar = await GetMyCalendars().getMyCalendars(uid);
+      List<CalendarInformation> _MyCalendar = await GetMyCalendars().getMyCalendars(uid);
+      _MyCalendar = _MyCalendar.where((calendar) => calendar.accessRole != 'reader').toList();
       var _MyContents = await GetMyContents().getMyContents(uid);
+
       Provider.of<UserData>(context, listen: false)
           .updateMyContents(_MyContents);
       Provider.of<UserData>(context, listen: false)

@@ -93,10 +93,12 @@ class CalendarInformation {
   final String calendar_id;
   final String summary;
   final String discription;
+  final String accessRole;
   CalendarInformation({
     required this.calendar_id,
     required this.summary,
     required this.discription,
+    required this.accessRole,
   });
 }
 
@@ -693,6 +695,7 @@ class GetMyCalendars {
         calendar_id: group['calendar_id'] ?? 'default',
         summary: group['summary'] ?? 'default',
         discription: group['discription'] ?? 'default',
+        accessRole: group['accessRole'] ?? 'default',
       ));
     }
 
@@ -872,6 +875,7 @@ class GetMyContentCalendars {
         calendar_id: group['calendar_id'] ?? 'default',
         summary: group['summary'] ?? 'default',
         discription: group['discription'] ?? 'default',
+        accessRole: group['accessRole'] ?? '',
       ));
     }
     return contents;
