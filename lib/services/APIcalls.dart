@@ -1109,6 +1109,7 @@ class SearchContentScheduleWeather {
 class GetEventRequest {
   Future<List<eventRequest>> getEventRequest(
       String? uid, String? gid) async {
+    print('getEventRequest: $uid, $gid');
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid/receive');
     final response = await http.get(url);
@@ -1156,27 +1157,28 @@ class SendEventRequest{
 }
 class ReceiveEventRequest{
   Future<void> receiveEventRequest(String? uid,String? uid2,String? gid,String? event_request_id, String? calendar_id) async {
+    print('receiveEventRequest: $uid, $uid2, $gid, $event_request_id, $calendar_id');
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests');
     final response = await http.put(
       url,
       headers: {'Content-type': 'application/json'},
       body: jsonEncode({
-        "uid1": uid,
-        "uid2": uid2,
+        "uid1": uid2,
+        "uid2": uid,
         "event_request_id": event_request_id,
         "calendar_id": calendar_id,
       }),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Failed to send event request: ${response.statusCode}';
+      throw 'Failed to receive event request: ${response.statusCode}';
     }
   }
 }
 class RejectEventRequest{
   Future<void> rejectEventRequest(String? uid,String? uid2,String? gid,String? event_request_id) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid/$uid2/$event_request_id');
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid2/$uid/$event_request_id');
     final response = await http.delete(url);
-    if (response.statusCode != 200 && response.statusCode != 201&& response.statusCode != 204 && response.statusCode != 404) {
+    if (response.statusCode != 200 && response.statusCode != 201&& response.statusCode != 204) {
       throw 'Failed to send event request: ${response.statusCode}';
     }
   }

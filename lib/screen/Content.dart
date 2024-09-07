@@ -65,7 +65,7 @@ class _HomeState extends State<Home> {
     _initializeData();
     _getTimeRegions();
     _getCalendar();
-    Timer.periodic(Duration(seconds: 10), (timer) {
+    Timer.periodic(Duration(seconds: 5), (timer) {
       if (!mounted) {
         timer.cancel();
       }
