@@ -94,14 +94,14 @@ class _MyContentSettingState extends State<MyContentSetting> {
                   onPressed: () {
                     _showDeleteConfirmationDialog(context, widget.cid!, widget.contentsName!);
                   },
-                  child: Text('マイコンテンツを削除'),
+                  child: Text('マイコンテンツを削除',style: TextStyle(color: GlobalColor.SubCol),),
                 ),
                 Spacer(),
                 ElevatedButton(
                   onPressed: () {
                     _updateMyContent(context, widget.cid!, title, selectedCalendars);
                   },
-                  child: Text('保存'),
+                  child: Text('保存',style:TextStyle(color: GlobalColor.SubCol)),
                 ),
               ],
             ),
