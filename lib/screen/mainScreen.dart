@@ -4,16 +4,12 @@ import 'package:calendar_sharing/screen/ContentsManage.dart';
 import 'package:calendar_sharing/screen/MyContentsManage.dart';
 import 'package:calendar_sharing/screen/loadingScreen.dart';
 import 'package:calendar_sharing/screen/profile.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/services/UserData.dart';
-import 'package:calendar_sharing/screen/authenticate.dart';
-import 'package:calendar_sharing/screen/Content.dart';
 import 'package:calendar_sharing/screen/friendsScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../services/APIcalls.dart';
-import 'createContents.dart';
 import '../setting/color.dart' as GlobalColor;
 import 'package:badges/badges.dart' as badge;
 
@@ -61,7 +57,6 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _initializeApp() async {
     try {
       await _loadUserData();
-      await _getDeviceId();
     } catch (e) {
       print('Error during initialization: $e');
     } finally {
@@ -93,20 +88,6 @@ class _MainScreenState extends State<MainScreen> {
         print('Error loading user data: $e');
         throw e;
       }
-    }
-  }
-
-  Future<void> _getDeviceId() async {
-    try {
-      FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-      String? deviceId = await _firebaseMessaging.getToken();
-      if (deviceId != null) {
-        AddDeviceID().addDeviceID(
-            Provider.of<UserData>(context, listen: false).uid, deviceId);
-      }
-    } catch (e) {
-      print('Error getting device ID: $e');
-      throw e;
     }
   }
 
