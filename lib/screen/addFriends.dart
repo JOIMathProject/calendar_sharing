@@ -11,7 +11,6 @@ class AddFriend extends StatefulWidget {
 }
 
 class _AddFriendState extends State<AddFriend> {
-  String addFriendID = "";
   TextEditingController _searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -64,7 +63,7 @@ class _AddFriendState extends State<AddFriend> {
                   ),
                   onPressed: () {
                     Future<void> addFriend = AddFriendRequest()
-                        .addFriend(userData.uid!, addFriendID);
+                        .addFriend(userData.uid!, _searchController.text);
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -116,7 +115,7 @@ class _AddFriendState extends State<AddFriend> {
                         color: Colors.red,
                         size: 50,
                       ),
-                      Text('すでにフレンドもしくは送信済みです', style: TextStyle(fontSize: 20)),
+                      Text('すでにフレンドもしくは\n送信済みです', style: TextStyle(fontSize: 20)),
                     ],
                   );
                 }else if(snapshot.error == 'Failed to add friend: 404'){

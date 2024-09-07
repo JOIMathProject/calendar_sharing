@@ -324,7 +324,7 @@ class AddFriendRequest {
         "uid2": friend_uid,
       }),
     );
-    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 404 && response.statusCode != 409) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to add friend: ${response.statusCode}';
     }
   }
