@@ -42,8 +42,8 @@ class _ChatScreenState extends State<ChatScreen> {
         }else{
           getMessages();
         }
+        setState(() {});
       }
-      setState(() {});
     });
   }
 
@@ -99,6 +99,7 @@ class _ChatScreenState extends State<ChatScreen> {
           widget.gid!, getMessageLimit, latestMessageId,Provider.of<UserData>(context, listen: false).uid!);
       log("getNewMessagesの取得件数："+messages.length.toString());
       if (messages.length == 0) {
+        getNewMsgStatus = "success";
         return;
       }
       for (int i = 0; i < messages.length; i++) {
@@ -141,6 +142,7 @@ class _ChatScreenState extends State<ChatScreen> {
       List<ChatMessage> messages = await GetChatMessages().getChatMessages(widget.gid!, lastMessageId,getMessageLimit,Provider.of<UserData>(context, listen: false).uid!);
       log("getMessagesの取得件数："+messages.length.toString());
       if(messages.length == 0){
+        getMsgStatus = "success";
         return;
       }
       //メッセージを逆転
