@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-
+const String APIKey = "53353d2d-22c8-b857-0870-f677689d8642";
 class UserInformation {
   String google_uid;
   String uid;
@@ -15,7 +15,6 @@ class UserInformation {
   String uicon;
   String refreshToken;
   String mailAddress;
-  String APIKey = '53353d2d-22c8-b857-0870-f677689d8642';
   UserInformation(
       {required this.google_uid,
       required this.uid,
@@ -183,7 +182,7 @@ class CreateUser {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "google_uid": UserInformation.google_uid,
         "uid": UserInformation.uid,
@@ -205,7 +204,7 @@ class ChangeUserProfile {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uname": uname,
       }),
@@ -220,7 +219,7 @@ class ChangeUserProfile {
 class GetUser {
   Future<UserInformation> getUser(String? uid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200) {
       throw 'Failed to get user: ${response.statusCode}';
@@ -234,7 +233,7 @@ class GetUserGoogleUid {
   Future<UserInformation> getUserGoogleUid(String? google_uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$google_uid/google_uid');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200) {
       throw 'Failed to get user: ${response.statusCode}';
@@ -247,7 +246,7 @@ class GetUserGoogleUid {
 class GetFriends {
   Future<List<FriendInformation>> getFriends(String? uid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/friends/$uid');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get friends: ${response.statusCode}';
@@ -272,7 +271,7 @@ class DeleteFriend {
   Future<void> deleteFriend(String? uid, String? friend_uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
-    final response = await http.delete(url);
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 204) {
       throw 'Failed to delete friend: ${response.statusCode}';
     }
@@ -283,7 +282,7 @@ class CheckFriend {
   Future<String> checkFriend(String? uid, String? friend_uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/friends/$uid/$friend_uid');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get friends: ${response.statusCode}';
@@ -301,7 +300,7 @@ class AddDeviceID {//TEMPORARY UNAVAILABLE
 
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "device_id": deviceID,
       }),
@@ -318,7 +317,7 @@ class AddFriendRequest {
         Uri.parse('https://calendar-api.woody1227.com/friends_requests/');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uid1": uid,
         "uid2": friend_uid,
@@ -333,7 +332,7 @@ class AddFriendRequest {
 class GetGroupDetail {
   Future<GroupDetail> getGroupDetail(String? gid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200) {
       throw 'Failed to get group: ${response.statusCode}';
@@ -354,7 +353,7 @@ class GetGroupInfo {
   Future<List<GroupInformation>> getGroupInfo(String? uid) async {
     final url =
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/groups/detail');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
@@ -394,7 +393,7 @@ class CreateEmptyGroup {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "gname": gname,
         "gicon": gicon,
@@ -419,7 +418,7 @@ class AddUserToGroup {
         Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({"uid": addUid}),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
@@ -432,7 +431,7 @@ class DeleteUserFromGroup {
   Future<void> deleteUserFromGroup(String? gid, String? deleteUid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/members/$deleteUid');
-    final response = await http.delete(url);
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
@@ -443,7 +442,7 @@ class GetUserInGroup {
   Future<List<UserInformation>> getUserInGroup(String? gid) async {
     final url =
         Uri.parse('https://calendar-api.woody1227.com/groups/$gid/members');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200) {
       throw 'Failed to get group: ${response.statusCode}';
@@ -469,7 +468,7 @@ class UpdateGroupName {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "gname": gname,
       }),
@@ -485,7 +484,7 @@ class UpdateGroupIcon {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "gicon": gicon,
       }),
@@ -501,7 +500,7 @@ class GetContentInGroup {
   Future<List<ContentsInformation>?> getContentInGroup(String? gid) async {
     final url =
         Uri.parse('https://calendar-api.woody1227.com/groups/$gid/content');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
     if (response.statusCode == 404) {
       return null;
     }
@@ -526,7 +525,7 @@ class AddContentsToGroup {
         Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({"cid": cid}),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
@@ -539,7 +538,7 @@ class RemoveContentsFromGroup {
   Future<void> removeContentsFromGroup(String? gid, String? cid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/contents/$cid');
-    final response = await http.delete(url);
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
@@ -551,7 +550,7 @@ class UpdateUserID {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/${OldUid}');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uid": NewUid,
       }),
@@ -567,7 +566,7 @@ class UpdateUserName {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/${uid}');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uname": uname,
       }),
@@ -583,7 +582,7 @@ class UpdateUserImage {
     final url = Uri.parse('https://calendar-api.woody1227.com/user/${uid}');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uicon": uicon,
       }),
@@ -599,7 +598,7 @@ class GetGroupCalendar {
       String? gid, String? from, String? to) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/content/events/$from/$to');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
@@ -656,7 +655,7 @@ class GetMyContents {
   Future<List<MyContentsInformation>> getMyContents(String? uid) async {
     final url =
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
@@ -680,7 +679,7 @@ class GetMyCalendars {
   Future<List<CalendarInformation>> getMyCalendars(String? uid) async {
     final url =
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/calendars');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
@@ -706,7 +705,7 @@ class GetReceiveFriendRequest {
       String? uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/friends_requests/$uid/receive');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get friend request: ${response.statusCode}';
@@ -733,7 +732,7 @@ class GetSentFriendRequest {
       String? uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/friends_requests/$uid/send');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get friend request: ${response.statusCode}';
@@ -761,7 +760,7 @@ class CreateEmptyContents {
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({"cname": cname}),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
@@ -785,7 +784,7 @@ class AddCalendarToContents {
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({"calendar_id": calendar_id}),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
@@ -798,7 +797,7 @@ class DeleteCalendarFromContents {
       String? uid, String? cid, String? calendar_id) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars/$calendar_id');
-    final response = await http.delete(url);
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
     }
@@ -809,7 +808,7 @@ class GetMyContentsSchedule {
       String? uid, String? cid, String? from, String? to) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$from/$to');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get calendar: ${response.statusCode}';
@@ -830,7 +829,7 @@ class DeleteMyContents {
   Future<void> deleteMyContents(String? uid, String? cid) async {
     final url =
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid');
-    final response = await http.delete(url);
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw 'Failed to delete contents: ${response.statusCode}';
@@ -844,7 +843,7 @@ class UpdateMyContents {
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "cname": cname,
       }),
@@ -860,7 +859,7 @@ class GetMyContentCalendars {
       String? cid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get group: ${response.statusCode}';
@@ -886,7 +885,7 @@ class AcceptFriendRequest {
         Uri.parse('https://calendar-api.woody1227.com/friends_requests/');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uid1": uid,
         "uid2": friend_uid,
@@ -905,7 +904,7 @@ class DeleteFriendRequest {
     //フレンド申請拒否
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/friends_requests/$friend_uid/$uid');
-    final response = await http.delete(url);
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 200 &&
         response.statusCode != 201 &&
         response.statusCode != 404 &&
@@ -923,7 +922,7 @@ class GetChatMessages {
     }
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/before/$limit/$mid');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 200 &&
         response.statusCode != 201 &&
         response.statusCode != 404) {
@@ -957,7 +956,7 @@ class SendChatMessage {
     //print('sendChatMessage: $gid, $uid, $content');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uid": uid,
         "content": content,
@@ -979,7 +978,7 @@ class GetChatNewMessage {
     }
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/after/100/$mid');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 200 &&
         response.statusCode != 201 &&
         response.statusCode != 404) {
@@ -1018,7 +1017,7 @@ class SearchContentSchedule {
       String? limit_count) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/content/events/$from_date/$to_date/$from_hour/$from_minute/$to_hour/$to_minute/$limit_time/$limit_count');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200) {
       throw 'Failed to get calendar: ${response.statusCode}';
@@ -1070,7 +1069,7 @@ class SearchContentScheduleWeather {
         'https://calendar-api.woody1227.com/groups/$gid/content/events/'
         '$from_date/$to_date/$from_hour/$from_minute/$to_hour/$to_minute/$limit_time/$limit_count/'
         '$area_code/$sunny/$cloudy/$rainy/$snowy');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200) {
       throw 'Failed to get calendar: ${response.statusCode}';
@@ -1108,7 +1107,7 @@ class GetEventRequest {
     print('getEventRequest: $uid, $gid');
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid/receive');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get event request: ${response.statusCode}';
@@ -1136,7 +1135,7 @@ class SendEventRequest{
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uid1": uid,
         "uid2": uid2,
@@ -1157,7 +1156,7 @@ class ReceiveEventRequest{
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "uid1": uid2,
         "uid2": uid,
@@ -1173,7 +1172,7 @@ class ReceiveEventRequest{
 class RejectEventRequest{
   Future<void> rejectEventRequest(String? uid,String? uid2,String? gid,String? event_request_id) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid2/$uid/$event_request_id');
-    final response = await http.delete(url);
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 200 && response.statusCode != 201&& response.statusCode != 204) {
       throw 'Failed to send event request: ${response.statusCode}';
     }
@@ -1183,7 +1182,7 @@ class GetOpened {
   Future<String> getOpened(String? uid, String? gid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/group/$gid/opened');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200) {
       throw 'Failed to get opened information: ${response.statusCode}';
@@ -1197,7 +1196,8 @@ class SetOpened {
   Future<void> setOpened(String? uid, String? gid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/group/$gid/opened');
-    final response = await http.put(url);
+    final response = await http.put(url,
+        headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404 && response.statusCode != 201) {
       throw 'Failed to get opened information: ${response.statusCode}';
@@ -1209,7 +1209,7 @@ class GetGroupPrimaryCalendar{
   Future<String> getGroupPrimaryCalendar(String? gid,String? uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get primary calendar: ${response.statusCode}';
@@ -1225,7 +1225,7 @@ class SetGroupPrimaryCalendar{
         'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar');
     final response = await http.put(
       url,
-      headers: {'Content-type': 'application/json'},
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "calendar_id": calendar_id,
       }),
@@ -1241,7 +1241,7 @@ class DeleteGroupPrimaryCalendar{
   Future<void> deleteGroupPrimaryCalendar(String? gid,String? uid,String? calendar_id) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar/$calendar_id');
-    final response = await http.delete(url);
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
 
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to delete primary calendar: ${response.statusCode}';
@@ -1256,7 +1256,7 @@ class AddEventToTheCalendar{
         'https://calendar-api.woody1227.com/user/$uid/calendars/$calendar_id/events');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json'
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey
       },
       body: jsonEncode({
         "summary": summary,
