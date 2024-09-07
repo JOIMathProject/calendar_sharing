@@ -314,8 +314,6 @@ class FriendTile extends StatelessWidget {
       leading: CircleAvatar(
         backgroundImage: NetworkImage(
             "https://calendar-files.woody1227.com/user_icon/" + friend.uicon),
-        child:
-        Text(friend.uname[0]), // Fallback to the first letter of their name
       ),
       title: Text(friend.uname),
       trailing: Checkbox(
