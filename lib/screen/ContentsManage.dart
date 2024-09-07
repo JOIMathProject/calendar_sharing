@@ -15,9 +15,9 @@ import 'package:badges/badges.dart' as badge;
 class ContentsManage extends StatefulWidget {
   List<GroupInformation> contents = [];
   ContentsManage({
-    Key? key,
+    super.key,
     required this.contents,
-  }) : super(key: key);
+  });
   @override
   _ContentsManageState createState() => _ContentsManageState();
 }
@@ -52,6 +52,13 @@ class _ContentsManageState extends State<ContentsManage>
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  bool isToday(DateTime date) {
+    DateTime now = DateTime.now().toUtc().add(Duration(hours: 9));
+    return now.year == date.year &&
+        now.month == date.month &&
+        now.day == date.day;
   }
 
   @override
@@ -128,8 +135,8 @@ class _ContentsManageState extends State<ContentsManage>
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => CreateContents()));
         },
-        child: Icon(Icons.group_add, color: GlobalColor.SubCol),
         backgroundColor: GlobalColor.MainCol,
+        child: Icon(Icons.group_add, color: GlobalColor.SubCol),
       ),
     );
   }
@@ -206,8 +213,7 @@ class _ContentsManageState extends State<ContentsManage>
           title: Text(filteredContents![index].gname),
           subtitle: Text(
             filteredContents[index].latest_message.length > 15
-                ? filteredContents[index].latest_message.substring(0, 15) +
-                    '...'
+                ? '${filteredContents[index].latest_message.substring(0, 15)}...'
                 : filteredContents[index].latest_message,
           ),
           trailing: Row(
@@ -220,15 +226,10 @@ class _ContentsManageState extends State<ContentsManage>
                   style: TextStyle(color: GlobalColor.SubCol),
                 ),
               ),
-              SizedBox(width: 10.0),
+              const SizedBox(width: 10.0),
               Text(
                 //今日なら時刻、それ以外なら日付
-                filteredContents[index].latest_message_time.day ==
-                            DateTime.now().day &&
-                        filteredContents[index].latest_message_time.month ==
-                            DateTime.now().month &&
-                        filteredContents[index].latest_message_time.year ==
-                            DateTime.now().year
+                isToday(filteredContents[index].latest_message_time)
                     ? timeFormat
                         .format(filteredContents[index].latest_message_time)
                     : dateFormat
