@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:googleapis/calendar/v3.dart' as ggl;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -196,7 +197,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
   @override
   Widget build(BuildContext context) {
     String? currentUserUid = Provider.of<UserData>(context, listen: false).uid;
-    //gnameController.text = _groupDetail.gname;
+    gnameController.text = _groupDetail.gname;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalColor.SubCol,
@@ -225,6 +226,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
                       String? image = await getImageFromGallery();
                       if (image != null) {
                         _changeGroupIcon(image);
+                        _getGroupDetail();
                         setState(() {}); // Refresh the widget to update UI
                       }
                     },
@@ -242,6 +244,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
               label: 'グループ名',
               controller: gnameController,
               isEditing: isEditingGName,
+              restrictInput: false,
               onEditToggle: () {
                 setState(() {
                   isEditingGName = !isEditingGName;
@@ -448,12 +451,16 @@ class _ContentsSettingState extends State<ContentsSetting> {
     );
   }
 
-  Widget buildProfileField(BuildContext context,
-      {required String label,
-      required TextEditingController controller,
-      required bool isEditing,
-      required VoidCallback onEditToggle,
-      required VoidCallback onSave}) {
+  Widget buildProfileField(
+      BuildContext context, {
+        required String label,
+        required TextEditingController controller,
+        required bool isEditing,
+        required bool restrictInput, // New parameter to control input restriction
+        required VoidCallback onEditToggle,
+        required VoidCallback onSave,
+      }) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -461,16 +468,25 @@ class _ContentsSettingState extends State<ContentsSetting> {
         children: [
           isEditing
               ? Expanded(
-                  child: TextField(
-                    controller: controller,
-                    style: TextStyle(fontSize: 18),
-                    decoration: InputDecoration(
-                      hintText: label,
-                    ),
-                  ),
-                )
-              : Text('$label: ${controller.text}',
-                  style: TextStyle(fontSize: 18)),
+            child: TextField(
+              maxLength: 15,
+              controller: controller,
+              style: TextStyle(fontSize: 18),
+              decoration: InputDecoration(
+                hintText: label,
+              ),
+              inputFormatters: restrictInput
+                  ? [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
+              ]
+                  : [], // No restriction if restrictInput is false
+            ),
+          )
+              : Text(
+              label == 'ユーザーID'
+                  ? '$label: @${controller.text}'
+                  : '$label: ${controller.text}',
+              style: TextStyle(fontSize: 18)),
           IconButton(
             icon: Icon(isEditing ? Icons.check : Icons.edit),
             onPressed: isEditing ? onSave : onEditToggle,

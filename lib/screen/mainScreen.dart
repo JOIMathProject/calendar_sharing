@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:calendar_sharing/screen/ContentsManage.dart';
 import 'package:calendar_sharing/screen/MyContentsManage.dart';
+import 'package:calendar_sharing/screen/loadingScreen.dart';
 import 'package:calendar_sharing/screen/profile.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -151,15 +152,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
-        body: Center(
-          child: Container(
-            width: 150.0, // Desired width
-            height: 150.0, // Desired height
-            child: Image.asset('assets/image/icon.jpg'),
-          ),
-        ),
-      );
+      return LoadingScreen();
     }
     return Scaffold(
       appBar: AppBar(

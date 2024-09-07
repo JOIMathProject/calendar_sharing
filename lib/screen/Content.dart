@@ -71,6 +71,8 @@ class _HomeState extends State<Home> {
       }
       _getReceivedEvent();
       _getCalendar();
+      setState(() {
+      });
     });
   }
 

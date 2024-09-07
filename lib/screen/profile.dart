@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:calendar_sharing/screen/wrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
@@ -18,9 +20,17 @@ class _ProfileState extends State<Profile> {
   final imagePicker = ImagePicker();
   bool isEditingUID = false;
   bool isEditingUsername = false;
-  TextEditingController uidController = TextEditingController();
-  TextEditingController usernameController = TextEditingController();
+  late TextEditingController uidController;
+  late TextEditingController usernameController;
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the controllers here
+    final userData = Provider.of<UserData>(context, listen: false);
+    uidController = TextEditingController(text: userData.uid);
+    usernameController = TextEditingController(text: userData.uname);
+  }
   Future<String?> getImageFromGallery() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -61,12 +71,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
-
-    uidController.text = userData.uid!;
-    usernameController.text = userData.uname!;
-
     final AuthService _auth = AuthService();
-
     return Scaffold(
       body: Stack(
         children: [
@@ -92,6 +97,8 @@ class _ProfileState extends State<Profile> {
                             if (image != null) {
                               await UpdateUserImage()
                                   .updateUserImage(userData.uid, image);
+                              UserInformation newUserData = await GetUser().getUser(userData.uid);
+                              Provider.of<UserData>(context, listen: false).uicon = newUserData.uicon;
                               setState(() {});
                             }
                           },
@@ -111,6 +118,7 @@ class _ProfileState extends State<Profile> {
                   label: 'ユーザーID',
                   controller: uidController,
                   isEditing: isEditingUID,
+                  restrictInput: true,
                   onEditToggle: () {
                     setState(() {
                       isEditingUID = !isEditingUID;
@@ -134,6 +142,7 @@ class _ProfileState extends State<Profile> {
                   label: 'ユーザー名',
                   controller: usernameController,
                   isEditing: isEditingUsername,
+                  restrictInput: false,
                   onEditToggle: () {
                     setState(() {
                       isEditingUsername = !isEditingUsername;
@@ -142,8 +151,8 @@ class _ProfileState extends State<Profile> {
                   onSave: () async {
                     if (usernameController.text.isNotEmpty &&
                         usernameController.text != userData.uname) {
-                      await UpdateUserName()
-                          .updateUserName(userData.uid, usernameController.text);
+                      await UpdateUserName().updateUserName(
+                          userData.uid, usernameController.text);
                       Provider.of<UserData>(context, listen: false).uname =
                           usernameController.text;
                     }
@@ -164,6 +173,10 @@ class _ProfileState extends State<Profile> {
             child: ElevatedButton(
               onPressed: () {
                 _auth.signOut(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Wrapper()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -179,13 +192,27 @@ class _ProfileState extends State<Profile> {
       ),
     );
   }
-
-  Widget buildProfileField(BuildContext context,
-      {required String label,
+  Widget buildProfileField(
+      BuildContext context, {
+        required String label,
         required TextEditingController controller,
         required bool isEditing,
+        required bool restrictInput, // New parameter to control input restriction
         required VoidCallback onEditToggle,
-        required VoidCallback onSave}) {
+        required VoidCallback onSave,
+      }) {
+    // Add listener to enforce 15-character limit
+    controller.addListener(() {
+      final text = controller.text;
+      if (text.length > 15) {
+        // Trim the text to 15 characters and update the controller
+        controller.text = text.substring(0, 15);
+        controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: controller.text.length),
+        );
+      }
+    });
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -194,15 +221,23 @@ class _ProfileState extends State<Profile> {
           isEditing
               ? Expanded(
             child: TextField(
+              maxLength: 15,
               controller: controller,
               style: TextStyle(fontSize: 18),
               decoration: InputDecoration(
                 hintText: label,
               ),
+              inputFormatters: restrictInput
+                  ? [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
+              ]
+                  : [], // No restriction if restrictInput is false
             ),
           )
               : Text(
-              label == 'ユーザーID'?'$label: @${controller.text}':'$label: ${controller.text}',
+              label == 'ユーザーID'
+                  ? '$label: @${controller.text}'
+                  : '$label: ${controller.text}',
               style: TextStyle(fontSize: 18)),
           IconButton(
             icon: Icon(isEditing ? Icons.check : Icons.edit),

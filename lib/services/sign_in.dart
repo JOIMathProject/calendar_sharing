@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../screen/wrapper.dart';
 import 'auth.dart';
 import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 
@@ -69,7 +70,7 @@ class _SignInState extends State<SignIn> {
                       Icon(FontAwesomeIcons.google,
                           color: GlobalColor.SubCol), // Google icon
                       SizedBox(width: 10), // Spacing between the icon and text
-                      Text('Sign in with google',
+                      Text('Googleでサインイン',
                           style: TextStyle(color: GlobalColor.SubCol)),
                     ],
                   ),
@@ -80,6 +81,11 @@ class _SignInState extends State<SignIn> {
                     } else {
                       print('signed in');
                       print(result);
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Wrapper()),
+                      );
                     }
                   },
                 ),

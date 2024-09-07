@@ -1,14 +1,13 @@
 import 'package:calendar_sharing/services/APIcalls.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../services/UserData.dart';
+import '../services/sign_in.dart';
 import 'authenticate.dart';
-import 'Content.dart';
+import 'loadingScreen.dart';
+import 'mainScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'mainScreen.dart';
 import 'package:googleapis/calendar/v3.dart' as googleAPI;
-import 'package:google_fonts/google_fonts.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({super.key});
@@ -25,38 +24,69 @@ class _WrapperState extends State<Wrapper> {
     forceCodeForRefreshToken: false,
     serverClientId: '213698548031-5elgmjrqi6vof2nos67ne6f233l5t1uo.apps.googleusercontent.com',
   );
+
   @override
   void initState() {
     super.initState();
     _initializeApp();
   }
+
   Future<void> _initializeApp() async {
     try {
       await _signInSilently();
     } catch (e) {
       print('Error during initialization: $e');
+      _navigateToAuthenticate();
     }
   }
-
   Future<void> _signInSilently() async {
     try {
       final result = await _googleSignIn.signInSilently();
+
       if (result != null) {
-        Provider.of<UserData>(context, listen: false).updateGoogleUser(_googleSignIn);
+        // Attempt to verify if the Google account is linked to an existing account
+        try {
+          await GetUserGoogleUid().getUserGoogleUid(result.id);
+          // Account exists, update the user data and navigate to MainScreen
+          Provider.of<UserData>(context, listen: false).updateGoogleUser(_googleSignIn);
+          _navigateToMainScreen();
+        } catch (error) {
+          if (error.toString().contains('404')) {
+            // Account doesn't exist, navigate to the Authenticate screen
+            _navigateToAuthenticate();
+          } else {
+            // Handle other types of errors (e.g., network issues)
+            print('Error verifying account existence: $error');
+            _navigateToAuthenticate();
+          }
+        }
+      } else {
+        _navigateToAuthenticate();
       }
     } catch (e) {
       print('Error signing in silently: $e');
+      _navigateToAuthenticate();
     }
+  }
+
+  // Helper function to navigate to MainScreen
+  void _navigateToMainScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => MainScreen()),
+    );
+  }
+
+  // Helper function to navigate to Authenticate screen
+  void _navigateToAuthenticate() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SignIn()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
-
-    if (gUser != null && gUser.currentUser != null) {
-      return MainScreen(); // Show the main screen if the user is logged in
-    } else {
-      return Authenticate(); // Show the authenticate screen if the user is not logged in
-    }
+    return LoadingScreen();
   }
 }
