@@ -159,7 +159,7 @@ class _MainScreenState extends State<MainScreen> {
               child: Icon(
                 Icons.home,
                 color: _currentIndex != 0
-                    ? GlobalColor.Unselected
+                    ? GlobalColor.bottomBar
                     : GlobalColor.MainCol,
               ),
               badgeContent: Text(
@@ -175,7 +175,7 @@ class _MainScreenState extends State<MainScreen> {
               child: Icon(
                 Icons.group,
                 color: _currentIndex != 1
-                    ? GlobalColor.Unselected
+                    ? GlobalColor.bottomBar
                     : GlobalColor.MainCol,
               ),
               badgeContent: Text(
@@ -190,7 +190,7 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(
               Icons.person,
               color: _currentIndex != 2
-                  ? GlobalColor.Unselected
+                  ? GlobalColor.bottomBar
                   : GlobalColor.MainCol,
             ),
             label: 'プロフィール',
@@ -199,7 +199,7 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(
               Icons.calendar_month,
               color: _currentIndex != 3
-                  ? GlobalColor.Unselected
+                  ? GlobalColor.bottomBar
                   : GlobalColor.MainCol,
             ),
             label: 'マイコンテンツ',

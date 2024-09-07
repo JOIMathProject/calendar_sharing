@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 
@@ -37,35 +38,13 @@ class _AddFriendState extends State<AddFriend> {
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: TextField(
+                      child: buildProfileField(
+                        context,
+                        label: 'ユーザーID',
+                        hint: 'ユーザーIDを入力してください',
                         controller: _searchController,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(vertical: 12.0),
-                          prefixText: '@', // Use prefixText instead of prefix
-                          hintText: 'ユーザーIDを入力',
-                          fillColor: GlobalColor.Unselected,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          suffixIcon: addFriendID.isNotEmpty
-                              ? IconButton(
-                            icon: Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              addFriendID = '';
-                              setState(() {});  // Refresh the widget to update UI
-                            },
-                          )
-                              : null,
-                        ),
-                        onChanged: (text) {
-                          addFriendID = text;
-                          setState(() {});  // Refresh the widget to apply changes
-                        },
+                        restrictInput: true,
                       ),
-
                     ),
                   ),
                 ],
@@ -184,3 +163,66 @@ class closeButton extends StatelessWidget {
     );
   }
 }
+Widget buildProfileField(
+    BuildContext context, {
+      required String label,
+      required String hint,
+      required TextEditingController controller,
+      required bool restrictInput,
+    }) {
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Label text above the text field
+        Text(
+          label,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        // Input field for entering text
+        TextField(
+          maxLength: 15, // Total length without @
+          controller: controller,
+          style: TextStyle(fontSize: 18),
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: Colors.grey), // Unfocused border color
+            ),
+            hintText: hint,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            // Adding @ as a non-editable prefix
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(left: 10.0, right: 5.0),
+              child: Text(
+                '@',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+            prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+            suffixIcon: controller.text.isNotEmpty
+                ? IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: () {
+                controller.clear();
+              },
+            )
+                : null,
+          ),
+          // Restrict input to alphanumeric and underscores if necessary
+          inputFormatters: restrictInput
+              ? [
+            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
+          ]
+              : [],
+        ),
+      ],
+    ),
+  );
+}
+

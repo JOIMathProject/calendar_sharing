@@ -6,7 +6,8 @@ Color Calendar_grid_color = Color(0xFFD7D7D7);
 
 Color MainCol = Color(0xFFFDB164);
 Color SubCol = Color(0xFFFDFDFD);
-Color Unselected = Color(0xFFBCBCBC);
+Color bottomBar = Color(0xFFBCBCBC);
+Color Unselected = Color(0xFFECECEC);
 
 final appTheme = ThemeData(
   colorScheme: const ColorScheme(
