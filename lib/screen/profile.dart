@@ -45,11 +45,8 @@ class _ProfileState extends State<Profile> {
         return null; // Could not decode the image
       }
 
-      // Resize the image to 256x256
-      final resizedImage = img.copyResize(image, width: 256, height: 256);
-
       // Correct the orientation if needed
-      final rotatedImage = img.bakeOrientation(resizedImage);
+      final rotatedImage = img.bakeOrientation(image);
 
       // Encode the corrected image back into bytes
       final correctedBytes = img.encodeJpg(rotatedImage);

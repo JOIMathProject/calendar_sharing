@@ -77,20 +77,18 @@ class _CreateContentsState extends State<CreateContents> {
 
       // Decode the image bytes
       final image = img.decodeImage(imageBytes);
-
       if (image == null) {
         return null; // Could not decode the image
       }
 
-      // Check if the image needs to be rotated and correct it
+      // Correct the orientation if needed
       final rotatedImage = img.bakeOrientation(image);
 
       // Encode the corrected image back into bytes
       final correctedBytes = img.encodeJpg(rotatedImage);
 
-      // Convert bytes to base64 string
+      // Convert the bytes to a base64 string
       final base64String = base64Encode(correctedBytes);
-
       return base64String;
     }
 
