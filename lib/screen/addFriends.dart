@@ -72,28 +72,31 @@ class _AddFriendState extends State<AddFriend> {
               ),
             ),
             Spacer(flex: 5), // Adds more space between the TextField and the button
-            SizedBox(
-              height: 50,
-              width: 400,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
+            Padding(
+              padding: const EdgeInsets.all(16.0), // Adjust padding as needed
+              child: SizedBox(
+                height: 50,
+                width: 400,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  Future<void> addFriend = AddFriendRequest()
-                      .addFriend(userData.uid!, addFriendID);
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return addFriendResultDialog(addFriend);
-                    },
-                  );
-                },
-                child: Text(
-                  'フレンドリクエストを送る',
-                  style: TextStyle(fontSize: 20, color: GlobalColor.SubCol),
+                  onPressed: () {
+                    Future<void> addFriend = AddFriendRequest()
+                        .addFriend(userData.uid!, addFriendID);
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return addFriendResultDialog(addFriend);
+                      },
+                    );
+                  },
+                  child: Text(
+                    'フレンドリクエストを送る',
+                    style: TextStyle(fontSize: 20, color: GlobalColor.SubCol),
+                  ),
                 ),
               ),
             ),
