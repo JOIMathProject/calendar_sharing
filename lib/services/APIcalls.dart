@@ -821,7 +821,6 @@ class GetMyContentsSchedule {
           endTime: DateTime.parse(group['end_dateTime']),
           subject: group['summary']));
     }
-
     return events;
   }
 }

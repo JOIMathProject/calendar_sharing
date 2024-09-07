@@ -321,6 +321,13 @@ class FriendTile extends StatelessWidget {
       trailing: Checkbox(
         value: isSelected,
         onChanged: onSelected,
+        checkColor: GlobalColor.SubCol,
+        fillColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return GlobalColor.MainCol;
+          }
+          return null;
+        }),
       ),
       onTap: () {
         // Toggle selection when the tile is tapped

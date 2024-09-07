@@ -136,6 +136,13 @@ class _MyContentSettingState extends State<MyContentSetting> {
                   }
                 });
               },
+              checkColor: GlobalColor.SubCol,
+              fillColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return GlobalColor.MainCol;
+                }
+                return null;
+              }),
             ),
       ],
     );
