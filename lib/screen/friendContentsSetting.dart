@@ -54,12 +54,6 @@ class _friendContentsSettingState extends State<friendContentsSetting> {
     await SetGroupPrimaryCalendar()
         .setGroupPrimaryCalendar(gid, uid, calendar_id);
   }
-
-  Future<void> _removeCalendarFromGroup(
-      String? gid, String? uid, String? calendar_id) async {
-    await DeleteGroupPrimaryCalendar()
-        .deleteGroupPrimaryCalendar(gid, uid, calendar_id);
-  }
   Future<void> _getMyContents(String uid) async {
     _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
     _MyContents = Provider.of<UserData>(context, listen: false).MyContents;
@@ -159,9 +153,6 @@ class _friendContentsSettingState extends State<friendContentsSetting> {
                 }).toList(),
                 onChanged: (CalendarInformation? newValue) async {
                   if (newValue != null) {
-                    if (selectedCalendar?.summary != '') {
-                      await _removeCalendarFromGroup(widget.groupId, uid, selectedCalendar?.calendar_id);
-                    }
                     setState(() {
                       selectedCalendar = newValue;
                     });

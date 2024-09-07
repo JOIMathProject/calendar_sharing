@@ -60,7 +60,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
                 Navigator.of(context).pop();
                 await _deleteContent(uid, cid);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$cname deleted')),
+                  SnackBar(content: Text('$cnameを削除しました')),
                 );
               },
             ),

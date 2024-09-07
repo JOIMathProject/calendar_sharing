@@ -83,6 +83,13 @@ class _CreateMyContentsState extends State<CreateMyContents> {
                             }
                           });
                         },
+                        checkColor: GlobalColor.SubCol,
+                        fillColor: MaterialStateProperty.resolveWith((states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return GlobalColor.MainCol;
+                          }
+                          return null;
+                        }),
                       ),
                 ],
               ),
@@ -101,7 +108,7 @@ class _CreateMyContentsState extends State<CreateMyContents> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('エラー'),
-                          content: Text('タイトルを指定してください'),
+                          content: Text('コンテンツ名を指定してください'),
                           actions: [
                             TextButton(
                               onPressed: () {
@@ -119,7 +126,7 @@ class _CreateMyContentsState extends State<CreateMyContents> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('エラー'),
-                          content: Text('カレンダーを最低一つ指定してください'),
+                          content: Text('カレンダーを１つ以上指定してください'),
                           actions: [
                             TextButton(
                               onPressed: () {

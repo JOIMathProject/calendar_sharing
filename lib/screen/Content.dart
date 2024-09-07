@@ -70,6 +70,7 @@ class _HomeState extends State<Home> {
         timer.cancel();
       }
       _getReceivedEvent();
+      _getTimeRegions();
       _getCalendar();
       setState(() {
       });
@@ -97,20 +98,10 @@ class _HomeState extends State<Home> {
     await AddContentsToGroup().addContentsToGroup(gid, cid);
   }
 
-  Future<void> _removeContentFromGroup(String gid, String cid) async {
-    await RemoveContentsFromGroup().removeContentsFromGroup(gid, cid);
-  }
-
   Future<void> _addCalendarToGroup(
       String gid, String? uid, String calendar_id) async {
     await SetGroupPrimaryCalendar()
         .setGroupPrimaryCalendar(gid, uid, calendar_id);
-  }
-
-  Future<void> _removeCalendarFromGroup(
-      String gid, String? uid, calendar_id) async {
-    await DeleteGroupPrimaryCalendar()
-        .deleteGroupPrimaryCalendar(gid, uid, calendar_id);
   }
 
   void _showFirstVisitDialog() {

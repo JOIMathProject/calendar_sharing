@@ -1109,7 +1109,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
               actions: <Widget>[
                 ElevatedButton(
-                  child: Text('予定追加リクエストの送信'),
+                  child: Text('予定追加リクエストの送信',style: TextStyle(color: GlobalColor.SubCol),),
                   onPressed: () {
                     exceedTime = 0;
                     final totalSelectedTimeInMinutes =
@@ -1133,7 +1133,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 '選択した時間は終了時間を超えています。一部ユーザーが参加不可能になる可能性がありますが続行しますか？'),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: Text('続行'),
+                                child: Text('続行',style: TextStyle(color: GlobalColor.SubCol),),
                                 onPressed: () {
                                   for (var request in users) {
                                     SendRequest(
@@ -1181,7 +1181,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 },
                               ),
                               ElevatedButton(
-                                child: Text('キャンセル'),
+                                child: Text('キャンセル',style: TextStyle(color: GlobalColor.SubCol),),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -1201,7 +1201,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             content: Text('予定の長さを指定してください。'),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: Text('閉じる'),
+                                child: Text('閉じる',style: TextStyle(color: GlobalColor.SubCol),),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -1256,7 +1256,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             title: Text('予定追加リクエストの送信先'),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: Text('参加できる人のみに送信'),
+                                child: Text('参加できる人のみに送信',style: TextStyle(color: GlobalColor.SubCol),),
                                 onPressed: () {
                                   for (var request in users) {
                                     bool canJoin = true;
@@ -1307,7 +1307,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 },
                               ),
                               ElevatedButton(
-                                child: Text('参加できない人にも送信'),
+                                child: Text('参加できない人にも送信',style: TextStyle(color: GlobalColor.SubCol),),
                                 onPressed: () {
                                   for (var request in users) {
                                     SendRequest(
@@ -1349,7 +1349,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 },
                               ),
                               ElevatedButton(
-                                child: Text('キャンセル'),
+                                child: Text('キャンセル',style: TextStyle(color: GlobalColor.SubCol),),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -1362,7 +1362,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('キャンセル'),
+                  child: Text('キャンセル',style: TextStyle(color: GlobalColor.SubCol),),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },

@@ -56,13 +56,6 @@ class _ContentsSettingState extends State<ContentsSetting> {
     await SetGroupPrimaryCalendar()
         .setGroupPrimaryCalendar(gid, uid, calendar_id);
   }
-
-  Future<void> _removeCalendarFromGroup(
-      String? gid, String? uid, String? calendar_id) async {
-    await DeleteGroupPrimaryCalendar()
-        .deleteGroupPrimaryCalendar(gid, uid, calendar_id);
-  }
-
   Future<String?> getImageFromGallery() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -440,9 +433,6 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 }).toList(),
                 onChanged: (CalendarInformation? newValue) async {
                   if (newValue != null) {
-                    if (selectedCalendar?.summary != '') {
-                      await _removeCalendarFromGroup(widget.groupId, uid, selectedCalendar?.calendar_id);
-                    }
                     setState(() {
                       selectedCalendar = newValue;
                     });

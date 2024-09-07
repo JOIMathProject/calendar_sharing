@@ -237,7 +237,7 @@ class _ContentsManageState extends State<ContentsManage>
                             ? "https://calendar-files.woody1227.com/user_icon/${filteredContents[index].gicon}"
                             : "https://calendar-files.woody1227.com/group_icon/${filteredContents[index].gicon}",
                       ),
-                      backgroundColor: Colors.blue,
+                      backgroundColor: GlobalColor.Unselected,
                     ),
                     title: Text(filteredContents[index].gname),
                     subtitle: Text(
@@ -266,7 +266,7 @@ class _ContentsManageState extends State<ContentsManage>
                                   filteredContents[index].latest_message_time),
                         ),
                         IconButton(
-                          icon: Icon(Icons.chat, color: GlobalColor.bottomBar),
+                          icon: Icon(Icons.chat, color: Colors.black54),
                           onPressed: () {
                             Navigator.push(
                               context,

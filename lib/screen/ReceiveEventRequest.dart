@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
@@ -58,43 +59,87 @@ class _receivedEventRequest extends State<ReceiveEventrequest> {
         itemBuilder: (context, index) {
           final request = widget.eventReq[index];
           return Card(
+            color: GlobalColor.MainCol,
             margin: EdgeInsets.all(8.0),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage('https://calendar-files.woody1227.com/user_icon/${request.uicon}'),
-              ),
-              title: Text(request.uname, style: TextStyle(color: GlobalColor.SubCol)),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(request.summary, style: TextStyle(color: GlobalColor.SubCol)),
-                  Text(
-                    "${request.startTime} - ${request.endTime}",
-                    style: TextStyle(fontSize: 12, color: GlobalColor.SubCol),
-                  ),
-                ],
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _acceptRequest(request),
-                    child: Text("Accept", style: TextStyle(color: GlobalColor.MainCol)),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(GlobalColor.SubCol),
-                    )
-                  ),
-                  SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () => _denyRequest(request),
-                    child: Text("Deny", style: TextStyle(color: GlobalColor.MainCol)),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(GlobalColor.SubCol),
-                      )
-                  ),
-                ],
-              ),
-            ),
+              child:Container(
+                margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8), // Add margin for spacing around the tile
+                padding: EdgeInsets.all(12), // Add padding inside the tile
+                decoration: BoxDecoration(
+                  color: GlobalColor.MainCol, // Background color for the tile
+                  borderRadius: BorderRadius.circular(8), // Rounded corners like a ListTile
+
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start, // Align items to the top
+                  children: [
+                    // User icon at the top left
+                    CircleAvatar(
+                      backgroundImage: NetworkImage('https://calendar-files.woody1227.com/user_icon/${request.uicon}'),
+                    ),
+                    SizedBox(width: 12), // Space between the icon and the content
+
+                    // Main content (title, summary, time, buttons)
+                    Expanded( // Allow the content to fill the remaining horizontal space
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Title (username)
+                          Text(
+                            request.uname + '　からのリクエスト',
+                            style: TextStyle(color: GlobalColor.SubCol, fontWeight: FontWeight.bold),
+                          ),
+
+                          // Summary below title
+                          Text(
+                            request.summary,
+                            style: TextStyle(color: GlobalColor.SubCol),
+                          ),
+
+                          SizedBox(height: 4), // Space between summary and time
+
+                          // Time below summary
+                          Text(
+                            "${DateFormat('yyyy-MM-dd HH:mm').format(request.startTime)} - ${DateFormat('yyyy-MM-dd HH:mm').format(request.endTime)}",
+                            style: TextStyle(fontSize: 12, color: GlobalColor.SubCol),
+                          ),
+
+                          SizedBox(height: 8), // Space between time and buttons
+
+                          // Buttons aligned to the right bottom
+                          Align(
+                            alignment: Alignment.centerRight, // Align buttons to the right
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min, // Keep row width minimal
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () => _acceptRequest(request),
+                                  child: Text("承認", style: TextStyle(color: GlobalColor.MainCol)),
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(GlobalColor.SubCol),
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                ElevatedButton(
+                                  onPressed: () => _denyRequest(request),
+                                  child: Text("拒否", style: TextStyle(color: GlobalColor.MainCol)),
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(GlobalColor.SubCol),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+
+
+
+
+
           );
         },
       ),

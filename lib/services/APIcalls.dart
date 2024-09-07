@@ -1240,18 +1240,6 @@ class SetGroupPrimaryCalendar{
     return;
   }
 }
-class DeleteGroupPrimaryCalendar{
-  Future<void> deleteGroupPrimaryCalendar(String? gid,String? uid,String? calendar_id) async {
-    final url = Uri.parse(
-        'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar/$calendar_id');
-    final response = await http.delete(url, headers: {'API_KEY': APIKey});
-
-    if (response.statusCode != 200 && response.statusCode != 404) {
-      throw 'Failed to delete primary calendar: ${response.statusCode}';
-    }
-    return;
-  }
-}
 class AddEventToTheCalendar{
   Future<void> addEventToTheCalendar(String? uid,String? calendar_id,String? summary,String? description,DateTime? start_dateTime,DateTime? end_dateTime) async {
     print('addEventToTheCalendar: $uid, $calendar_id, $summary, $description, $start_dateTime, $end_dateTime');
