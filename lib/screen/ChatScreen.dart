@@ -13,7 +13,29 @@ class ChatScreen extends StatefulWidget {
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
-
+class ChatL10nJa extends ChatL10n {
+  const ChatL10nJa({
+    String attachmentButtonAccessibilityLabel = '画像アップロード',
+    String emptyChatPlaceholder = 'メッセージがありません。',
+    String fileButtonAccessibilityLabel = 'ファイル',
+    String inputPlaceholder = 'メッセージを入力してください',
+    String sendButtonAccessibilityLabel = '送信',
+    String and = 'そして',
+    String isTyping = '入力中...',
+    String others = '他のユーザー',
+    String unreadMessagesLabel = '未読メッセージ',
+  }) : super(
+    attachmentButtonAccessibilityLabel: attachmentButtonAccessibilityLabel,
+    emptyChatPlaceholder: emptyChatPlaceholder,
+    fileButtonAccessibilityLabel: fileButtonAccessibilityLabel,
+    inputPlaceholder: inputPlaceholder,
+    sendButtonAccessibilityLabel: sendButtonAccessibilityLabel,
+    and: and,
+    isTyping: isTyping,
+    others: others,
+    unreadMessagesLabel: unreadMessagesLabel,
+  );
+}
 class _ChatScreenState extends State<ChatScreen> {
   final List<types.Message> _messages = [];
   static const getMessageLimit = 15;
@@ -60,13 +82,18 @@ class _ChatScreenState extends State<ChatScreen> {
               onEndReached: getMessages,
               showUserAvatars: true,
               showUserNames: true,
+              l10n: const ChatL10nJa(),
               theme: DefaultChatTheme(
                 userAvatarNameColors: [
                   GlobalColor.MainCol,
                 ],
                 primaryColor: GlobalColor.MainCol,
+                messageInsetsVertical: 10, // Adjust vertical padding
+                messageInsetsHorizontal: 15, // Adjust horizontal padding
               ),
-            ),
+
+            )
+
           )
         ],
       ),

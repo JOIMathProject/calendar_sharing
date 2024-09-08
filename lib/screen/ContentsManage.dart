@@ -194,35 +194,35 @@ class _ContentsManageState extends State<ContentsManage>
                             .maxHeight, // Make sure the box fills the available height
                       ),
                       child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .center, // Center the content within the Row
-                                children: [
-                                  Icon(
-                                    Icons.group_off_sharp,
-                                    size: 35,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .center, // Center the content within the Row
+                              children: [
+                                Icon(
+                                  Icons.group_off_sharp,
+                                  size: 35,
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  '表示できる情報がありません',
+                                  style: TextStyle(
+                                    fontSize: 20,
                                     color: Colors.black.withOpacity(0.5),
                                   ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    '表示できる情報がありません',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black.withOpacity(0.5),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                    ),
                     ),
                   );
                 },

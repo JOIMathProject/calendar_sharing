@@ -44,31 +44,6 @@ class _MyContentState extends State<MyContent> {
         flexibleSpace: Container(
           color: GlobalColor.SubCol,
         ),
-        actions: [
-          DropdownButton<CalendarView>(
-            value: _currentView,
-            icon: Icon(Icons.arrow_drop_down),
-            onChanged: (CalendarView? newView) {
-              setState(() {
-                if (newView != null) _currentView = newView;
-              });
-            },
-            items: [
-              DropdownMenuItem(
-                value: CalendarView.month,
-                child: Text('Month View'),
-              ),
-              DropdownMenuItem(
-                value: CalendarView.week,
-                child: Text('Week View'),
-              ),
-              DropdownMenuItem(
-                value: CalendarView.day,
-                child: Text('Day View'),
-              ),
-            ],
-          ),
-        ],
       ),
       body: SfCalendar(
         key: ValueKey(_currentView),

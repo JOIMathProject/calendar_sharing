@@ -108,16 +108,25 @@ class _SearchScheduleState extends State<SearchSchedule> {
     int lastDayOfMonth = DateTime(year, month + 1, 0).day;
     DateTime selectedDate = DateTime(year, month, 1);
     int startDayLimit =
-        (selectedDate.isAfter(now) || selectedDate.isAtSameMomentAs(now))
-            ? 1
-            : now.day;
+    (selectedDate.isAfter(now) || selectedDate.isAtSameMomentAs(now))
+        ? 1
+        : now.day + 1;
 
     if (year == startYear && month == startDateMonth) {
       startDayLimit = startDateDay;
     }
+
+    // Ensure today's date is not included in the available days
+    if (year == now.year && month == now.month) {
+      if (startDayLimit <= now.day) {
+        startDayLimit = now.day + 1;
+      }
+    }
+
     return List.generate(
         lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
   }
+
   String? primaryCalendar;
   Future<void> getPrimaryCalendar() async {
     primaryCalendar = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(widget.groupId,Provider.of<UserData>(context, listen: false).uid);
@@ -476,7 +485,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
     }
 
     if (!getAvailableDays(startYear, startDateMonth).contains(startDateDay)) {
-      startDateDay = getAvailableDays(startYear, startDateMonth).first;
+      startDateDay = getAvailableDaysStart(startYear, startDateMonth).first;
     }
 
     if (!getAvailableDays(endYear, endDateMonth).contains(endDateDay)) {

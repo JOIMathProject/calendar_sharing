@@ -51,6 +51,10 @@ class _FriendProfileState extends State<FriendProfile> {
                               Provider.of<UserData>(context, listen: false).uid;
                           await DeleteFriend()
                               .deleteFriend(uid!, widget.friend.uid);
+
+                          List<FriendInformation> friends =
+                          await GetFriends().getFriends(uid);
+                          Provider.of<UserData>(context, listen: false).updateFriends(friends);
                           Navigator.pop(context);
                           Navigator.pop(context);
                         },

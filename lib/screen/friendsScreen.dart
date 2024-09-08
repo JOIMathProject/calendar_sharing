@@ -146,132 +146,176 @@ class _FriendsScreenState extends State<FriendsScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _fetchReceivedRequests,
-              child: ListView.builder(
-                itemCount: requests.length,
-                itemBuilder: (context, index) {
-                  if (requests[index].isReceived) {
-                    return Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              // アイコン
-                              CircleAvatar(
-                                radius: 25,
-                                backgroundColor: Colors.white,
-                                backgroundImage: NetworkImage(
-                                    "https://calendar-files.woody1227.com/user_icon/${requests[index].uicon}"),
-                              ),
-                              SizedBox(
-                                  width: SizeConfig.blockSizeHorizontal! * 3),
-                              // 名前
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    requests[index].uname,
-                                    style: const TextStyle(fontSize: 25),
-                                  ),
-                                  Text(
-                                    'リクエストを受信しています',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.black.withOpacity(0.8),
+              child: ListView(
+                children: [
+                  requests.where((req) => req.isReceived).length == 0
+                      ? Container()
+                      :
+                      // Received Requests Section
+                      Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            "受信リクエスト (${requests.where((req) => req.isReceived).length})",
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                  ListView.builder(
+                    shrinkWrap:
+                        true, // Makes the ListView take only the space it needs
+                    physics:
+                        NeverScrollableScrollPhysics(), // Prevents nested scrolling
+                    itemCount: requests.where((req) => req.isReceived).length,
+                    itemBuilder: (context, index) {
+                      var receivedRequests =
+                          requests.where((req) => req.isReceived).toList();
+                      return Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                // Icon
+                                CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor: Colors.white,
+                                  backgroundImage: NetworkImage(
+                                      "https://calendar-files.woody1227.com/user_icon/${receivedRequests[index].uicon}"),
+                                ),
+                                SizedBox(
+                                    width: SizeConfig.blockSizeHorizontal! * 3),
+                                // Name
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      receivedRequests[index].uname,
+                                      style: const TextStyle(fontSize: 22),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              // 承認ボタン
-                              IconButton(
-                                icon: const Icon(Icons.check),
-                                onPressed: () async {
-                                  await AcceptFriendRequest()
-                                      .acceptFriendRequest(
-                                          userData.uid, requests[index].uid);
-                                  _fetchReceivedRequests();
-                                  _fetchFriends();
-                                },
-                              ),
-                              // 拒否ボタン
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () async {
-                                  await DeleteFriendRequest()
-                                      .deleteFriendRequest(
-                                          userData.uid, requests[index].uid);
-                                  _fetchReceivedRequests();
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    return Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              // アイコン
-                              CircleAvatar(
-                                radius: 25,
-                                backgroundColor: Colors.white,
-                                backgroundImage: NetworkImage(
-                                    "https://calendar-files.woody1227.com/user_icon/${requests[index].uicon}"),
-                              ),
-                              SizedBox(
-                                  width: SizeConfig.blockSizeHorizontal! * 3),
-                              // 名前
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    requests[index].uname,
-                                    style: const TextStyle(fontSize: 22),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "@${requests[index].uid}",
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          color: Colors.black.withOpacity(0.6),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "@${receivedRequests[index].uid}",
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            color:
+                                                Colors.black.withOpacity(0.6),
+                                          ),
                                         ),
-                                      ),
-                                      //FIXME ここの送信済みを右に寄せる
-                                      Text(
-                                        '送信済み',
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          color: Colors.black.withOpacity(0.6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              // 削除ボタン
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () async {
-                                  await DeleteFriendRequest()
-                                      .deleteFriendRequest(
-                                          requests[index].uid, userData.uid);
-                                  _fetchReceivedRequests();
-                                },
-                              ),
-                            ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                // Approval and rejection buttons
+                                IconButton(
+                                  icon: const Icon(Icons.check),
+                                  onPressed: () async {
+                                    await AcceptFriendRequest()
+                                        .acceptFriendRequest(userData.uid,
+                                            receivedRequests[index].uid);
+                                    _fetchReceivedRequests();
+                                    _fetchFriends();
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () async {
+                                    await DeleteFriendRequest()
+                                        .deleteFriendRequest(userData.uid,
+                                            receivedRequests[index].uid);
+                                    _fetchReceivedRequests();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  // Divider Section
+                  requests.where((req) => req.isReceived).length == 0
+                      ? Container()
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: Center(),
+                        ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: requests.where((req) => !req.isReceived).length == 0
+                        ? Container()
+                        : Text(
+                            "送信リクエスト (${requests.where((req) => !req.isReceived).length})",
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                        ],
-                      ),
-                    );
-                  }
-                },
+                  ),
+                  // Sent Requests Section
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics:
+                        NeverScrollableScrollPhysics(), // Prevents nested scrolling
+                    itemCount: requests.where((req) => !req.isReceived).length,
+                    itemBuilder: (context, index) {
+                      var sentRequests =
+                          requests.where((req) => !req.isReceived).toList();
+                      return Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                // Icon
+                                CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor: Colors.white,
+                                  backgroundImage: NetworkImage(
+                                      "https://calendar-files.woody1227.com/user_icon/${sentRequests[index].uicon}"),
+                                ),
+                                SizedBox(
+                                    width: SizeConfig.blockSizeHorizontal! * 3),
+                                // Name
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      sentRequests[index].uname,
+                                      style: const TextStyle(fontSize: 22),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "@${sentRequests[index].uid}",
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            color:
+                                                Colors.black.withOpacity(0.6),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () async {
+                                    await DeleteFriendRequest()
+                                        .deleteFriendRequest(
+                                            sentRequests[index].uid,
+                                            userData.uid);
+                                    _fetchReceivedRequests();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           )
@@ -282,10 +326,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(), // Ensure it can always scroll
+                    physics:
+                        const AlwaysScrollableScrollPhysics(), // Ensure it can always scroll
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight, // Make sure the box fills the available height
+                        minHeight: constraints
+                            .maxHeight, // Make sure the box fills the available height
                       ),
                       child: Center(
                         child: Column(
@@ -430,49 +476,51 @@ class _FriendsScreenState extends State<FriendsScreen> {
         )
       else
         Expanded(
-        child: RefreshIndicator(
-          onRefresh: _fetchFriends,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(), // Ensure it can always scroll
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight, // Make sure the box fills the available height
-                  ),
-                  child: Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            Spacer(flex: 1),
-                            Icon(
-                              Icons.no_accounts,
-                              size: 35,
-                              color: Colors.black.withOpacity(0.5),
-                            ),
-                            SizedBox(width: 10),
-                            Text(
-                              '表示できる情報がありません',
-                              style: TextStyle(
-                                fontSize: 20,
+          child: RefreshIndicator(
+            onRefresh: _fetchFriends,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics:
+                      const AlwaysScrollableScrollPhysics(), // Ensure it can always scroll
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints
+                          .maxHeight, // Make sure the box fills the available height
+                    ),
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              Spacer(flex: 1),
+                              Icon(
+                                Icons.no_accounts,
+                                size: 35,
                                 color: Colors.black.withOpacity(0.5),
                               ),
-                            ),
-                            Spacer(flex: 1),
-                          ],
-                        ),
-                      ],
+                              SizedBox(width: 10),
+                              Text(
+                                '表示できる情報がありません',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                              ),
+                              Spacer(flex: 1),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-      )
+        )
     ]);
   }
 }
