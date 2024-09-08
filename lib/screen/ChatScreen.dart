@@ -83,6 +83,7 @@ class _ChatScreenState extends State<ChatScreen> {
               showUserAvatars: true,
               showUserNames: true,
               l10n: const ChatL10nJa(),
+              hideBackgroundOnEmojiMessages: false,
               theme: DefaultChatTheme(
                 userAvatarNameColors: [
                   GlobalColor.MainCol,
