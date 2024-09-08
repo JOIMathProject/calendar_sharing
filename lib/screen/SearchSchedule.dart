@@ -376,69 +376,79 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
   Future<void> _searchSchedule() async {
     expansionTileController.collapse();
-    if (considerWeather) {
-      String formatWithLeadingZero(int value) {
-        return value.toString().padLeft(2, '0');
+    try {
+      if (considerWeather) {
+        String formatWithLeadingZero(int value) {
+          return value.toString().padLeft(2, '0');
+        }
+
+        String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
+        String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
+        String formattedStartDateDay = formatWithLeadingZero(startDateDay);
+        String formattedEndDateDay = formatWithLeadingZero(endDateDay);
+        String formattedStartTime = formatWithLeadingZero(startTime);
+        String formattedEndTime = formatWithLeadingZero(endTime);
+
+        searchResults = await SearchContentScheduleWeather().searchContentScheduleWeather(
+          widget.groupId.toString(),
+          '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
+          '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
+          formattedStartTime,
+          '00',
+          formattedEndTime,
+          '00',
+          '${minHours * 60}',
+          '${GroupSize - minParticipants}',
+          getAreaCode(selectedRegion!, selectedCity!),
+          isSunny ? '1' : '0',
+          isCloudy ? '1' : '0',
+          isRainy ? '1' : '0',
+          isSnowy ? '1' : '0',
+        );
+
+        searchResults.removeWhere((result) =>
+            result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
+        );
+      } else {
+        String formatWithLeadingZero(int value) {
+          return value.toString().padLeft(2, '0');
+        }
+
+        String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
+        String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
+        String formattedStartDateDay = formatWithLeadingZero(startDateDay);
+        String formattedEndDateDay = formatWithLeadingZero(endDateDay);
+        String formattedStartTime = formatWithLeadingZero(startTime);
+        String formattedEndTime = formatWithLeadingZero(endTime);
+
+        searchResults = await SearchContentSchedule().searchContentSchedule(
+          widget.groupId,
+          '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
+          '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
+          formattedStartTime,
+          '00',
+          formattedEndTime,
+          '00',
+          '${minHours * 60}',
+          '${GroupSize - minParticipants}',
+        );
+
+        searchResults.removeWhere((result) =>
+            result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
+        );
       }
 
-      String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
-      String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
-      String formattedStartDateDay = formatWithLeadingZero(startDateDay);
-      String formattedEndDateDay = formatWithLeadingZero(endDateDay);
-      String formattedStartTime = formatWithLeadingZero(startTime);
-      String formattedEndTime = formatWithLeadingZero(endTime);
-      searchResults =
-          await SearchContentScheduleWeather().searchContentScheduleWeather(
-        widget.groupId.toString(),
-        '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
-        '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
-        formattedStartTime,
-        '00',
-        formattedEndTime,
-        '00',
-        '${minHours * 60}',
-        '${GroupSize - minParticipants}',
-        getAreaCode(selectedRegion!, selectedCity!),
-        isSunny ? '1' : '0',
-        isCloudy ? '1' : '0',
-        isRainy ? '1' : '0',
-        isSnowy ? '1' : '0',
-      );
-
-      searchResults.removeWhere((result) =>
-          result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
-      );
-      print(searchResults.length);
       setState(() {});
-    } else {
-      String formatWithLeadingZero(int value) {
-        return value.toString().padLeft(2, '0');
+    } catch (error) {
+      // Check for 404 error and set searchResults to null
+      if (error.toString().contains('404')) {
+        searchResults = [];
+        setState(() {});
       }
-
-      String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
-      String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
-      String formattedStartDateDay = formatWithLeadingZero(startDateDay);
-      String formattedEndDateDay = formatWithLeadingZero(endDateDay);
-      String formattedStartTime = formatWithLeadingZero(startTime);
-      String formattedEndTime = formatWithLeadingZero(endTime);
-      searchResults = await SearchContentSchedule().searchContentSchedule(
-        widget.groupId,
-        '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
-        '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
-        formattedStartTime,
-        '00',
-        formattedEndTime,
-        '00',
-        '${minHours * 60}',
-        '${GroupSize - minParticipants}',
-      );
-      searchResults.removeWhere((result) =>
-          result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
-      );
-      print(searchResults.length);
-      setState(() {});
+      print("Error: $error");
     }
   }
+
 
   String formatDateTime(DateTime dateTime) {
     // Format month and day

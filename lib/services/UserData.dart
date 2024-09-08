@@ -17,6 +17,7 @@ class UserData extends ChangeNotifier {
   List<FriendInformation> friends = [];
   List<FriendRequestInformation> receivedRequests = [];
   List<MyContentsInformation> MyContents = [];
+  List<MyContentsInformation> MyContentsChoice = [];
   List<CalendarInformation> MyCalendar = [];
 
   void updateGoogleUser(GoogleSignIn? newGoogleUser) {
@@ -34,9 +35,16 @@ class UserData extends ChangeNotifier {
     notifyListeners();
   }
   void updateMyContents(List<MyContentsInformation> newContents) {
+    // Create a new list for MyContentsChoice to avoid modifying the original newContents
+    MyContentsChoice = List.from(newContents);
+    MyContentsChoice.insert(0, MyContentsInformation(cid: '', cname: 'なし'));
+
+    // Assign newContents to MyContents without modification
     MyContents = newContents;
+
     notifyListeners();
   }
+
   void updateMyCalendar(List<CalendarInformation> newCalendar) {
     MyCalendar = newCalendar;
     notifyListeners();

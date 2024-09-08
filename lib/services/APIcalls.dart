@@ -617,7 +617,7 @@ class GetGroupCalendar {
 
       // Define the base orange color (at intensity 10)
       final Color intenseOrange =
-          Color(0xFFFF8200); // You can adjust this as needed
+          Color(0xFFFFB467); // You can adjust this as needed
 
       // Calculate the amount to reduce the intensity based on the input
       double factor = 1 - ((count - 1) / 2);

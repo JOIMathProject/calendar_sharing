@@ -108,9 +108,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
   }
   Future<void> _getMyContents(String uid) async {
     _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
-    _MyContents = Provider.of<UserData>(context, listen: false).MyContents;
-
-    _MyContents.insert(0, MyContentsInformation(cid: '', cname: 'なし'));
+    _MyContents = Provider.of<UserData>(context, listen: false).MyContentsChoice;
     selectedContent = await _getCurrentUserContent(widget.groupId!, uid);
     String selectedCalId = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(widget.groupId,uid);
     selectedCalendar = _MyCalendar.firstWhere(
@@ -417,7 +415,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
                     setState(() {
                       selectedContent = newValue;
                     });
-                    if (newValue.cname != 'None') {
+                    if (newValue.cname != 'なし') {
                       await _addContentToGroup(widget.groupId!, newValue.cid);
                     }
                   }
