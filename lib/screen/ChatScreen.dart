@@ -60,6 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onEndReached: getMessages,
               showUserAvatars: true,
               showUserNames: true,
+              hideBackgroundOnEmojiMessages: false,
               theme: DefaultChatTheme(
                 userAvatarNameColors: [
                   GlobalColor.MainCol,
