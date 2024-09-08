@@ -436,7 +436,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
                     setState(() {
                       selectedCalendar = newValue;
                     });
-                    if (newValue.summary != 'None') {
+                    if (newValue.summary != 'なし') {
                       //await _addContentToGroup(widget.groupId!, newValue.summary);
                       await _addCalendarToGroup(widget.groupId, uid, selectedCalendar?.calendar_id);
                     }

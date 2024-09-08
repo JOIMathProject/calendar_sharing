@@ -20,7 +20,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
     super.initState();
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     contents = Provider.of<UserData>(context, listen: false).MyContents;
-    //_getMyContents(uid!);
+    _getMyContents(uid!);
   }
 
   Future<void> _getMyContents(String uid) async {

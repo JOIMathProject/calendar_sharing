@@ -523,6 +523,7 @@ class GetContentInGroup {
 
 class AddContentsToGroup {
   Future<void> addContentsToGroup(String? gid, String? cid) async {
+    print('gid:$gid,cid:$cid');
     final url =
         Uri.parse('https://calendar-api.woody1227.com/groups/$gid/contents');
     final response = await http.post(
@@ -692,10 +693,10 @@ class GetMyCalendars {
     }
     for (var group in jsonDecode(response.body)['data']) {
       contents.add(CalendarInformation(
-        calendar_id: group['calendar_id'] ?? 'default',
-        summary: group['summary'] ?? 'default',
-        discription: group['discription'] ?? 'default',
-        accessRole: group['accessRole'] ?? 'default',
+        calendar_id: group['calendar_id'] ?? '',
+        summary: group['summary'] ?? '',
+        discription: group['discription'] ?? '',
+        accessRole: group['accessRole'] ?? '',
       ));
     }
 
@@ -1112,7 +1113,7 @@ class GetEventRequest {
         'https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid/receive');
     final response = await http.get(url, headers: {'API_KEY': APIKey});
 
-    if (response.statusCode != 200 && response.statusCode != 404) {
+    if (response.statusCode != 200) {
       throw 'Failed to get event request: ${response.statusCode}';
     }
     List<eventRequest> requests = [];
