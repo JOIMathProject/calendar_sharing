@@ -9,6 +9,7 @@ import 'friendProfile.dart';
 import '../setting/color.dart' as GlobalColor;
 import 'package:calendar_sharing/setting/size_config.dart';
 import 'package:badges/badges.dart' as badge;
+import 'dart:async';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -31,6 +32,19 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   void initState() {
     super.initState();
+    _reload();
+  }
+
+  void _reload() {
+    //3秒ごとに
+    Timer.periodic(
+      const Duration(seconds: 3),
+      (timer) async{
+        await _fetchFriends();
+        await _fetchReceivedRequests();
+        setState(() {});
+      },
+    );
   }
 
   @override
