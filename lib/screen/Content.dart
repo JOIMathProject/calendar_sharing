@@ -61,6 +61,8 @@ class _HomeState extends State<Home> {
     _showFab = !widget.startOnChatScreen;
     _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
     _MyContents = Provider.of<UserData>(context, listen: false).MyContents;
+
+    _MyContents.insert(0, MyContentsInformation(cid: '', cname: 'なし'));
     _getReceivedEvent();
     _initializeData();
     _getTimeRegions();

@@ -35,7 +35,6 @@ class UserData extends ChangeNotifier {
   }
   void updateMyContents(List<MyContentsInformation> newContents) {
     MyContents = newContents;
-    MyContents.insert(0, MyContentsInformation(cid: '', cname: 'なし'));
     notifyListeners();
   }
   void updateMyCalendar(List<CalendarInformation> newCalendar) {

@@ -54,7 +54,40 @@ class _receivedEventRequest extends State<ReceiveEventrequest> {
         backgroundColor: GlobalColor.SubCol,
         title: Text("イベントリクエスト"),
       ),
-      body: ListView.builder(
+      body:
+      widget.eventReq.length == 0 ?
+      Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment
+                    .center, // Center the content within the Row
+                children: [
+                  Icon(
+                    Icons.info_outlined,
+                    size: 35,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    '表示できる情報がありません',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black.withOpacity(0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      )
+          :
+      ListView.builder(
         itemCount: widget.eventReq.length,
         itemBuilder: (context, index) {
           final request = widget.eventReq[index];
@@ -79,7 +112,7 @@ class _receivedEventRequest extends State<ReceiveEventrequest> {
                     SizedBox(width: 12), // Space between the icon and the content
 
                     // Main content (title, summary, time, buttons)
-                    Expanded( // Allow the content to fill the remaining horizontal space
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

@@ -19,6 +19,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
   void initState() {
     super.initState();
     String? uid = Provider.of<UserData>(context, listen: false).uid;
+    contents = Provider.of<UserData>(context, listen: false).MyContents;
     _getMyContents(uid!);
   }
 
@@ -45,7 +46,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('マイコンテンツを削除'),
-          content: Text('本当にマイコンテンツ"$cname"を削除しますか? この操作は取り消せません。'),
+          content: Text('本当にマイコンテンツ「$cname」を削除しますか? この操作は取り消せません。'),
           actions: <Widget>[
             TextButton(
               child: Text('キャンセル'),
@@ -57,11 +58,12 @@ class _MyContentsManageState extends State<MyContentsManage> {
             TextButton(
               child: Text('削除', style: TextStyle(color: Colors.red)),
               onPressed: () async {
-                Navigator.of(context).pop();
                 await _deleteContent(uid, cid);
+                print('deleted');
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$cnameを削除しました')),
+                  SnackBar(content: Text('「$cname」を削除しました')),
                 );
+                Navigator.of(context).pop();
               },
             ),
           ],

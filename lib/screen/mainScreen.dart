@@ -33,9 +33,9 @@ class _MainScreenState extends State<MainScreen> {
     _initializeApp();
     _children = [
       ContentsManage(contents: contents),
+      MyContentsManage(),
       FriendsScreen(),
       Profile(),
-      MyContentsManage(),
     ];
     reloading();
   }
@@ -173,10 +173,19 @@ class _MainScreenState extends State<MainScreen> {
             label: 'ホーム',
           ),
           BottomNavigationBarItem(
+            icon: Icon(
+              Icons.calendar_month,
+              color: _currentIndex != 1
+                  ? GlobalColor.bottomBar
+                  : GlobalColor.MainCol,
+            ),
+            label: 'マイコンテンツ',
+          ),
+          BottomNavigationBarItem(
             icon: badge.Badge(
               child: Icon(
                 Icons.group,
-                color: _currentIndex != 1
+                color: _currentIndex != 2
                     ? GlobalColor.bottomBar
                     : GlobalColor.MainCol,
               ),
@@ -191,20 +200,11 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.person,
-              color: _currentIndex != 2
-                  ? GlobalColor.bottomBar
-                  : GlobalColor.MainCol,
-            ),
-            label: 'プロフィール',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.calendar_month,
               color: _currentIndex != 3
                   ? GlobalColor.bottomBar
                   : GlobalColor.MainCol,
             ),
-            label: 'マイコンテンツ',
+            label: 'プロフィール',
           ),
         ],
       ),

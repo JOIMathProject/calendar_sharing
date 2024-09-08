@@ -92,7 +92,8 @@ class _MyContentSettingState extends State<MyContentSetting> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    _showDeleteConfirmationDialog(context, widget.cid!, widget.contentsName!);
+                    var uid = Provider.of<UserData>(context, listen: false).uid;
+                    _showDeleteConfirmationDialog(context,uid!, widget.cid!, widget.contentsName!);
                   },
                   child: Text('マイコンテンツを削除',style: TextStyle(color: GlobalColor.SubCol),),
                 ),
@@ -154,25 +155,29 @@ class _MyContentSettingState extends State<MyContentSetting> {
     Navigator.of(context).pop();
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, String cid, String cname) {
+  void _showDeleteConfirmationDialog(BuildContext context, String uid, String cid, String cname) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('マイコンテンツを削除'),
-          content: Text('本当にマイコンテンツ"$cname"を削除しますか? この操作は取り消せません。'),
+          content: Text('本当にマイコンテンツ「$cname」を削除しますか? この操作は取り消せません。'),
           actions: <Widget>[
             TextButton(
               child: Text('キャンセル'),
               onPressed: () {
                 Navigator.of(context).pop();
+                _reloadContents(); // Reload contents if deletion is canceled
               },
             ),
             TextButton(
               child: Text('削除', style: TextStyle(color: Colors.red)),
               onPressed: () async {
-                String? uid = Provider.of<UserData>(context, listen: false).uid;
-                await _deleteContent(uid!, cid);
+                await _deleteContent(uid, cid);
+                print('deleted');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('「$cname」を削除しました')),
+                );
               },
             ),
           ],

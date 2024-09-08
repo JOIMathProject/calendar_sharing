@@ -521,8 +521,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                 initiallyExpanded: true,
                 title: Text(
                     '${startYear}/${startDateMonth}/${startDateDay}~${endYear}/${endDateMonth}/${endDateDay}の${startTime}時から${endTime}時\n'
-                    '最低${minHours}時間以上/${minParticipants}人以上が参加可能\n'
-                    '${selectedRegion != null ? selectedRegion : ''} ${selectedCity != null ? selectedCity : ''}    ${isSunny ? '晴れ/' : ''}${isCloudy ? '曇り/' : ''}${isRainy ? '雨/' : ''}${isSnowy ? '雪/' : ''}'),
+                        '最低${minHours}時間以上/${minParticipants}人以上が参加可能\n'
+                        '${(selectedRegion != null && considerWeather == true) ? selectedRegion : ''} '
+                        '${(selectedCity != null && considerWeather == true) ? selectedCity : ''} '
+                        '${[if (isSunny) '晴れ', if (isCloudy) '曇り', if (isRainy) '雨', if (isSnowy) '雪'].where((condition) => condition.isNotEmpty).join('/')}'),
                 dense: true,
                 children: [
                   SizedBox(height: 16.0),
@@ -770,42 +772,61 @@ class _SearchScheduleState extends State<SearchSchedule> {
               ),
             ),
             SizedBox(height: 16.0),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center, // Center the contents
-                children: [
-                  ElevatedButton(
-                    onPressed: _searchSchedule,
-                    child: Text('検索',
-                        style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
-                  ),
-                  SizedBox(width: 20), // Add spacing between the button and dropdown
-                  DropdownButton<SortOrder>(
-                    value: _sortOrder,
-                    items: [
-                      DropdownMenuItem(
-                        value: SortOrder.time,
-                        child: Text('時間'),
-                      ),
-                      DropdownMenuItem(
-                        value: SortOrder.participants,
-                        child: Text('参加人数'),
-                      ),
-                    ],
-                    onChanged: (SortOrder? newValue) {
-                      if (newValue != null) {
-                        setState(() {
-                          _sortOrder = newValue;
-                          _sortList(); // Sort the list when option changes
-                        });
-                      }
-                    },
-                  ),
-                ],
+          Stack(
+            children: [
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0), // Add padding for a better appearance
+                  child:considerWeather? Text(
+                    '出典：気象庁ＨＰ',
+                    style: TextStyle(
+                      fontSize: 10, // Smaller font size
+                      color: Colors.black87, // Light font color
+                    ),
+                  ):Container(),
+                ),
               ),
-            ),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _searchSchedule,
+                      child: Text('検索',
+                          style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
+                    ),
+                    SizedBox(width: 20), // Spacing between button and dropdown
+                    DropdownButton<SortOrder>(
+                      value: _sortOrder,
+                      items: [
+                        DropdownMenuItem(
+                          value: SortOrder.time,
+                          child: Text('時間'),
+                        ),
+                        DropdownMenuItem(
+                          value: SortOrder.participants,
+                          child: Text('参加人数'),
+                        ),
+                      ],
+                      onChanged: (SortOrder? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _sortOrder = newValue;
+                            _sortList(); // Sort the list when option changes
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
 
-            SizedBox(height: 16.0),
+
+          SizedBox(height: 16.0),
             Expanded(
               child: ListView.builder(
                 itemCount: searchResults.length,
