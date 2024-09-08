@@ -873,9 +873,9 @@ class GetMyContentCalendars {
     }
     for (var group in jsonDecode(response.body)['data']) {
       contents.add(CalendarInformation(
-        calendar_id: group['calendar_id'] ?? 'default',
-        summary: group['summary'] ?? 'default',
-        discription: group['discription'] ?? 'default',
+        calendar_id: group['calendar_id'] ?? '',
+        summary: group['summary'] ?? '',
+        discription: group['discription'] ?? '',
         accessRole: group['accessRole'] ?? '',
       ));
     }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
@@ -21,6 +23,12 @@ class _MyContentsManageState extends State<MyContentsManage> {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     contents = Provider.of<UserData>(context, listen: false).MyContents;
     _getMyContents(uid!);
+    Timer.periodic(Duration(seconds: 3), (timer) {
+      if (!mounted) {
+        timer.cancel();
+      }
+      _getMyContents(uid!);
+    });
   }
 
   Future<void> _getMyContents(String uid) async {
@@ -136,7 +144,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
                     );
                   } else {
                     return Center(
-                      child: Text('No contents found'),
+                      child: Text('コンテンツが見つかりませんでした'),
                     );
                   }
                 },
