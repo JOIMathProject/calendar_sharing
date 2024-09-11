@@ -43,6 +43,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
         await _fetchFriends();
         await _fetchReceivedRequests();
         setState(() {});
+        if (!mounted) {
+          timer.cancel();
+        }
       },
     );
   }
