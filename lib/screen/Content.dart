@@ -230,15 +230,27 @@ class _HomeState extends State<Home> {
 
   Future<void> _getReceivedEvent() async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    List<eventRequest>? requests =
-        await GetEventRequest().getEventRequest(uid, widget.groupId);
-    if (requests?.isNotEmpty == true) {
-      _requests = requests;
+
+    try {
+      List<eventRequest>? requests = await GetEventRequest().getEventRequest(uid, widget.groupId);
+      if (requests?.isNotEmpty == true) {
+        _requests = requests;
+      } else {
+        _requests = [];
+      }
+    } catch (e) {
+      if (e.toString().contains('404')) {
+        _requests = [];
+      } else {
+        print("Error occurred: $e");
+      }
     }
+
     if (mounted) {
       setState(() {});
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

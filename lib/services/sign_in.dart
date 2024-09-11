@@ -37,10 +37,11 @@ class _SignInState extends State<SignIn> {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'SANDO',
+                  'Sando',
                   style: TextStyle(
                     fontFamily: 'SmglMediumbold',
-                    fontSize: 65.0,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 80.0,
                     color: GlobalColor.MainCol,
                   ),
                 ),

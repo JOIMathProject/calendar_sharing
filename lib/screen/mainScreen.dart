@@ -140,9 +140,10 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'SANDO',
+          'Sando',
           style: TextStyle(
             fontFamily: 'SmglMediumbold',
+            fontWeight: FontWeight.bold,
             fontSize: 50.0,
             color: GlobalColor.MainCol,
           ),

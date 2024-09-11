@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:googleapis/calendar/v3.dart' as ggl;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -69,7 +70,7 @@ class _friendContentsSettingState extends State<friendContentsSetting> {
   Future<MyContentsInformation?> _getCurrentUserContent(
       String gid, String uid) async {
     List<ContentsInformation>? contents =
-    await GetContentInGroup().getContentInGroup(gid);
+      await GetContentInGroup().getContentInGroup(gid);
     if (contents?.isNotEmpty == true) {
       return _MyContents.firstWhere(
             (content) => contents!.any((groupContent) =>
@@ -93,17 +94,11 @@ class _friendContentsSettingState extends State<friendContentsSetting> {
     await RemoveContentsFromGroup().removeContentsFromGroup(gid, cid);
   }
 
-
   Future<void> _getGroupDetail() async {
     _groupDetail = await GetGroupDetail().getGroupDetail(widget.groupId);
   }
-
-
-  List<String> selectedFriends = [];
-
   @override
   Widget build(BuildContext context) {
-    gnameController.text = _groupDetail.gname;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalColor.SubCol,
@@ -128,6 +123,7 @@ class _friendContentsSettingState extends State<friendContentsSetting> {
                 }).toList(),
                 onChanged: (MyContentsInformation? newValue) async {
                   if (newValue != null) {
+                    selectedContent?.cid != '';
                     if (selectedContent?.cid != '') {
                       await _removeContentFromGroup(
                           widget.groupId!, selectedContent!.cid);
@@ -156,7 +152,7 @@ class _friendContentsSettingState extends State<friendContentsSetting> {
                     setState(() {
                       selectedCalendar = newValue;
                     });
-                    if (newValue.summary != 'None') {
+                    if (newValue.summary != 'ない') {
                       //await _addContentToGroup(widget.groupId!, newValue.summary);
                       await _addCalendarToGroup(widget.groupId, uid, selectedCalendar?.calendar_id);
                     }
