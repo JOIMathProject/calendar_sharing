@@ -47,6 +47,10 @@ class _HomeState extends State<Home> {
   MyContentsInformation? usedContent;
   List<Appointment> GroupCal = [];
 
+  bool flipped = false;
+  List<Appointment> FrontCalendar = [];
+  List<Appointment> BackCalendar = [];
+
   List<MyContentsInformation> _MyContents = [];
   List<CalendarInformation> _MyCalendar = [];
   MyContentsInformation? selectedContent;
@@ -60,21 +64,28 @@ class _HomeState extends State<Home> {
     _currentPage = widget.startOnChatScreen ? 1 : 0;
     _showFab = !widget.startOnChatScreen;
     _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
-    _MyContents = Provider.of<UserData>(context, listen: false).MyContentsChoice;
+    _MyContents =
+        Provider.of<UserData>(context, listen: false).MyContentsChoice;
 
     _getReceivedEvent();
     _initializeData();
-    _getTimeRegions();
+    _getGroupCal();
     _getCalendar();
     Timer.periodic(Duration(seconds: 5), (timer) {
       if (!mounted) {
         timer.cancel();
       }
+      if (!flipped) {
+        FrontCalendar = GroupCal;
+        BackCalendar = _events;
+      } else {
+        FrontCalendar = _events;
+        BackCalendar = GroupCal;
+      }
       _getReceivedEvent();
-      _getTimeRegions();
+      _getGroupCal();
       _getCalendar();
-      setState(() {
-      });
+      setState(() {});
     });
   }
 
@@ -174,7 +185,7 @@ class _HomeState extends State<Home> {
                   TextButton(
                       child: Text('登録'),
                       onPressed: () async {
-                        if(selectedContent?.cname != 'なし'){
+                        if (selectedContent?.cname != 'なし') {
                           await _addContentToGroup(
                               widget.groupId!, selectedContent!.cid);
                         }
@@ -219,16 +230,22 @@ class _HomeState extends State<Home> {
       for (var content in contents!) {
         if (content.uid == uid) {
           List<eventInformation> eventsCollection = [];
-          eventsCollection = await GetMyContentsSchedule().getMyContentsSchedule(
-            uid, content.cid, '2024-01-00', '2025-12-11');
+          eventsCollection = await GetMyContentsSchedule()
+              .getMyContentsSchedule(
+                  uid, content.cid, '2024-01-00', '2025-12-11');
+          List<Appointment> fetchedAppointments = [];
           for (var event in eventsCollection) {
-            _events.add(Appointment(
+            fetchedAppointments.add(Appointment(
               startTime: event.startTime,
               endTime: event.endTime,
               subject: event.summary,
+              notes: event.description, // Map description to notes
+              color: event.is_local
+                  ? Colors.redAccent
+                  : Colors.red, // Different colors
             ));
           }
-
+          _events = fetchedAppointments;
         }
       }
     }
@@ -241,7 +258,8 @@ class _HomeState extends State<Home> {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
 
     try {
-      List<eventRequest>? requests = await GetEventRequest().getEventRequest(uid, widget.groupId);
+      List<eventRequest>? requests =
+          await GetEventRequest().getEventRequest(uid, widget.groupId);
       if (requests?.isNotEmpty == true) {
         _requests = requests;
       } else {
@@ -260,35 +278,35 @@ class _HomeState extends State<Home> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.groupName!, style: TextStyle(fontFamily: 'MPLUSRounded1c-Medium')),
+        title: Text(widget.groupName!,
+            style: TextStyle(fontFamily: 'MPLUSRounded1c-Medium')),
         backgroundColor: GlobalColor.SubCol,
         flexibleSpace: Container(
           color: GlobalColor.SubCol,
         ),
         actions: [
           badge.Badge(
-              showBadge: _requests.isNotEmpty,
-              position: BadgePosition.topEnd(top: 10, end: 10),
-              child: IconButton(
-                icon: Icon(Icons.notifications, size: 30),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ReceiveEventrequest(
-                        eventReq: _requests,
-                        gid: widget.groupId,
-                        usedContent: usedContent,
-                      ),
+            showBadge: _requests.isNotEmpty,
+            position: BadgePosition.topEnd(top: 10, end: 10),
+            child: IconButton(
+              icon: Icon(Icons.notifications, size: 30),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReceiveEventrequest(
+                      eventReq: _requests,
+                      gid: widget.groupId,
+                      usedContent: usedContent,
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
+            ),
           ),
           IconButton(
             icon: Icon(
@@ -320,12 +338,13 @@ class _HomeState extends State<Home> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      !widget.is_frined ? ContentsSetting(
-                    groupId: widget.groupId,
-                    usedCalendar: usedContent,
-
-                  ):friendContentsSetting(groupId: widget.groupId, usedCalendar: usedContent),
+                  builder: (context) => !widget.is_frined
+                      ? ContentsSetting(
+                          groupId: widget.groupId,
+                          usedCalendar: usedContent,
+                        )
+                      : friendContentsSetting(
+                          groupId: widget.groupId, usedCalendar: usedContent),
                 ),
               );
             },
@@ -344,58 +363,87 @@ class _HomeState extends State<Home> {
             },
             children: [
               SfCalendar(
-                  key: ValueKey(_currentView),
-                  view: _currentView,
-                  timeZone: 'Japan',
-                  headerHeight: 50,
-                  dataSource: MeetingDataSource(GroupCal),
-                  showDatePickerButton: true,
-                  showWeekNumber: true,
-                  headerDateFormat: 'yyyy MMMM',
-                  selectionDecoration: BoxDecoration(
+                key: ValueKey(_currentView),
+                view: _currentView,
+                timeZone: 'Japan',
+                headerHeight: 50,
+                dataSource: MeetingDataSource(FrontCalendar),
+                showDatePickerButton: true,
+                showWeekNumber: true,
+                headerDateFormat: 'yyyy MMMM',
+                selectionDecoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(
                     color: Colors.transparent,
-                    border: Border.all(
-                      color: Colors.transparent,
-                      width: 0,
+                    width: 0,
+                  ),
+                ),
+                todayHighlightColor: GlobalColor.MainCol,
+                todayTextStyle: TextStyle(
+                  color: GlobalColor.SubCol,
+                  fontWeight: FontWeight.bold,
+                ),
+                showTodayButton: true,
+                cellBorderColor: GlobalColor.Calendar_grid_color,
+                timeSlotViewSettings: TimeSlotViewSettings(
+                  timeFormat: 'H:mm',
+                ),
+                appointmentBuilder:
+                    (BuildContext context, CalendarAppointmentDetails details) {
+                  final Appointment appointment = details.appointments.first;
+                  return Container(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(0),
+                      color: appointment.color,
                     ),
-                  ),
-                  todayHighlightColor: GlobalColor.MainCol,
-                  todayTextStyle: TextStyle(
-                    color: GlobalColor.SubCol,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  showTodayButton: true,
-                  cellBorderColor: GlobalColor.Calendar_grid_color,
-                  timeSlotViewSettings: TimeSlotViewSettings(
-                    timeFormat: 'H:mm',
-                  ),
-                  appointmentBuilder: (BuildContext context,
-                      CalendarAppointmentDetails details) {
-                    final Appointment appointment = details.appointments.first;
-                    return Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(0),
-                        color: appointment.color,
-                      ),
-                    );
-                  },
-                  specialRegions: getAppointments(),
-                  onTap: (CalendarTapDetails details) {
-                    if (details.targetElement == CalendarElement.appointment) {
-                      final Appointment appointment =
-                          details.appointments!.first;
+                  );
+                },
+                specialRegions: getAppointments(BackCalendar),
+                onTap: (CalendarTapDetails details) {
+                  // Check if there are appointments tapped
+                  if (details.appointments != null &&
+                      details.appointments!.isNotEmpty) {
+                    final Appointment appointment = details.appointments!.first;
+                    print(
+                        "Tapped appointment: ${appointment.subject}, Notes: ${appointment.notes}"); // Debugging
+
+                    if (flipped) {
+                      // Logic for when _isFlipped is true
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Text('予定あり'),
+                            title: Text(appointment.subject),
+                            content: Text(
+                              (appointment.notes == null ||
+                                      appointment.notes!.isEmpty)
+                                  ? '概要なし' // 'No summary' in Japanese
+                                  : appointment.notes!,
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('閉じる'), // 'Close' in Japanese
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      // Logic for when _isFlipped is false
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(
+                                '予定あり'), // 'Appointment exists' in Japanese
                             content: SingleChildScrollView(
                               child: Column(
-                                children: appointment.subject
-                                    .split('\n')
-                                    .map((line) {
-                                  // Split each line into uicon and uname
+                                children:
+                                    appointment.subject.split('\n').map((line) {
                                   List<String> parts = line.split(' - ');
                                   if (parts.length == 2) {
                                     String uicon = parts[0].trim();
@@ -403,7 +451,7 @@ class _HomeState extends State<Home> {
                                     return ListTile(
                                       leading: CircleAvatar(
                                         backgroundImage: NetworkImage(
-                                          "https://calendar-files.woody1227.com/user_icon/" + uicon,
+                                          "https://calendar-files.woody1227.com/user_icon/$uicon",
                                         ),
                                       ),
                                       title: Text(uname),
@@ -412,8 +460,7 @@ class _HomeState extends State<Home> {
                                     // Handle lines that don't match the expected format
                                     return SizedBox.shrink();
                                   }
-                                })
-                                    .toList(),
+                                }).toList(),
                               ),
                             ),
                             actions: <Widget>[
@@ -428,32 +475,71 @@ class _HomeState extends State<Home> {
                         },
                       );
                     }
-                  }),
+                  } else {
+                    print(
+                        "Tapped on a non-appointment area or no appointments present."); // Debugging
+                  }
+                },
+              ),
               ChatScreen(gid: widget.groupId),
             ],
           ),
         ],
       ),
       floatingActionButton: _showFab
-          ? FloatingActionButton(
-              backgroundColor: GlobalColor.MainCol,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SearchSchedule(
-                      groupId: widget.groupId,
-                    ),
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 16.0, right: 16.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // **New Floating Action Button for Flipping Events**
+                  FloatingActionButton(
+                    heroTag: 'flipButton', // Unique hero tag
+                    backgroundColor: GlobalColor.MainCol,
+                    onPressed: () {
+                      setState(() {
+                        flipped = !flipped;
+                        print("Flip button pressed. _isFlipped: $flipped");
+                        if (!flipped) {
+                          FrontCalendar = GroupCal;
+                          BackCalendar = _events;
+                        } else {
+                          FrontCalendar = _events;
+                          BackCalendar = GroupCal;
+                        }
+                      });
+                    },
+                    child:
+                        Icon(Icons.flip, color: GlobalColor.SubCol, size: 30),
+                    tooltip: 'Flip Events',
                   ),
-                );
-              },
-              child: Icon(Icons.search, color: GlobalColor.SubCol, size: 30),
+                  SizedBox(width: 16), // Spacing between FABs
+                  // **Existing Floating Action Button for Search**
+                  FloatingActionButton(
+                    heroTag: 'searchButton', // Unique hero tag
+                    backgroundColor: GlobalColor.MainCol,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SearchSchedule(
+                            groupId: widget.groupId,
+                          ),
+                        ),
+                      );
+                    },
+                    child:
+                        Icon(Icons.search, color: GlobalColor.SubCol, size: 30),
+                    tooltip: 'Search Schedule',
+                  ),
+                ],
+              ),
             )
           : null,
     );
   }
 
-  Future<void> _getTimeRegions() async {
+  Future<void> _getGroupCal() async {
     var fetchedRegions = await GetGroupCalendar()
         .getGroupCalendar(widget.groupId, '2023-01-00', '2025-12-11');
     setState(() {
@@ -461,14 +547,15 @@ class _HomeState extends State<Home> {
     });
   }
 
-  List<TimeRegion> getAppointments() {
+  List<TimeRegion> getAppointments(List<Appointment> events) {
     List<TimeRegion> meetings = <TimeRegion>[];
-    for (var event in _events) {
+    for (var event in events) {
       if (event.startTime == null || event.endTime == null) continue;
       meetings.add(TimeRegion(
         startTime: event.startTime,
         endTime: event.endTime,
-        color: GlobalColor.Calendar_outline_color,
+        color: event.color,
+        //color: GlobalColor.Calendar_outline_color,
       ));
     }
     return meetings;

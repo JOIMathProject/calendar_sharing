@@ -37,7 +37,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
 
   Future<void> _getSelectedCalendars(String uid, String cid) async {
     final selectedCalendarsTmp =
-    await GetMyContentCalendars().getMyContentCalenders(uid, cid);
+        await GetMyContentCalendars().getMyContentCalenders(uid, cid);
     setState(() {
       calendars = selectedCalendarsTmp;
       _isLoadingCalendars = false;
@@ -81,7 +81,8 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
         return Theme(
           data: ThemeData(
             colorScheme: ColorScheme.light(
-              primary: GlobalColor.MainCol, // Header background color (selected day)
+              primary:
+                  GlobalColor.MainCol, // Header background color (selected day)
               onPrimary: Colors.black, // Header text color
               surface: GlobalColor.SubCol, // Dialog background color
               onSurface: Colors.black, // Body text color (dates)
@@ -90,8 +91,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 backgroundColor: GlobalColor.MainCol,
-                foregroundColor:
-                GlobalColor.SubCol, // Button text color
+                foregroundColor: GlobalColor.SubCol, // Button text color
                 // backgroundColor can be set if needed
               ),
             ),
@@ -113,18 +113,17 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
           return Theme(
             data: ThemeData(
               colorScheme: ColorScheme.light(
-                primary: GlobalColor.MainCol, // Header background color (selected day)
+                primary: GlobalColor
+                    .MainCol, // Header background color (selected day)
                 onPrimary: Colors.black, // Header text color
                 surface: GlobalColor.SubCol, // Dialog background color
                 onSurface: Colors.black, // Body text color (dates)
               ),
-              dialogBackgroundColor:
-              GlobalColor.SubCol, // Dialog background
+              dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
                   backgroundColor: GlobalColor.MainCol,
-                  foregroundColor:
-                  GlobalColor.SubCol, // Button text color
+                  foregroundColor: GlobalColor.SubCol, // Button text color
                   // backgroundColor can be set if needed
                 ),
               ),
@@ -162,16 +161,16 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
   Future<void> _pickEndDateTime() async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: _endDateTime.isBefore(_startDateTime)
-          ? _startDateTime
-          : _endDateTime,
+      initialDate:
+          _endDateTime.isBefore(_startDateTime) ? _startDateTime : _endDateTime,
       firstDate: _startDateTime, // End date cannot be before Start date
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData(
             colorScheme: ColorScheme.light(
-              primary: GlobalColor.MainCol, // Header background color (selected day)
+              primary:
+                  GlobalColor.MainCol, // Header background color (selected day)
               onPrimary: Colors.black, // Header text color
               surface: GlobalColor.SubCol, // Dialog background color
               onSurface: Colors.black, // Body text color (dates)
@@ -180,8 +179,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 backgroundColor: GlobalColor.MainCol,
-                foregroundColor:
-                GlobalColor.SubCol, // Button text color
+                foregroundColor: GlobalColor.SubCol, // Button text color
                 // backgroundColor can be set if needed
               ),
             ),
@@ -200,7 +198,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
         // If the picked date is the same as the start date, use custom time picker
         // **Updated Logic:** Set minTime to startTime + 1 hour
         TimeOfDay minSelectableTime =
-        addMinutesToTimeOfDay(TimeOfDay.fromDateTime(_startDateTime), 60);
+            addMinutesToTimeOfDay(TimeOfDay.fromDateTime(_startDateTime), 60);
 
         TimeOfDay? pickedTime = await _showCustomTimePicker(
           context,
@@ -230,7 +228,8 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
             return Theme(
               data: ThemeData(
                 colorScheme: ColorScheme.light(
-                  primary: GlobalColor.MainCol, // Header background color (selected day)
+                  primary: GlobalColor
+                      .MainCol, // Header background color (selected day)
                   onPrimary: Colors.black, // Header text color
                   surface: GlobalColor.SubCol, // Dialog background color
                   onSurface: Colors.black, // Body text color (dates)
@@ -239,8 +238,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                 textButtonTheme: TextButtonThemeData(
                   style: TextButton.styleFrom(
                     backgroundColor: GlobalColor.MainCol,
-                    foregroundColor:
-                    GlobalColor.SubCol, // Button text color
+                    foregroundColor: GlobalColor.SubCol, // Button text color
                     // backgroundColor can be set if needed
                   ),
                 ),
@@ -325,8 +323,10 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
 
     if (summary.isEmpty) {
       // Show SnackBar if summary is empty
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('予定名を入力してください')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: GlobalColor.SnackCol,
+          content: Text('予定名を入力してください',
+              style: TextStyle(color: GlobalColor.SubCol))));
       return;
     }
 
@@ -334,8 +334,10 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
     if (_endDateTime.difference(_startDateTime) < Duration(minutes: 1)) {
       // This condition should rarely be true due to UI restrictions,
       // but it's kept here for safety.
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('終了時間は開始時間より1分後でなければなりません')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: GlobalColor.SnackCol,
+          content: Text('終了時間は開始時間より1分後でなければなりません',
+              style: TextStyle(color: GlobalColor.SubCol))));
       return;
     }
 
@@ -344,25 +346,33 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
         // Add event locally
         await addEvents(
             widget.cid!, summary, description, _startDateTime, _endDateTime);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('イベントがローカルに追加されました')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: GlobalColor.SnackCol,
+            content: Text('イベントがローカルに追加されました',
+                style: TextStyle(color: GlobalColor.SubCol))));
       } else {
         // Add event to Google Calendar
         if (selectedCalendar == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('カレンダーを選択してください')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              backgroundColor: GlobalColor.SnackCol,
+              content: Text('カレンダーを選択してください',
+                  style: TextStyle(color: GlobalColor.SubCol))));
           return;
         }
         await addEventToGoogleCalendar(summary, description, _startDateTime,
             _endDateTime, selectedCalendar!);
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Googleカレンダーに予定が追加されました')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: GlobalColor.SnackCol,
+            content: Text('Googleカレンダーに予定が追加されました',
+                style: TextStyle(color: GlobalColor.SubCol))));
       }
       Navigator.pop(context, true); // Navigate back after adding
     } catch (e) {
       print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('イベントの追加に失敗しました')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: GlobalColor.SnackCol,
+          content: Text('イベントの追加に失敗しました',
+              style: TextStyle(color: GlobalColor.SubCol))));
     }
     // Optionally, navigate back or clear fields after adding the event
   }
@@ -400,7 +410,8 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                     borderSide: BorderSide.none, // Remove the default border
                   ),
                   filled: true,
-                  fillColor: Colors.transparent, // Transparent since Container has color
+                  fillColor: Colors
+                      .transparent, // Transparent since Container has color
                   contentPadding: EdgeInsets.symmetric(
                       vertical: 15, horizontal: 20), // Padding inside the field
                 ),
@@ -430,7 +441,8 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                     borderSide: BorderSide.none, // Remove the default border
                   ),
                   filled: true,
-                  fillColor: Colors.transparent, // Transparent since Container has color
+                  fillColor: Colors
+                      .transparent, // Transparent since Container has color
                   contentPadding: EdgeInsets.symmetric(
                       vertical: 15, horizontal: 20), // Padding inside the field
                 ),
@@ -450,8 +462,8 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                       GestureDetector(
                         onTap: _pickStartDateTime,
                         child: Container(
-                          padding:
-                          EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 10),
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(5),
@@ -475,8 +487,8 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                       GestureDetector(
                         onTap: _pickEndDateTime,
                         child: Container(
-                          padding:
-                          EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 10),
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(5),
@@ -526,36 +538,35 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
               _isLoadingCalendars
                   ? Center(child: CircularProgressIndicator())
                   : calendars.isEmpty
-                  ? Text('利用可能なカレンダーがありません')
-                  : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('カレンダーを選択'),
-                  DropdownButton<CalendarInformation>(
-                    value: selectedCalendar,
-                    hint: Text('カレンダーを選択'),
-                    onChanged: (CalendarInformation? newValue) {
-                      setState(() {
-                        selectedCalendar = newValue!;
-                      });
-                    },
-                    items: calendars
-                        .map<DropdownMenuItem<CalendarInformation>>(
-                            (CalendarInformation value) {
-                          return DropdownMenuItem<CalendarInformation>(
-                            value: value,
-                            child: Text(value.summary),
-                          );
-                        }).toList(),
-                  ),
-                ],
-              ),
+                      ? Text('利用可能なカレンダーがありません')
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('カレンダーを選択'),
+                            DropdownButton<CalendarInformation>(
+                              value: selectedCalendar,
+                              hint: Text('カレンダーを選択'),
+                              onChanged: (CalendarInformation? newValue) {
+                                setState(() {
+                                  selectedCalendar = newValue!;
+                                });
+                              },
+                              items: calendars
+                                  .map<DropdownMenuItem<CalendarInformation>>(
+                                      (CalendarInformation value) {
+                                return DropdownMenuItem<CalendarInformation>(
+                                  value: value,
+                                  child: Text(value.summary),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _addEvent,
               child: Text('追加',
-                  style:
-                  TextStyle(color: GlobalColor.SubCol, fontSize: 30)),
+                  style: TextStyle(color: GlobalColor.SubCol, fontSize: 30)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: GlobalColor.MainCol,
                 padding: EdgeInsets.symmetric(vertical: 15),
