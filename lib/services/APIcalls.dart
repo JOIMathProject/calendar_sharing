@@ -179,6 +179,21 @@ class eventRequest{
     required this.endTime,
   });
 }
+class eventInformation{
+  String summary;
+  String description;
+  DateTime startTime;
+  DateTime endTime;
+  bool is_local;
+  eventInformation({
+    required this.summary,
+    required this.description,
+    required this.startTime,
+    required this.endTime,
+    required this.is_local,
+  });
+
+}
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -638,7 +653,7 @@ class GetGroupCalendar {
       }
 
       // Create the subject with the member names
-      String subject = members.map((m) => m.uname).join('\n');
+      String subject = members.map((m) => '${m.uicon} - ${m.uname}').join('\n');
 
       events.add(Appointment(
         startTime: DateTime.parse(group['start_dateTime']),
@@ -808,7 +823,7 @@ class DeleteCalendarFromContents {
   }
 }
 class GetMyContentsSchedule {
-  Future<List<Appointment>> getMyContentsSchedule(
+  Future<List<eventInformation>> getMyContentsSchedule(
       String? uid, String? cid, String? from, String? to) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$from/$to');
@@ -817,12 +832,17 @@ class GetMyContentsSchedule {
     if (response.statusCode != 200 && response.statusCode != 404) {
       throw 'Failed to get calendar: ${response.statusCode}';
     }
-    List<Appointment> events = [];
+    List<eventInformation> events = [];
     for (var group in jsonDecode(response.body)['data']) {
-      events.add(Appointment(
+      events.add(eventInformation(
           startTime: DateTime.parse(group['start_dateTime']),
           endTime: DateTime.parse(group['end_dateTime']),
-          subject: group['summary']));
+          summary: group['summary'],
+          description: group['description'],
+          is_local: group['is_local'] == 0 ? false : true,
+      )
+
+      );
     }
     return events;
   }
@@ -1258,6 +1278,28 @@ class AddEventToTheCalendar{
       }),
     );
 
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add event to the calendar: ${response.statusCode}';
+    }
+    return;
+  }
+}
+class AddEventToMyContentsLocal{
+  Future<void> addEventToMyContentsLocal(String? uid,String? cid,String? summary,String? description,DateTime? start_dateTime,DateTime? end_dateTime) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/contents/$cid/events');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey
+      },
+      body: jsonEncode({
+        "summary": summary,
+        "description": description,
+        "start_dateTime": start_dateTime.toString().substring(0,19),
+        "end_dateTime": end_dateTime.toString().substring(0,19),
+      }),
+    );
+    print('addEventToMyContentsLocal: $uid, $cid, $summary, $description, ${start_dateTime.toString().substring(0,19)}, ${end_dateTime.toString().substring(0,19)}');
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to add event to the calendar: ${response.statusCode}';
     }

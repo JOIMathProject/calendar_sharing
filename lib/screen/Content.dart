@@ -218,8 +218,17 @@ class _HomeState extends State<Home> {
     if (contents?.isNotEmpty == true) {
       for (var content in contents!) {
         if (content.uid == uid) {
-          _events = await GetMyContentsSchedule().getMyContentsSchedule(
-              uid, content.cid, '2024-01-00', '2025-12-11');
+          List<eventInformation> eventsCollection = [];
+          eventsCollection = await GetMyContentsSchedule().getMyContentsSchedule(
+            uid, content.cid, '2024-01-00', '2025-12-11');
+          for (var event in eventsCollection) {
+            _events.add(Appointment(
+              startTime: event.startTime,
+              endTime: event.endTime,
+              subject: event.summary,
+            ));
+          }
+
         }
       }
     }
@@ -256,7 +265,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.groupName!),
+        title: Text(widget.groupName!, style: TextStyle(fontFamily: 'MPLUSRounded1c-Medium')),
         backgroundColor: GlobalColor.SubCol,
         flexibleSpace: Container(
           color: GlobalColor.SubCol,
@@ -381,7 +390,32 @@ class _HomeState extends State<Home> {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: Text('予定あり'),
-                            content: Text(appointment.subject),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                children: appointment.subject
+                                    .split('\n')
+                                    .map((line) {
+                                  // Split each line into uicon and uname
+                                  List<String> parts = line.split(' - ');
+                                  if (parts.length == 2) {
+                                    String uicon = parts[0].trim();
+                                    String uname = parts[1].trim();
+                                    return ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          "https://calendar-files.woody1227.com/user_icon/" + uicon,
+                                        ),
+                                      ),
+                                      title: Text(uname),
+                                    );
+                                  } else {
+                                    // Handle lines that don't match the expected format
+                                    return SizedBox.shrink();
+                                  }
+                                })
+                                    .toList(),
+                              ),
+                            ),
                             actions: <Widget>[
                               TextButton(
                                 child: Text('閉じる'),

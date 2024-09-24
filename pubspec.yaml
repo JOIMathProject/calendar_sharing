@@ -51,6 +51,7 @@ dependencies:
   image: ^4.2.0
   flutter_launcher_icons: ^0.13.1
   font_awesome_flutter: ^10.7.0
+  flutter_datetime_picker: ^1.4.0
 
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -90,6 +91,15 @@ flutter:
     - family: SmglMediumbold
       fonts:
         - asset: assets/fonts/SmglMediumbold.ttf
+    - family: MPLUSRounded1c-Medium
+      fonts:
+        - asset: assets/fonts/MPLUSRounded1c-Medium.ttf
+    - family: MPLUSRounded1c-Regular
+      fonts:
+        - asset: assets/fonts/MPLUSRounded1c-Regular.ttf
+    - family: MPLUSRounded1c-Bold
+      fonts:
+        - asset: assets/fonts/MPLUSRounded1c-Bold.ttf
 
 
   # To add assets to your application, add an assets section, like this:

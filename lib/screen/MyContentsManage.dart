@@ -69,7 +69,11 @@ class _MyContentsManageState extends State<MyContentsManage> {
                 await _deleteContent(uid, cid);
                 print('deleted');
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('「$cname」を削除しました')),
+                  SnackBar(
+                    backgroundColor: GlobalColor.SnackCol,
+                      content: Text('「$cname」を削除しました',
+                        style: TextStyle(color: GlobalColor.SubCol)),
+                  ),
                 );
                 Navigator.of(context).pop();
               },
@@ -93,40 +97,15 @@ class _MyContentsManageState extends State<MyContentsManage> {
                 itemCount: contents.length,
                 itemBuilder: (context, index) {
                   if (contents.isNotEmpty) {
-                    return Dismissible(
+                    return Container(
                       key: Key(contents[index].cid),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (direction) {
-                        // Handle the deletion logic
-                        String? uid = Provider.of<UserData>(context, listen: false).uid;
-                        _showDeleteConfirmationDialog(context, uid!, contents[index].cid, contents[index].cname);
-                        setState(() {
-                          contents.removeAt(index); // Immediately remove the item from the list
-                        });
-                      },
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerRight,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Icon(
-                          Icons.delete,
-                          color: Colors.white,
-                        ),
-                      ),
                       child: ListTile(
                         title: Text(contents[index].cname),
                         trailing: IconButton(
-                          icon: Icon(Icons.edit),
+                          icon: Icon(Icons.delete),
                           onPressed: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MyContentSetting(
-                                  cid: contents[index].cid,
-                                  contentsName: contents[index].cname,
-                                ),
-                              ),
-                            ).then((value) => _reloadContents());
+                            String? uid = Provider.of<UserData>(context, listen: false).uid;
+                            _showDeleteConfirmationDialog(context, uid!, contents[index].cid, contents[index].cname);
                           },
                         ),
                         onTap: () {

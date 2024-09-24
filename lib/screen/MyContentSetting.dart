@@ -90,13 +90,6 @@ class _MyContentSettingState extends State<MyContentSetting> {
             Expanded(child: _buildCalendarList(context)),
             Row(
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    var uid = Provider.of<UserData>(context, listen: false).uid;
-                    _showDeleteConfirmationDialog(context,uid!, widget.cid!, widget.contentsName!);
-                  },
-                  child: Text('マイコンテンツを削除',style: TextStyle(color: GlobalColor.SubCol),),
-                ),
                 Spacer(),
                 ElevatedButton(
                   onPressed: () {

@@ -56,6 +56,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
     await SetGroupPrimaryCalendar()
         .setGroupPrimaryCalendar(gid, uid, calendar_id);
   }
+
   Future<String?> getImageFromGallery() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -106,11 +107,14 @@ class _ContentsSettingState extends State<ContentsSetting> {
 
     return null; // No image was picked
   }
+
   Future<void> _getMyContents(String uid) async {
     _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
-    _MyContents = Provider.of<UserData>(context, listen: false).MyContentsChoice;
+    _MyContents =
+        Provider.of<UserData>(context, listen: false).MyContentsChoice;
     selectedContent = await _getCurrentUserContent(widget.groupId!, uid);
-    String selectedCalId = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(widget.groupId,uid);
+    String selectedCalId = await GetGroupPrimaryCalendar()
+        .getGroupPrimaryCalendar(widget.groupId, uid);
     selectedCalendar = _MyCalendar.firstWhere(
       (element) => element.calendar_id == selectedCalId,
       orElse: () => _MyCalendar[0],
@@ -145,6 +149,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
       isEditingGName = false; // Exit edit mode
     });
   }
+
   Future<void> _changeGroupIcon(String gicon) async {
     await UpdateGroupIcon().updateGroupIcon(widget.groupId, gicon);
     setState(() {});
@@ -227,7 +232,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 CircleAvatar(
                   radius: 50,
                   backgroundImage: NetworkImage(
-                        "https://calendar-files.woody1227.com/group_icon/${_groupDetail.gicon}",
+                    "https://calendar-files.woody1227.com/group_icon/${_groupDetail.gicon}",
                   ),
                 ),
                 Positioned(
@@ -280,6 +285,12 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 itemBuilder: (context, index) {
                   String uid = users[index].uid;
                   return ListTile(
+                    leading: CircleAvatar(
+                      radius: 25, // Adjust radius as per your requirement
+                      backgroundImage: NetworkImage(
+                        "https://calendar-files.woody1227.com/user_icon/${users[index].uicon}",
+                      ),
+                    ),
                     title: Text(users[index].uname),
                     trailing: IconButton(
                       icon: Icon(Icons.delete),
@@ -420,7 +431,8 @@ class _ContentsSettingState extends State<ContentsSetting> {
                     }
                   }
                 },
-              ),SizedBox(height: 20),
+              ),
+            SizedBox(height: 20),
             Text("カレンダーを選択", style: bigFont),
             if (_MyCalendar.isNotEmpty)
               DropdownButton<CalendarInformation>(
@@ -438,7 +450,8 @@ class _ContentsSettingState extends State<ContentsSetting> {
                     });
                     if (newValue.summary != 'なし') {
                       //await _addContentToGroup(widget.groupId!, newValue.summary);
-                      await _addCalendarToGroup(widget.groupId, uid, selectedCalendar?.calendar_id);
+                      await _addCalendarToGroup(
+                          widget.groupId, uid, selectedCalendar?.calendar_id);
                     }
                   }
                 },
@@ -461,15 +474,14 @@ class _ContentsSettingState extends State<ContentsSetting> {
   }
 
   Widget buildProfileField(
-      BuildContext context, {
-        required String label,
-        required TextEditingController controller,
-        required bool isEditing,
-        required bool restrictInput, // New parameter to control input restriction
-        required VoidCallback onEditToggle,
-        required VoidCallback onSave,
-      }) {
-
+    BuildContext context, {
+    required String label,
+    required TextEditingController controller,
+    required bool isEditing,
+    required bool restrictInput, // New parameter to control input restriction
+    required VoidCallback onEditToggle,
+    required VoidCallback onSave,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -477,25 +489,26 @@ class _ContentsSettingState extends State<ContentsSetting> {
         children: [
           isEditing
               ? Expanded(
-            child: TextField(
-              maxLength: 15,
-              controller: controller,
-              style: TextStyle(fontSize: 18),
-              decoration: InputDecoration(
-                hintText: label,
-              ),
-              inputFormatters: restrictInput
-                  ? [
-                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
-              ]
-                  : [], // No restriction if restrictInput is false
-            ),
-          )
+                  child: TextField(
+                    maxLength: 15,
+                    controller: controller,
+                    style: TextStyle(fontSize: 18),
+                    decoration: InputDecoration(
+                      hintText: label,
+                    ),
+                    inputFormatters: restrictInput
+                        ? [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[a-zA-Z0-9_]')),
+                          ]
+                        : [], // No restriction if restrictInput is false
+                  ),
+                )
               : Text(
-              label == 'ユーザーID'
-                  ? '$label: @${controller.text}'
-                  : '$label: ${controller.text}',
-              style: TextStyle(fontSize: 18)),
+                  label == 'ユーザーID'
+                      ? '$label: @${controller.text}'
+                      : '$label: ${controller.text}',
+                  style: TextStyle(fontSize: 18)),
           IconButton(
             icon: Icon(isEditing ? Icons.check : Icons.edit),
             onPressed: isEditing ? onSave : onEditToggle,
