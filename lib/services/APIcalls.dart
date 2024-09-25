@@ -825,6 +825,7 @@ class DeleteCalendarFromContents {
 class GetMyContentsSchedule {
   Future<List<eventInformation>> getMyContentsSchedule(
       String? uid, String? cid, String? from, String? to) async {
+    print('uid:$uid,cid:$cid,from:$from,to:$to');
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$from/$to');
     final response = await http.get(url, headers: {'API_KEY': APIKey});
@@ -839,7 +840,7 @@ class GetMyContentsSchedule {
           endTime: DateTime.parse(group['end_dateTime']),
           summary: group['summary'],
           description: group['description'],
-          is_local: group['is_local'] == 0 ? false : true,
+          is_local: group['is_local'] == '0' ? false : true,
       )
 
       );

@@ -43,7 +43,7 @@ class _MyContentState extends State<MyContent> {
         endTime: event.endTime,
         subject: event.summary,
         notes: event.description, // Map description to notes
-        color: event.is_local ? GlobalColor.MainCol : Colors.red, // Different colors
+        color: event.is_local ?  Colors.blue:GlobalColor.MainCol, // Different colors
       );
     }).toList();
 

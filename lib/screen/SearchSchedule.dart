@@ -18,13 +18,11 @@ class SearchSchedule extends StatefulWidget {
 }
 
 class _SearchScheduleState extends State<SearchSchedule> {
+
+  DateTime _startDate = DateTime.now();
+  DateTime _endDate = DateTime.now().add(Duration(days: 1)); // Default to next day
+
   DateTime now = DateTime.now();
-  int startYear = DateTime.now().year;
-  int endYear = DateTime.now().year;
-  int startDateMonth = DateTime.now().month;
-  int endDateMonth = DateTime.now().month + 1;
-  int startDateDay = DateTime.now().day;
-  int endDateDay = DateTime.now().day;
   int startTime = 8;
   int endTime = 20;
   int minHours = 1;
@@ -104,29 +102,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
   List<SearchResultEvent> searchResults = [];
   final expansionTileController = ExpansionTileController();
-  List<int> getAvailableDays(int year, int month) {
-    int lastDayOfMonth = DateTime(year, month + 1, 0).day;
-    DateTime selectedDate = DateTime(year, month, 1);
-    int startDayLimit =
-    (selectedDate.isAfter(now) || selectedDate.isAtSameMomentAs(now))
-        ? 1
-        : now.day + 1;
-
-    if (year == startYear && month == startDateMonth) {
-      startDayLimit = startDateDay;
-    }
-
-    // Ensure today's date is not included in the available days
-    if (year == now.year && month == now.month) {
-      if (startDayLimit <= now.day) {
-        startDayLimit = now.day + 1;
-      }
-    }
-
-    return List.generate(
-        lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
-  }
-
   String? primaryCalendar;
   Future<void> getPrimaryCalendar() async {
     primaryCalendar = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(widget.groupId,Provider.of<UserData>(context, listen: false).uid);
@@ -134,60 +109,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
   Future<void> _getGroupUsers() async {
     users = await GetUserInGroup().getUserInGroup(widget.groupId!);
     users.remove(users.firstWhere((element) => element.uid == Provider.of<UserData>(context, listen: false).uid));
-  }
-
-  List<int> getAvailableDaysStart(int year, int month) {
-    int lastDayOfMonth = DateTime(year, month + 1, 0).day;
-    int startDayLimit = 1;
-
-    if (year == startYear && month == DateTime.now().month) {
-      startDayLimit = DateTime.now().day;
-    }
-    return List.generate(
-        lastDayOfMonth - startDayLimit + 1, (index) => startDayLimit + index);
-  }
-
-  List<int> getAvailableMonths(int year) {
-    int startMonthLimit = (year == now.year) ? now.month : 1;
-
-    if (year == startYear) {
-      startMonthLimit = startDateMonth;
-    }
-    return List.generate(
-        12 - startMonthLimit + 1, (index) => startMonthLimit + index);
-  }
-
-  List<int> getAvailableMonthsStart(int year) {
-    int startMonthLimit = (year == now.year) ? now.month : 1;
-
-    if (year == startYear) {
-      startMonthLimit = DateTime.now().month;
-    }
-    return List.generate(
-        12 - startMonthLimit + 1, (index) => startMonthLimit + index);
-  }
-
-  List<int> getAvailableYears() {
-    return years.where((year) {
-      DateTime startDate = DateTime(startYear, startDateMonth, startDateDay);
-      DateTime endDate = DateTime(year, endDateMonth, endDateDay);
-      return endDate.isAfter(now) &&
-          endDate.isBefore(
-              startDate.add(Duration(days: 182))); // Limit to 6 months
-    }).toList();
-  }
-
-  void _adjustEndDate() {
-    DateTime startDate = DateTime(startYear, startDateMonth, startDateDay);
-    DateTime endDate = DateTime(endYear, endDateMonth, endDateDay);
-
-    if (startDate.isAfter(endDate)) {
-      setState(() {
-        endYear = startYear;
-        endDateMonth = startDateMonth;
-        endDateDay = startDateDay;
-      });
-    }
   }
 
   Future<void> _getGroupSize() async {
@@ -381,18 +302,19 @@ class _SearchScheduleState extends State<SearchSchedule> {
         String formatWithLeadingZero(int value) {
           return value.toString().padLeft(2, '0');
         }
+        String formatDate(DateTime date) {
+          return DateFormat('yyyy-MM-dd').format(date);
+        }
+        String formattedStartDate = formatDate(_startDate);
+        String formattedEndDate = formatDate(_endDate);
 
-        String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
-        String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
-        String formattedStartDateDay = formatWithLeadingZero(startDateDay);
-        String formattedEndDateDay = formatWithLeadingZero(endDateDay);
         String formattedStartTime = formatWithLeadingZero(startTime);
         String formattedEndTime = formatWithLeadingZero(endTime);
 
         searchResults = await SearchContentScheduleWeather().searchContentScheduleWeather(
           widget.groupId.toString(),
-          '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
-          '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
+          formattedStartDate,
+          formattedEndDate,
           formattedStartTime,
           '00',
           formattedEndTime,
@@ -413,18 +335,19 @@ class _SearchScheduleState extends State<SearchSchedule> {
         String formatWithLeadingZero(int value) {
           return value.toString().padLeft(2, '0');
         }
+        String formatDate(DateTime date) {
+          return DateFormat('yyyy-MM-dd').format(date);
+        }
+        String formattedStartDate = formatDate(_startDate);
+        String formattedEndDate = formatDate(_endDate);
 
-        String formattedStartDateMonth = formatWithLeadingZero(startDateMonth);
-        String formattedEndDateMonth = formatWithLeadingZero(endDateMonth);
-        String formattedStartDateDay = formatWithLeadingZero(startDateDay);
-        String formattedEndDateDay = formatWithLeadingZero(endDateDay);
         String formattedStartTime = formatWithLeadingZero(startTime);
         String formattedEndTime = formatWithLeadingZero(endTime);
 
         searchResults = await SearchContentSchedule().searchContentSchedule(
           widget.groupId,
-          '$startYear-$formattedStartDateMonth-$formattedStartDateDay',
-          '$endYear-$formattedEndDateMonth-$formattedEndDateDay',
+          formattedStartDate,
+          formattedEndDate,
           formattedStartTime,
           '00',
           formattedEndTime,
@@ -481,8 +404,90 @@ class _SearchScheduleState extends State<SearchSchedule> {
         });
       }
     });
+  }Future<void> _pickStartDate() async {
+    DateTime today = DateTime.now();
+    DateTime firstSelectableDate = DateTime(today.year, today.month, today.day);
+
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _startDate.isBefore(firstSelectableDate) ? firstSelectableDate : _startDate,
+      firstDate: firstSelectableDate, // Prevent selecting dates before today
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData(
+            colorScheme: ColorScheme.light(
+              primary: GlobalColor.MainCol, // Header background color (selected day)
+              onPrimary: Colors.black, // Header text color
+              surface: GlobalColor.SubCol, // Dialog background color
+              onSurface: Colors.black, // Body text color (dates)
+            ),
+            dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                backgroundColor: GlobalColor.MainCol,
+                foregroundColor: GlobalColor.SubCol, // Button text color
+              ),
+            ),
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(color: Colors.black), // Date text color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _startDate = pickedDate;
+
+        // **Updated Logic:** If the new Start Date is after the current End Date,
+        // adjust the End Date to be the same as the new Start Date
+        if (_endDate.isBefore(_startDate)) {
+          _endDate = _startDate;
+        }
+      });
+    }
   }
 
+  Future<void> _pickEndDate() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _endDate.isBefore(_startDate) ? _startDate : _endDate,
+      firstDate: _startDate, // End date cannot be before Start date
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData(
+            colorScheme: ColorScheme.light(
+              primary: GlobalColor.MainCol, // Header background color (selected day)
+              onPrimary: Colors.black, // Header text color
+              surface: GlobalColor.SubCol, // Dialog background color
+              onSurface: Colors.black, // Body text color (dates)
+            ),
+            dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                backgroundColor: GlobalColor.MainCol,
+                foregroundColor: GlobalColor.SubCol, // Button text color
+              ),
+            ),
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(color: Colors.black), // Date text color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _endDate = pickedDate;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -492,25 +497,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
     if (!hours.where((hour) => hour >= startTime).contains(endTime)) {
       endTime = hours.where((hour) => hour >= startTime).first;
-    }
-
-    if (!getAvailableDays(startYear, startDateMonth).contains(startDateDay)) {
-      startDateDay = getAvailableDaysStart(startYear, startDateMonth).first;
-    }
-
-    if (!getAvailableDays(endYear, endDateMonth).contains(endDateDay)) {
-      endDateDay = getAvailableDays(endYear, endDateMonth).first;
-    }
-    List<int> availableStartDays =
-        getAvailableDaysStart(startYear, startDateMonth);
-    if (!availableStartDays.contains(startDateDay)) {
-      startDateDay =
-          availableStartDays.isNotEmpty ? availableStartDays.first : 1;
-    }
-
-    List<int> availableEndDays = getAvailableDays(endYear, endDateMonth);
-    if (!availableEndDays.contains(endDateDay)) {
-      endDateDay = availableEndDays.isNotEmpty ? availableEndDays.first : 1;
     }
     return Scaffold(
       appBar: AppBar(
@@ -539,7 +525,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                 controller: expansionTileController,
                 initiallyExpanded: true,
                 title: Text(
-                    '${startYear}/${startDateMonth}/${startDateDay}~${endYear}/${endDateMonth}/${endDateDay}の${startTime}時から${endTime}時\n'
+                    '${_startDate.year}/${_startDate.month}/${_startDate.day}~${_endDate.year}/${_endDate.month}/${_endDate.day}の${startTime}時から${endTime}時\n'
                         '最低${minHours}時間以上/${minParticipants}人以上が参加可能\n'
                         '${(selectedRegion != null && considerWeather == true) ? selectedRegion : ''} '
                         '${(selectedCity != null && considerWeather == true) ? selectedCity : ''} '
@@ -547,87 +533,43 @@ class _SearchScheduleState extends State<SearchSchedule> {
                 dense: true,
                 children: [
                   SizedBox(height: 16.0),
+                  // Start Date Picker Button
                   Row(
                     children: [
-                      _buildDropdown(getAvailableYears(), startYear,
-                          (newValue) {
-                        setState(() {
-                          startYear = newValue!;
-                          if (startYear == endYear &&
-                              startDateMonth > endDateMonth) {
-                            endDateMonth = startDateMonth;
-                          }
-                          _adjustEndDate();
-                        });
-                      }),
-                      Text('年'),
+                      ElevatedButton(
+                        onPressed: _pickStartDate,
+                        child: Text(
+                          '開始日: ${DateFormat('yyyy/MM/dd').format(_startDate)}',
+                          style: TextStyle(color: GlobalColor.SubCol),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: GlobalColor.MainCol,
+                        ),
+                      ),
                       SizedBox(width: 8.0),
-                      _buildDropdown(
-                          getAvailableMonthsStart(startYear), startDateMonth,
-                          (newValue) {
-                        setState(() {
-                          startDateMonth = newValue!;
-                          if (!getAvailableDaysStart(startYear, startDateMonth)
-                              .contains(startDateDay)) {
-                            startDateDay =
-                                getAvailableDaysStart(startYear, startDateMonth)
-                                    .first;
-                          }
-                          _adjustEndDate();
-                        });
-                      }),
-                      Text('月'),
-                      SizedBox(width: 8.0),
-                      _buildDropdown(
-                          getAvailableDaysStart(startYear, startDateMonth),
-                          startDateDay, (newValue) {
-                        setState(() {
-                          startDateDay = newValue!;
-                          _adjustEndDate();
-                        });
-                      }),
-                      Text('日 から '),
-                      Spacer(flex: 2),
+                      Spacer(),
                     ],
                   ),
+                  SizedBox(height: 8.0),
+                  // End Date Picker Button
                   Row(
                     children: [
-                      Spacer(flex: 1),
-                      _buildDropdown(getAvailableYears(), endYear, (newValue) {
-                        setState(() {
-                          endYear = newValue!;
-                          _adjustEndDate();
-                        });
-                      }),
-                      Text('年'),
+                      ElevatedButton(
+                        onPressed: _pickEndDate,
+                        child: Text(
+                          '終了日: ${DateFormat('yyyy/MM/dd').format(_endDate)}',
+                          style: TextStyle(color: GlobalColor.SubCol),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: GlobalColor.MainCol,
+                        ),
+                      ),
                       SizedBox(width: 8.0),
-                      _buildDropdown(getAvailableMonths(endYear), endDateMonth,
-                          (newValue) {
-                        setState(() {
-                          endDateMonth = newValue!;
-                          _adjustEndDate();
-                        });
-                      }),
-                      Text('月'),
-                      SizedBox(width: 8.0),
-                      _buildDropdown(
-                          getAvailableDays(endYear, endDateMonth), endDateDay,
-                          (newValue) {
-                        setState(() {
-                          endDateDay = newValue!;
-                          if (!getAvailableDays(endYear, endDateMonth)
-                              .contains(endDateDay)) {
-                            endDateDay =
-                                getAvailableDaysStart(endYear, endDateMonth)
-                                    .first;
-                          }
-                          _adjustEndDate();
-                        });
-                      }),
-                      Text('日まで'),
-                      Spacer(flex: 1),
+                      Spacer(),
                     ],
                   ),
+                  SizedBox(height: 16.0),
+                  // Time Selection (Remains as Dropdowns)
                   Row(
                     children: [
                       _buildDropdown(hours, startTime, (newValue) {
@@ -651,6 +593,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                       Spacer(flex: 5),
                     ],
                   ),
+                  // ... Rest of the widgets remain unchanged
                   Row(
                     children: [
                       Text('最低'),
@@ -680,6 +623,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     ],
                   ),
                   SizedBox(height: 16.0),
+                  // Weather Consideration Switch and Options
                   Row(
                     children: [
                       Text('天気も考慮する'),
@@ -697,7 +641,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                         },
                         activeColor: GlobalColor.MainCol, // color of the toggle
                         inactiveTrackColor:
-                            GlobalColor.SubCol, // color of the background
+                        GlobalColor.SubCol, // color of the background
                         inactiveThumbColor: GlobalColor
                             .Unselected, // color of the thumb when the switch is off
                       ),
@@ -709,13 +653,13 @@ class _SearchScheduleState extends State<SearchSchedule> {
                       children: [
                         SizedBox(width: 8.0),
                         _buildDropdownString(regions, selectedRegion!,
-                            (newValue) {
-                          setState(() {
-                            selectedRegion = newValue;
-                            cities = _getCitiesForRegion(selectedRegion!);
-                            selectedCity = cities.first;
-                          });
-                        }, hintText: '地域を選択'),
+                                (newValue) {
+                              setState(() {
+                                selectedRegion = newValue;
+                                cities = _getCitiesForRegion(selectedRegion!);
+                                selectedCity = cities.first;
+                              });
+                            }, hintText: '地域を選択'),
                         Spacer(flex: 8),
                       ],
                     ),
@@ -739,10 +683,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                               isSunny = value!;
                             });
                           },
-                          activeColor: GlobalColor
-                              .SubCol, // color of the checkbox when selected
+                          activeColor:
+                          GlobalColor.SubCol, // color of the checkbox when selected
                           checkColor:
-                              GlobalColor.MainCol, // color of the checkmark
+                          GlobalColor.MainCol, // color of the checkmark
                         ),
                         Text('晴れ'),
                         Checkbox(
@@ -752,10 +696,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                               isCloudy = value!;
                             });
                           },
-                          activeColor: GlobalColor
-                              .SubCol, // color of the checkbox when selected
+                          activeColor:
+                          GlobalColor.SubCol, // color of the checkbox when selected
                           checkColor:
-                              GlobalColor.MainCol, // color of the checkmark
+                          GlobalColor.MainCol, // color of the checkmark
                         ),
                         Text('曇り'),
                         Checkbox(
@@ -765,10 +709,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                               isRainy = value!;
                             });
                           },
-                          activeColor: GlobalColor
-                              .SubCol, // color of the checkbox when selected
+                          activeColor:
+                          GlobalColor.SubCol, // color of the checkbox when selected
                           checkColor:
-                              GlobalColor.MainCol, // color of the checkmark
+                          GlobalColor.MainCol, // color of the checkmark
                         ),
                         Text('雨'),
                         Checkbox(
@@ -778,10 +722,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                               isSnowy = value!;
                             });
                           },
-                          activeColor: GlobalColor
-                              .SubCol, // color of the checkbox when selected
+                          activeColor:
+                          GlobalColor.SubCol, // color of the checkbox when selected
                           checkColor:
-                              GlobalColor.MainCol, // color of the checkmark
+                          GlobalColor.MainCol, // color of the checkmark
                         ),
                         Text('雪'),
                       ],
@@ -791,61 +735,63 @@ class _SearchScheduleState extends State<SearchSchedule> {
               ),
             ),
             SizedBox(height: 16.0),
-          Stack(
-            children: [
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0), // Add padding for a better appearance
-                  child:considerWeather? Text(
-                    '出典：気象庁ＨＰ',
-                    style: TextStyle(
-                      fontSize: 10, // Smaller font size
-                      color: Colors.black87, // Light font color
-                    ),
-                  ):Container(),
+            Stack(
+              children: [
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Padding(
+                    padding:
+                    const EdgeInsets.all(8.0), // Add padding for a better appearance
+                    child: considerWeather
+                        ? Text(
+                      '出典：気象庁ＨＰ',
+                      style: TextStyle(
+                        fontSize: 10, // Smaller font size
+                        color: Colors.black87, // Light font color
+                      ),
+                    )
+                        : Container(),
+                  ),
                 ),
-              ),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _searchSchedule,
-                      child: Text('検索',
-                          style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
-                    ),
-                    SizedBox(width: 20), // Spacing between button and dropdown
-                    DropdownButton<SortOrder>(
-                      value: _sortOrder,
-                      items: [
-                        DropdownMenuItem(
-                          value: SortOrder.time,
-                          child: Text('時間'),
-                        ),
-                        DropdownMenuItem(
-                          value: SortOrder.participants,
-                          child: Text('参加人数'),
-                        ),
-                      ],
-                      onChanged: (SortOrder? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _sortOrder = newValue;
-                            _sortList(); // Sort the list when option changes
-                          });
-                        }
-                      },
-                    ),
-                  ],
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _searchSchedule,
+                        child: Text('検索',
+                            style: TextStyle(
+                                fontSize: 20, color: GlobalColor.SubCol)),
+                      ),
+                      SizedBox(width: 20), // Spacing between button and dropdown
+                      DropdownButton<SortOrder>(
+                        value: _sortOrder,
+                        items: [
+                          DropdownMenuItem(
+                            value: SortOrder.time,
+                            child: Text('時間'),
+                          ),
+                          DropdownMenuItem(
+                            value: SortOrder.participants,
+                            child: Text('参加人数'),
+                          ),
+                        ],
+                        onChanged: (SortOrder? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              _sortOrder = newValue;
+                              _sortList(); // Sort the list when option changes
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-
-
-          SizedBox(height: 16.0),
+              ],
+            ),
+            SizedBox(height: 16.0),
             Expanded(
               child: ListView.builder(
                 itemCount: searchResults.length,
@@ -885,60 +831,60 @@ class _SearchScheduleState extends State<SearchSchedule> {
                       children: [
                         searchResults[index].members.length != 0
                             ? IconButton(
-                                icon: Icon(Icons.warning, color: Colors.red),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('参加不可のユーザー'),
-                                        content: Container(
-                                          width: double.maxFinite,
-                                          child: ListView.builder(
-                                            shrinkWrap: true,
-                                            itemCount: searchResults[index]
-                                                .members
-                                                .length,
-                                            itemBuilder: (context, i) {
-                                              return Row(
-                                                children: [
-                                                  CircleAvatar(
-                                                    backgroundImage: NetworkImage(
-                                                        'https://calendar-files.woody1227.com/user_icon/${searchResults[index].members[i].uicon}'),
-                                                    radius: 20,
-                                                  ),
-                                                  SizedBox(
-                                                      width:
-                                                          10), // Space between image and text
-                                                  Text(
-                                                      '${searchResults[index].members[i].uname}'),
-                                                ],
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        actions: <Widget>[
-                                          ElevatedButton(
-                                            child: Text('Close'),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              )
+                          icon: Icon(Icons.warning, color: Colors.red),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('参加不可のユーザー'),
+                                  content: Container(
+                                    width: double.maxFinite,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: searchResults[index]
+                                          .members
+                                          .length,
+                                      itemBuilder: (context, i) {
+                                        return Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                  'https://calendar-files.woody1227.com/user_icon/${searchResults[index].members[i].uicon}'),
+                                              radius: 20,
+                                            ),
+                                            SizedBox(
+                                                width:
+                                                10), // Space between image and text
+                                            Text(
+                                                '${searchResults[index].members[i].uname}'),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                      child: Text('Close'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        )
                             : Container(),
                         considerWeather ? Icon(weatherIcon) : Container(),
                         SizedBox(width: 8.0),
                         considerWeather
                             ? Text(
-                                searchResults[index].reliability?.isNotEmpty ==
-                                        true
-                                    ? searchResults[index].reliability
-                                    : '--')
+                            searchResults[index].reliability?.isNotEmpty ==
+                                true
+                                ? searchResults[index].reliability
+                                : '--')
                             : Container(),
                         IconButton(
                           icon: Icon(Icons.add),
@@ -957,6 +903,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
       ),
     );
   }
+
 
   Widget _buildDropdown(
       List<int> options, int value, ValueChanged<int?> onChanged) {
