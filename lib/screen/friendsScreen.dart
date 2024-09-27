@@ -404,8 +404,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
               hintText: '検索',
+              hintStyle: TextStyle(color: GlobalColor.SubCol),
+              fillColor: GlobalColor.MainCol,
               prefixIcon: const Icon(Icons.search, size: 20.0),
-              fillColor: GlobalColor.Unselected,
               filled: true,
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
@@ -436,8 +437,30 @@ class _FriendsScreenState extends State<FriendsScreen> {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            FriendProfile(friend: filteredFriends[index]),
+                      ),
+                    ).then((value) {
+                      _fetchFriends();
+                      _fetchReceivedRequests();
+                      setState(() {});
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: GlobalColor.ItemCol,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey, // Bottom border color
+                          width: 0.2, // Bottom border width
+                        ),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(20.0), // Inner padding
                     child: Column(
                       children: [
                         Row(
@@ -449,23 +472,22 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               backgroundImage: NetworkImage(
                                   "https://calendar-files.woody1227.com/user_icon/${filteredFriends[index].uicon}"),
                             ),
-                            SizedBox(
-                                width: SizeConfig.blockSizeHorizontal! * 3),
+                            SizedBox(width: SizeConfig.blockSizeHorizontal! * 3),
                             // 名前
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  friends[index].uname,
+                                  filteredFriends[index].uname, // Changed from friends[index] to filteredFriends[index]
                                   style: const TextStyle(fontSize: 22),
                                 ),
                                 Text(
-                                  "@${friends[index].uid}",
+                                  "@${filteredFriends[index].uid}", // Changed from friends[index] to filteredFriends[index]
                                   style: TextStyle(
                                     fontSize: 17,
                                     color: Colors.black.withOpacity(0.6),
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           ],
@@ -473,22 +495,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       ],
                     ),
                   ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            FriendProfile(friend: filteredFriends[index]),
-                      ),
-                    ).then((value) => () {
-                          _fetchFriends();
-                          _fetchReceivedRequests();
-                          setState(() {});
-                        });
-                  },
                 );
               },
             ),
+
           ),
         )
       else

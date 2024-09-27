@@ -98,6 +98,15 @@ class _MyContentsManageState extends State<MyContentsManage> {
                 itemBuilder: (context, index) {
                   if (contents.isNotEmpty) {
                     return Container(
+                      decoration: BoxDecoration(
+                        color: GlobalColor.ItemCol,
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey, // Border color
+                            width: 0.2, // Border width
+                          ),
+                        ),
+                      ),
                       key: Key(contents[index].cid),
                       child: ListTile(
                         title: Text(contents[index].cname),

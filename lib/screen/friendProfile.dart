@@ -96,80 +96,88 @@ class _FriendProfileState extends State<FriendProfile> {
                 fontSize: 25,
               ),
             ),
-            SizedBox(height: 20),
-            Row(
-              //ボタンを横に並べる
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                //コンテンツのボタンとメッセージのボタン
-                ElevatedButton(
-                  onPressed: () async {
-                    String? uid =
-                        Provider.of<UserData>(context, listen: false).uid;
-                    String? groupId =
-                        await _checkFriend(uid!, widget.friend.uid);
+            SizedBox(height: 80),
+            SizedBox(
+              width: 300,
+              child:Container(
+              decoration: BoxDecoration(
+                color: GlobalColor.AppBarCol, // Bright orange background
+                borderRadius: BorderRadius.circular(40.0), // Rounded corners
+              ),
+              padding: EdgeInsets.symmetric(vertical: 20.0), // Padding inside the container
+              child: Row(
+                // ボタンを横に並べる
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // コンテンツのボタンとメッセージのボタン
+                  ElevatedButton(
+                    onPressed: () async {
+                      String? uid = Provider.of<UserData>(context, listen: false).uid;
+                      String? groupId = await _checkFriend(uid!, widget.friend.uid);
 
-                    bool opened = await GetOpened().getOpened(uid, groupId!) == 1;
-                    if (groupId != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Home(
-                            groupId: groupId,
-                            groupName: widget.friend.uid,
-                            startOnChatScreen: false,
-                            firstVisit: opened,
-                            is_frined: true,
+                      bool opened = await GetOpened().getOpened(uid, groupId!) == 1;
+                      if (groupId != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Home(
+                              groupId: groupId,
+                              groupName: widget.friend.uid,
+                              startOnChatScreen: false,
+                              firstVisit: opened,
+                              is_frined: true,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(),
-                    padding: EdgeInsets.all(30),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(),
+                      padding: EdgeInsets.all(30),
+                      backgroundColor: GlobalColor.MainCol, // Optional: Button background color
+                    ),
+                    child: Icon(
+                      Icons.calendar_today,
+                      color: GlobalColor.SubCol,
+                      size: 40,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.calendar_today,
-                    color: GlobalColor.SubCol,
-                    size: 40,
-                  ),
-                ),
-                SizedBox(width: 50),
-                ElevatedButton(
-                  onPressed: () async {
-                    String? uid =
-                        Provider.of<UserData>(context, listen: false).uid;
-                    String? groupId =
-                        await _checkFriend(uid!, widget.friend.uid);
-                    bool opened = await GetOpened().getOpened(uid, groupId!) == 1;
-                    if (groupId != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Home(
-                            groupId: groupId,
-                            groupName: widget.friend.uid,
-                            startOnChatScreen: true,
-                            firstVisit: opened,
-                            is_frined: true,
+                  SizedBox(width: 40),
+                  ElevatedButton(
+                    onPressed: () async {
+                      String? uid = Provider.of<UserData>(context, listen: false).uid;
+                      String? groupId = await _checkFriend(uid!, widget.friend.uid);
+                      bool opened = await GetOpened().getOpened(uid, groupId!) == 1;
+                      if (groupId != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Home(
+                              groupId: groupId,
+                              groupName: widget.friend.uid,
+                              startOnChatScreen: true,
+                              firstVisit: opened,
+                              is_frined: true,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(),
-                    padding: EdgeInsets.all(30),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(),
+                      padding: EdgeInsets.all(30),
+                      backgroundColor: GlobalColor.MainCol, // Optional: Button background color
+                    ),
+                    child: Icon(
+                      Icons.message,
+                      color: GlobalColor.SubCol,
+                      size: 40,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.message,
-                    color: GlobalColor.SubCol,
-                    size: 40,
-                  ),
-                ),
-              ],
+                ],
+              ),
             )
+            ),
           ],
         ),
       ),

@@ -148,7 +148,7 @@ class _MainScreenState extends State<MainScreen> {
             color: GlobalColor.MainCol,
           ),
         ),
-        backgroundColor: GlobalColor.SubCol,
+        backgroundColor: GlobalColor.AppBarCol,
         centerTitle: true,
       ),
       body: _children[_currentIndex],

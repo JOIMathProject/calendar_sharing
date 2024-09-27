@@ -7,7 +7,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+
 const String APIKey = "53353d2d-22c8-b857-0870-f677689d8642";
+
 class UserInformation {
   String google_uid;
   String uid;
@@ -161,7 +163,7 @@ class SearchResultEvent {
   });
 }
 
-class eventRequest{
+class eventRequest {
   String event_request_id;
   String uid;
   String uname;
@@ -179,21 +181,26 @@ class eventRequest{
     required this.endTime,
   });
 }
-class eventInformation{
+
+class eventInformation {
+  String calendar_id;
+  String event_id;
   String summary;
   String description;
   DateTime startTime;
   DateTime endTime;
   bool is_local;
   eventInformation({
+    required this.calendar_id,
+    required this.event_id,
     required this.summary,
     required this.description,
     required this.startTime,
     required this.endTime,
     required this.is_local,
   });
-
 }
+
 class CreateUser {
   Future<void> createUser(UserInformation) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/user');
@@ -310,7 +317,8 @@ class CheckFriend {
   }
 }
 
-class AddDeviceID {//TEMPORARY UNAVAILABLE
+class AddDeviceID {
+  //TEMPORARY UNAVAILABLE
   Future<void> addDeviceID(String? uid, String? deviceID) async {
     final url =
         Uri.parse('https://calendar-api.woody1227.com/user/$uid/deviceids');
@@ -322,7 +330,9 @@ class AddDeviceID {//TEMPORARY UNAVAILABLE
         "device_id": deviceID,
       }),
     );
-    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 500) {
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 500) {
       throw 'Failed to add deviceID: ${response.statusCode}';
     }
   }
@@ -378,7 +388,7 @@ class GetGroupInfo {
 
     //responseの中のdataの中のuidだけをListにして返す
     List<GroupInformation> groups = [];
-    if(jsonDecode(response.body)['data'] == null){
+    if (jsonDecode(response.body)['data'] == null) {
       return groups;
     }
     for (var group in jsonDecode(response.body)['data']) {
@@ -623,7 +633,7 @@ class GetGroupCalendar {
     }
 
     List<Appointment> events = [];
-    if(jsonDecode(response.body)['data'] == null){
+    if (jsonDecode(response.body)['data'] == null) {
       return events;
     }
     for (var group in jsonDecode(response.body)['data']) {
@@ -703,7 +713,7 @@ class GetMyCalendars {
       throw 'Failed to get group: ${response.statusCode}';
     }
     List<CalendarInformation> contents = [];
-    if(jsonDecode(response.body)['data'] == null){
+    if (jsonDecode(response.body)['data'] == null) {
       return contents;
     }
     for (var group in jsonDecode(response.body)['data']) {
@@ -811,6 +821,7 @@ class AddCalendarToContents {
     }
   }
 }
+
 class DeleteCalendarFromContents {
   Future<void> deleteCalendarFromContents(
       String? uid, String? cid, String? calendar_id) async {
@@ -822,6 +833,7 @@ class DeleteCalendarFromContents {
     }
   }
 }
+
 class GetMyContentsSchedule {
   Future<List<eventInformation>> getMyContentsSchedule(
       String? uid, String? cid, String? from, String? to) async {
@@ -836,14 +848,14 @@ class GetMyContentsSchedule {
     List<eventInformation> events = [];
     for (var group in jsonDecode(response.body)['data']) {
       events.add(eventInformation(
-          startTime: DateTime.parse(group['start_dateTime']),
-          endTime: DateTime.parse(group['end_dateTime']),
-          summary: group['summary'],
-          description: group['description'],
-          is_local: group['is_local'] == '0' ? false : true,
-      )
-
-      );
+        calendar_id: group['calendar_id'],
+        event_id: group['event_id'],
+        startTime: DateTime.parse(group['start_dateTime']),
+        endTime: DateTime.parse(group['end_dateTime']),
+        summary: group['summary'],
+        description: group['description'],
+        is_local: group['is_local'] == '0' ? false : true,
+      ));
     }
     return events;
   }
@@ -879,8 +891,8 @@ class UpdateMyContents {
 }
 
 class GetMyContentCalendars {
-  Future<List<CalendarInformation>> getMyContentCalenders(String? uid,
-      String? cid) async {
+  Future<List<CalendarInformation>> getMyContentCalenders(
+      String? uid, String? cid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars');
     final response = await http.get(url, headers: {'API_KEY': APIKey});
@@ -1127,8 +1139,7 @@ class SearchContentScheduleWeather {
 }
 
 class GetEventRequest {
-  Future<List<eventRequest>> getEventRequest(
-      String? uid, String? gid) async {
+  Future<List<eventRequest>> getEventRequest(String? uid, String? gid) async {
     print('getEventRequest: $uid, $gid');
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid/receive');
@@ -1155,9 +1166,12 @@ class GetEventRequest {
     return requests;
   }
 }
-class SendEventRequest{
-  Future<void> sendEventRequest(String? uid,String? uid2, String? gid, String? summary, DateTime? startTime, DateTime? endTime) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests');
+
+class SendEventRequest {
+  Future<void> sendEventRequest(String? uid, String? uid2, String? gid,
+      String? summary, DateTime? startTime, DateTime? endTime) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/event_requests');
     final response = await http.post(
       url,
       headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
@@ -1166,8 +1180,8 @@ class SendEventRequest{
         "uid2": uid2,
         "summary": summary,
         "description": '',
-        "start_dateTime": startTime.toString().substring(0,19),
-        "end_dateTime": endTime.toString().substring(0,19),
+        "start_dateTime": startTime.toString().substring(0, 19),
+        "end_dateTime": endTime.toString().substring(0, 19),
       }),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
@@ -1175,10 +1189,14 @@ class SendEventRequest{
     }
   }
 }
-class ReceiveEventRequest{
-  Future<void> receiveEventRequest(String? uid,String? uid2,String? gid,String? event_request_id, String? calendar_id) async {
-    print('receiveEventRequest: $uid, $uid2, $gid, $event_request_id, $calendar_id');
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests');
+
+class ReceiveEventRequest {
+  Future<void> receiveEventRequest(String? uid, String? uid2, String? gid,
+      String? event_request_id, String? calendar_id) async {
+    print(
+        'receiveEventRequest: $uid, $uid2, $gid, $event_request_id, $calendar_id');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/event_requests');
     final response = await http.put(
       url,
       headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
@@ -1194,15 +1212,21 @@ class ReceiveEventRequest{
     }
   }
 }
-class RejectEventRequest{
-  Future<void> rejectEventRequest(String? uid,String? uid2,String? gid,String? event_request_id) async {
-    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid2/$uid/$event_request_id');
+
+class RejectEventRequest {
+  Future<void> rejectEventRequest(
+      String? uid, String? uid2, String? gid, String? event_request_id) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/event_requests/$uid2/$uid/$event_request_id');
     final response = await http.delete(url, headers: {'API_KEY': APIKey});
-    if (response.statusCode != 200 && response.statusCode != 201&& response.statusCode != 204) {
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 204) {
       throw 'Failed to send event request: ${response.statusCode}';
     }
   }
 }
+
 class GetOpened {
   Future<String> getOpened(String? uid, String? gid) async {
     final url = Uri.parse(
@@ -1217,21 +1241,24 @@ class GetOpened {
     return responseBody['is_opened'];
   }
 }
+
 class SetOpened {
   Future<void> setOpened(String? uid, String? gid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/group/$gid/opened');
-    final response = await http.put(url,
-        headers: {'API_KEY': APIKey});
+    final response = await http.put(url, headers: {'API_KEY': APIKey});
 
-    if (response.statusCode != 200 && response.statusCode != 404 && response.statusCode != 201) {
+    if (response.statusCode != 200 &&
+        response.statusCode != 404 &&
+        response.statusCode != 201) {
       throw 'Failed to get opened information: ${response.statusCode}';
     }
     return;
   }
 }
-class GetGroupPrimaryCalendar{
-  Future<String> getGroupPrimaryCalendar(String? gid,String? uid) async {
+
+class GetGroupPrimaryCalendar {
+  Future<String> getGroupPrimaryCalendar(String? gid, String? uid) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar');
     final response = await http.get(url, headers: {'API_KEY': APIKey});
@@ -1244,8 +1271,10 @@ class GetGroupPrimaryCalendar{
     return responseBody['calendar_id'];
   }
 }
-class SetGroupPrimaryCalendar{
-  Future<void> setGroupPrimaryCalendar(String? gid,String? uid,String? calendar_id) async {
+
+class SetGroupPrimaryCalendar {
+  Future<void> setGroupPrimaryCalendar(
+      String? gid, String? uid, String? calendar_id) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/groups/$gid/members/$uid/primary_calendar');
     final response = await http.put(
@@ -1256,26 +1285,35 @@ class SetGroupPrimaryCalendar{
       }),
     );
 
-    if (response.statusCode != 200 && response.statusCode != 404 && response.statusCode != 201) {
+    if (response.statusCode != 200 &&
+        response.statusCode != 404 &&
+        response.statusCode != 201) {
       throw 'Failed to set primary calendar: ${response.statusCode}';
     }
     return;
   }
 }
-class AddEventToTheCalendar{
-  Future<void> addEventToTheCalendar(String? uid,String? calendar_id,String? summary,String? description,DateTime? start_dateTime,DateTime? end_dateTime) async {
-    print('addEventToTheCalendar: $uid, $calendar_id, $summary, $description, $start_dateTime, $end_dateTime');
+
+class AddEventToTheCalendar {
+  Future<void> addEventToTheCalendar(
+      String? uid,
+      String? calendar_id,
+      String? summary,
+      String? description,
+      DateTime? start_dateTime,
+      DateTime? end_dateTime) async {
+    print(
+        'addEventToTheCalendar: $uid, $calendar_id, $summary, $description, $start_dateTime, $end_dateTime');
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/calendars/$calendar_id/events');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json', 'API_KEY': APIKey
-      },
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "summary": summary,
         "description": description,
-        "start_dateTime": start_dateTime.toString().substring(0,19),
-        "end_dateTime": end_dateTime.toString().substring(0,19),
+        "start_dateTime": start_dateTime.toString().substring(0, 19),
+        "end_dateTime": end_dateTime.toString().substring(0, 19),
       }),
     );
 
@@ -1285,24 +1323,95 @@ class AddEventToTheCalendar{
     return;
   }
 }
-class AddEventToMyContentsLocal{
-  Future<void> addEventToMyContentsLocal(String? uid,String? cid,String? summary,String? description,DateTime? start_dateTime,DateTime? end_dateTime) async {
+
+class AddEventToMyContentsLocal {
+  Future<void> addEventToMyContentsLocal(
+      String? uid,
+      String? cid,
+      String? summary,
+      String? description,
+      DateTime? start_dateTime,
+      DateTime? end_dateTime) async {
     final url = Uri.parse(
         'https://calendar-api.woody1227.com/user/$uid/contents/$cid/events');
     final response = await http.post(
       url,
-      headers: {'Content-type': 'application/json', 'API_KEY': APIKey
-      },
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
       body: jsonEncode({
         "summary": summary,
         "description": description,
-        "start_dateTime": start_dateTime.toString().substring(0,19),
-        "end_dateTime": end_dateTime.toString().substring(0,19),
+        "start_dateTime": start_dateTime.toString().substring(0, 19),
+        "end_dateTime": end_dateTime.toString().substring(0, 19),
       }),
     );
-    print('addEventToMyContentsLocal: $uid, $cid, $summary, $description, ${start_dateTime.toString().substring(0,19)}, ${end_dateTime.toString().substring(0,19)}');
+    print(
+        'addEventToMyContentsLocal: $uid, $cid, $summary, $description, ${start_dateTime.toString().substring(0, 19)}, ${end_dateTime.toString().substring(0, 19)}');
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to add event to the calendar: ${response.statusCode}';
+    }
+    return;
+  }
+}
+
+class DeleteEventFromCalendar {
+  Future<void> deleteEventFromCalendar(
+      String? uid, String? calendar_id, String? event_id) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/calendars/$calendar_id/events/$event_id');
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw 'Failed to delete event from the calendar: ${response.statusCode}';
+    }
+    return;
+  }
+}
+
+class DeleteLocalEventFromMyContents {
+  Future<void> deleteLocalEventFromMyContents(
+      String? uid, String? cid, String? event_id) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$event_id');
+    final response = await http.delete(url, headers: {'API_KEY': APIKey});
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw 'Failed to delete event from the calendar: ${response.statusCode}';
+    }
+    return;
+  }
+}
+
+class AddLocalToGoogleCal {
+  Future<void> addLocalToGoogleCal(
+      String? uid, String? cid, String? event_id, String? calendar_id) async {
+    print('uid:$uid,cid:$cid,event_id:$event_id,calendar_id:$calendar_id');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars/$calendar_id/events/$event_id');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
+    );
+
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 204) {
+      throw 'Failed to add local event to the google calendar: ${response.statusCode}';
+    }
+    return;
+  }
+}
+
+class AddAllLocalToGoogleCal {
+  Future<void> addAllLocalToGoogleCal(
+      String? uid, String? cid, String? calendar_id) async {
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/user/$uid/contents/$cid/calendars/$calendar_id/events');
+    final response = await http.post(url,
+        headers: {'Content-type': 'application/json', 'API_KEY': APIKey});
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 204) {
+      throw 'Failed to add local event to the google calendar: ${response.statusCode}';
     }
     return;
   }

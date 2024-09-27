@@ -19,20 +19,12 @@ class _SignInState extends State<SignIn> {
     return Scaffold(
       body: Column(
         children: <Widget>[
+
           Spacer(
             flex: 3,
-          ),Flexible(
-            flex: 4,
-            child: FractionallySizedBox(
-              widthFactor: 1,
-              child: Image.asset(
-                'assets/image/icon_transparent.jpg',
-                fit: BoxFit.cover,
-              ),
-            ),
           ),
           Flexible(
-            flex: 2,
+            flex: 3,
             child: Center(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
@@ -41,15 +33,24 @@ class _SignInState extends State<SignIn> {
                   style: TextStyle(
                     fontFamily: 'SmglMediumbold',
                     fontWeight: FontWeight.bold,
-                    fontSize: 80.0,
+                    fontSize: 110.0,
                     color: GlobalColor.MainCol,
                   ),
                 ),
               ),
             ),
+          ),Flexible(
+            flex: 4,
+            child: FractionallySizedBox(
+              widthFactor: .8,
+              child: Image.asset(
+                'assets/image/icon_transparent.jpg',
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           Spacer(
-            flex: 4,
+            flex: 1,
           ),
           Flexible(
             flex: 1,
@@ -94,7 +95,7 @@ class _SignInState extends State<SignIn> {
             ),
           ),
           Spacer(
-            flex: 1,
+            flex: 4,
           ),
         ],
       ),

@@ -241,8 +241,8 @@ class _HomeState extends State<Home> {
               subject: event.summary,
               notes: event.description, // Map description to notes
               color: event.is_local
-                  ? Colors.redAccent
-                  : Colors.red, // Different colors
+                  ? Colors.blue
+                  : GlobalColor.MyCalCol, // Different colors
             ));
           }
           _events = fetchedAppointments;
@@ -397,6 +397,18 @@ class _HomeState extends State<Home> {
                       borderRadius: BorderRadius.circular(0),
                       color: appointment.color,
                     ),
+                    child: flipped ? Center(
+                      child: Text(
+                        appointment.subject,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color:
+                              Colors.white, // Adjust based on background color
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.fade,
+                      ),
+                    ): SizedBox.shrink(),
                   );
                 },
                 specialRegions: getAppointments(BackCalendar),
