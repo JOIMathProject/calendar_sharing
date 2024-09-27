@@ -18,9 +18,9 @@ class SearchSchedule extends StatefulWidget {
 }
 
 class _SearchScheduleState extends State<SearchSchedule> {
-
   DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now().add(Duration(days: 1)); // Default to next day
+  DateTime _endDate =
+      DateTime.now().add(Duration(days: 1)); // Default to next day
 
   DateTime now = DateTime.now();
   int startTime = 8;
@@ -104,11 +104,14 @@ class _SearchScheduleState extends State<SearchSchedule> {
   final expansionTileController = ExpansionTileController();
   String? primaryCalendar;
   Future<void> getPrimaryCalendar() async {
-    primaryCalendar = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(widget.groupId,Provider.of<UserData>(context, listen: false).uid);
+    primaryCalendar = await GetGroupPrimaryCalendar().getGroupPrimaryCalendar(
+        widget.groupId, Provider.of<UserData>(context, listen: false).uid);
   }
+
   Future<void> _getGroupUsers() async {
     users = await GetUserInGroup().getUserInGroup(widget.groupId!);
-    users.remove(users.firstWhere((element) => element.uid == Provider.of<UserData>(context, listen: false).uid));
+    users.remove(users.firstWhere((element) =>
+        element.uid == Provider.of<UserData>(context, listen: false).uid));
   }
 
   Future<void> _getGroupSize() async {
@@ -302,16 +305,19 @@ class _SearchScheduleState extends State<SearchSchedule> {
         String formatWithLeadingZero(int value) {
           return value.toString().padLeft(2, '0');
         }
+
         String formatDate(DateTime date) {
           return DateFormat('yyyy-MM-dd').format(date);
         }
+
         String formattedStartDate = formatDate(_startDate);
         String formattedEndDate = formatDate(_endDate);
 
         String formattedStartTime = formatWithLeadingZero(startTime);
         String formattedEndTime = formatWithLeadingZero(endTime);
 
-        searchResults = await SearchContentScheduleWeather().searchContentScheduleWeather(
+        searchResults =
+            await SearchContentScheduleWeather().searchContentScheduleWeather(
           widget.groupId.toString(),
           formattedStartDate,
           formattedEndDate,
@@ -328,16 +334,17 @@ class _SearchScheduleState extends State<SearchSchedule> {
           isSnowy ? '1' : '0',
         );
 
-        searchResults.removeWhere((result) =>
-            result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
-        );
+        searchResults.removeWhere((result) => result.members.any((member) =>
+            member.uid == Provider.of<UserData>(context, listen: false).uid));
       } else {
         String formatWithLeadingZero(int value) {
           return value.toString().padLeft(2, '0');
         }
+
         String formatDate(DateTime date) {
           return DateFormat('yyyy-MM-dd').format(date);
         }
+
         String formattedStartDate = formatDate(_startDate);
         String formattedEndDate = formatDate(_endDate);
 
@@ -356,9 +363,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
           '${GroupSize - minParticipants}',
         );
 
-        searchResults.removeWhere((result) =>
-            result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
-        );
+        searchResults.removeWhere((result) => result.members.any((member) =>
+            member.uid == Provider.of<UserData>(context, listen: false).uid));
       }
 
       setState(() {});
@@ -371,7 +377,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
       print("Error: $error");
     }
   }
-
 
   String formatDateTime(DateTime dateTime) {
     // Format month and day
@@ -388,9 +393,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
   void _sortList() {
     setState(() {
-      searchResults.removeWhere((result) =>
-          result.members.any((member) => member.uid == Provider.of<UserData>(context, listen: false).uid)
-      );
+      searchResults.removeWhere((result) => result.members.any((member) =>
+          member.uid == Provider.of<UserData>(context, listen: false).uid));
       if (_sortOrder == SortOrder.time) {
         searchResults.sort((a, b) => a.startTime.compareTo(b.startTime));
       } else if (_sortOrder == SortOrder.participants) {
@@ -404,20 +408,25 @@ class _SearchScheduleState extends State<SearchSchedule> {
         });
       }
     });
-  }Future<void> _pickStartDate() async {
+  }
+
+  Future<void> _pickStartDate() async {
     DateTime today = DateTime.now();
     DateTime firstSelectableDate = DateTime(today.year, today.month, today.day);
 
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: _startDate.isBefore(firstSelectableDate) ? firstSelectableDate : _startDate,
+      initialDate: _startDate.isBefore(firstSelectableDate)
+          ? firstSelectableDate
+          : _startDate,
       firstDate: firstSelectableDate, // Prevent selecting dates before today
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData(
             colorScheme: ColorScheme.light(
-              primary: GlobalColor.MainCol, // Header background color (selected day)
+              primary:
+                  GlobalColor.MainCol, // Header background color (selected day)
               onPrimary: Colors.black, // Header text color
               surface: GlobalColor.SubCol, // Dialog background color
               onSurface: Colors.black, // Body text color (dates)
@@ -461,7 +470,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
         return Theme(
           data: ThemeData(
             colorScheme: ColorScheme.light(
-              primary: GlobalColor.MainCol, // Header background color (selected day)
+              primary:
+                  GlobalColor.MainCol, // Header background color (selected day)
               onPrimary: Colors.black, // Header text color
               surface: GlobalColor.SubCol, // Dialog background color
               onSurface: Colors.black, // Body text color (dates)
@@ -526,24 +536,35 @@ class _SearchScheduleState extends State<SearchSchedule> {
                 initiallyExpanded: true,
                 title: Text(
                     '${_startDate.year}/${_startDate.month}/${_startDate.day}~${_endDate.year}/${_endDate.month}/${_endDate.day}の${startTime}時から${endTime}時\n'
-                        '最低${minHours}時間以上/${minParticipants}人以上が参加可能\n'
-                        '${(selectedRegion != null && considerWeather == true) ? selectedRegion : ''} '
-                        '${(selectedCity != null && considerWeather == true) ? selectedCity : ''} '
-                        '${[if (isSunny) '晴れ', if (isCloudy) '曇り', if (isRainy) '雨', if (isSnowy) '雪'].where((condition) => condition.isNotEmpty).join('/')}'),
+                    '最低${minHours}時間以上/${minParticipants}人以上が参加可能\n'
+                    '${(selectedRegion != null && considerWeather == true) ? selectedRegion : ''} '
+                    '${(selectedCity != null && considerWeather == true) ? selectedCity : ''} '
+                    '${[
+                  if (isSunny) '晴れ',
+                  if (isCloudy) '曇り',
+                  if (isRainy) '雨',
+                  if (isSnowy) '雪'
+                ].where((condition) => condition.isNotEmpty).join('/')}'),
                 dense: true,
                 children: [
-                  SizedBox(height: 16.0),
-                  // Start Date Picker Button
+                  SizedBox(height: 16.0), // Start Date Picker Button
                   Row(
                     children: [
                       ElevatedButton(
                         onPressed: _pickStartDate,
                         child: Text(
                           '開始日: ${DateFormat('yyyy/MM/dd').format(_startDate)}',
-                          style: TextStyle(color: GlobalColor.SubCol),
+                          style: TextStyle(color: Colors.black87),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: GlobalColor.MainCol,
+                          backgroundColor: GlobalColor.AppBarCol,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                6.0), // Subtle rounded corners
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 12.0), // Consistent padding
                         ),
                       ),
                       SizedBox(width: 8.0),
@@ -551,23 +572,32 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     ],
                   ),
                   SizedBox(height: 8.0),
-                  // End Date Picker Button
+
+// End Date Picker Button
                   Row(
                     children: [
                       ElevatedButton(
                         onPressed: _pickEndDate,
                         child: Text(
                           '終了日: ${DateFormat('yyyy/MM/dd').format(_endDate)}',
-                          style: TextStyle(color: GlobalColor.SubCol),
+                          style: TextStyle(color: Colors.black87),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: GlobalColor.MainCol,
+                          backgroundColor: GlobalColor.AppBarCol,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                6.0), // Subtle rounded corners
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 12.0), // Consistent padding
                         ),
                       ),
                       SizedBox(width: 8.0),
                       Spacer(),
                     ],
                   ),
+
                   SizedBox(height: 16.0),
                   // Time Selection (Remains as Dropdowns)
                   Row(
@@ -641,7 +671,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                         },
                         activeColor: GlobalColor.MainCol, // color of the toggle
                         inactiveTrackColor:
-                        GlobalColor.SubCol, // color of the background
+                            GlobalColor.SubCol, // color of the background
                         inactiveThumbColor: GlobalColor
                             .Unselected, // color of the thumb when the switch is off
                       ),
@@ -653,13 +683,13 @@ class _SearchScheduleState extends State<SearchSchedule> {
                       children: [
                         SizedBox(width: 8.0),
                         _buildDropdownString(regions, selectedRegion!,
-                                (newValue) {
-                              setState(() {
-                                selectedRegion = newValue;
-                                cities = _getCitiesForRegion(selectedRegion!);
-                                selectedCity = cities.first;
-                              });
-                            }, hintText: '地域を選択'),
+                            (newValue) {
+                          setState(() {
+                            selectedRegion = newValue;
+                            cities = _getCitiesForRegion(selectedRegion!);
+                            selectedCity = cities.first;
+                          });
+                        }, hintText: '地域を選択'),
                         Spacer(flex: 8),
                       ],
                     ),
@@ -683,10 +713,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                               isSunny = value!;
                             });
                           },
-                          activeColor:
-                          GlobalColor.SubCol, // color of the checkbox when selected
+                          activeColor: GlobalColor
+                              .SubCol, // color of the checkbox when selected
                           checkColor:
-                          GlobalColor.MainCol, // color of the checkmark
+                              GlobalColor.MainCol, // color of the checkmark
                         ),
                         Text('晴れ'),
                         Checkbox(
@@ -696,10 +726,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                               isCloudy = value!;
                             });
                           },
-                          activeColor:
-                          GlobalColor.SubCol, // color of the checkbox when selected
+                          activeColor: GlobalColor
+                              .SubCol, // color of the checkbox when selected
                           checkColor:
-                          GlobalColor.MainCol, // color of the checkmark
+                              GlobalColor.MainCol, // color of the checkmark
                         ),
                         Text('曇り'),
                         Checkbox(
@@ -709,10 +739,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                               isRainy = value!;
                             });
                           },
-                          activeColor:
-                          GlobalColor.SubCol, // color of the checkbox when selected
+                          activeColor: GlobalColor
+                              .SubCol, // color of the checkbox when selected
                           checkColor:
-                          GlobalColor.MainCol, // color of the checkmark
+                              GlobalColor.MainCol, // color of the checkmark
                         ),
                         Text('雨'),
                         Checkbox(
@@ -722,10 +752,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                               isSnowy = value!;
                             });
                           },
-                          activeColor:
-                          GlobalColor.SubCol, // color of the checkbox when selected
+                          activeColor: GlobalColor
+                              .SubCol, // color of the checkbox when selected
                           checkColor:
-                          GlobalColor.MainCol, // color of the checkmark
+                              GlobalColor.MainCol, // color of the checkmark
                         ),
                         Text('雪'),
                       ],
@@ -741,16 +771,16 @@ class _SearchScheduleState extends State<SearchSchedule> {
                   top: 0,
                   right: 0,
                   child: Padding(
-                    padding:
-                    const EdgeInsets.all(8.0), // Add padding for a better appearance
+                    padding: const EdgeInsets.all(
+                        8.0), // Add padding for a better appearance
                     child: considerWeather
                         ? Text(
-                      '出典：気象庁ＨＰ',
-                      style: TextStyle(
-                        fontSize: 10, // Smaller font size
-                        color: Colors.black87, // Light font color
-                      ),
-                    )
+                            '出典：気象庁ＨＰ',
+                            style: TextStyle(
+                              fontSize: 10, // Smaller font size
+                              color: Colors.black87, // Light font color
+                            ),
+                          )
                         : Container(),
                   ),
                 ),
@@ -764,7 +794,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             style: TextStyle(
                                 fontSize: 20, color: GlobalColor.SubCol)),
                       ),
-                      SizedBox(width: 20), // Spacing between button and dropdown
+                      SizedBox(
+                          width: 20), // Spacing between button and dropdown
                       DropdownButton<SortOrder>(
                         value: _sortOrder,
                         items: [
@@ -831,60 +862,60 @@ class _SearchScheduleState extends State<SearchSchedule> {
                       children: [
                         searchResults[index].members.length != 0
                             ? IconButton(
-                          icon: Icon(Icons.warning, color: Colors.red),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('参加不可のユーザー'),
-                                  content: Container(
-                                    width: double.maxFinite,
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: searchResults[index]
-                                          .members
-                                          .length,
-                                      itemBuilder: (context, i) {
-                                        return Row(
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundImage: NetworkImage(
-                                                  'https://calendar-files.woody1227.com/user_icon/${searchResults[index].members[i].uicon}'),
-                                              radius: 20,
-                                            ),
-                                            SizedBox(
-                                                width:
-                                                10), // Space between image and text
-                                            Text(
-                                                '${searchResults[index].members[i].uname}'),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    ElevatedButton(
-                                      child: Text('Close'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        )
+                                icon: Icon(Icons.warning, color: Colors.red),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('参加不可のユーザー'),
+                                        content: Container(
+                                          width: double.maxFinite,
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: searchResults[index]
+                                                .members
+                                                .length,
+                                            itemBuilder: (context, i) {
+                                              return Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundImage: NetworkImage(
+                                                        'https://calendar-files.woody1227.com/user_icon/${searchResults[index].members[i].uicon}'),
+                                                    radius: 20,
+                                                  ),
+                                                  SizedBox(
+                                                      width:
+                                                          10), // Space between image and text
+                                                  Text(
+                                                      '${searchResults[index].members[i].uname}'),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          ElevatedButton(
+                                            child: Text('Close'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              )
                             : Container(),
                         considerWeather ? Icon(weatherIcon) : Container(),
                         SizedBox(width: 8.0),
                         considerWeather
                             ? Text(
-                            searchResults[index].reliability?.isNotEmpty ==
-                                true
-                                ? searchResults[index].reliability
-                                : '--')
+                                searchResults[index].reliability?.isNotEmpty ==
+                                        true
+                                    ? searchResults[index].reliability
+                                    : '--')
                             : Container(),
                         IconButton(
                           icon: Icon(Icons.add),
@@ -903,7 +934,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
       ),
     );
   }
-
 
   Widget _buildDropdown(
       List<int> options, int value, ValueChanged<int?> onChanged) {
@@ -940,17 +970,23 @@ class _SearchScheduleState extends State<SearchSchedule> {
       ),
     );
   }
-  Future<void> SendRequest(String uid2, String Summary, DateTime startTime, DateTime endTime)
-  async {
+
+  Future<void> SendRequest(
+      String uid2, String Summary, DateTime startTime, DateTime endTime) async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    print('uid: $uid uid2: $uid2 Summary: $Summary startTime: $startTime endTime: $endTime');
+    print(
+        'uid: $uid uid2: $uid2 Summary: $Summary startTime: $startTime endTime: $endTime');
     await SendEventRequest().sendEventRequest(
         uid, uid2, widget.groupId, Summary, startTime, endTime);
   }
-  Future<void> AddSchedule(String Summary, DateTime startTime, DateTime endTime)async {
+
+  Future<void> AddSchedule(
+      String Summary, DateTime startTime, DateTime endTime) async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
-    AddEventToTheCalendar().addEventToTheCalendar(uid, primaryCalendar, Summary, '', startTime, endTime);
+    AddEventToTheCalendar().addEventToTheCalendar(
+        uid, primaryCalendar, Summary, '', startTime, endTime);
   }
+
   void _showScheduleDialog(BuildContext context, int index) {
     // Initialize selected values
     int selectedHour = searchResults[index].startTime.hour;
@@ -983,7 +1019,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     controller: SummaryEditor,
                     decoration: InputDecoration(
                       labelText: '予定名',
-                      contentPadding: EdgeInsets.symmetric(vertical: 10), // Reduce vertical padding
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 10), // Reduce vertical padding
                     ),
                     onChanged: (String value) {
                       setState(() {
@@ -998,7 +1035,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     children: [
                       Container(
                         height: 100, // Reduce height
-                        width: 45,   // Adjust width if necessary
+                        width: 45, // Adjust width if necessary
                         child: CupertinoPicker(
                           itemExtent: 28.0, // Reduce item height
                           onSelectedItemChanged: (int index) {
@@ -1018,31 +1055,34 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           },
                           children: List.generate(
                             endHour - startHour + 1,
-                                (int index) => Text('${startHour + index}時'),
+                            (int index) => Text('${startHour + index}時'),
                           ),
                         ),
                       ),
                       SizedBox(width: 8), // Reduce width
                       Container(
                         height: 100, // Reduce height
-                        width: 45,   // Adjust width if necessary
+                        width: 45, // Adjust width if necessary
                         child: CupertinoPicker(
                           itemExtent: 28.0, // Reduce item height
                           onSelectedItemChanged: (int index) {
                             setState(() {
                               selectedMinute = index;
-                              if (selectedHour == startHour && selectedMinute < startMinute) {
+                              if (selectedHour == startHour &&
+                                  selectedMinute < startMinute) {
                                 selectedMinute = startMinute;
                               }
-                              if (selectedHour == endHour && selectedMinute > endMinute) {
+                              if (selectedHour == endHour &&
+                                  selectedMinute > endMinute) {
                                 selectedMinute = endMinute;
                               }
                             });
                           },
                           children: List.generate(
                             60,
-                                (int index) {
-                              final formattedMinute = index < 10 ? '0$index' : '$index';
+                            (int index) {
+                              final formattedMinute =
+                                  index < 10 ? '0$index' : '$index';
                               return Text('$formattedMinute分');
                             },
                           ),
@@ -1057,8 +1097,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        height: 80,  // Reduce height
-                        width: 45,   // Adjust width if necessary
+                        height: 80, // Reduce height
+                        width: 45, // Adjust width if necessary
                         child: CupertinoPicker(
                           itemExtent: 28.0, // Reduce item height
                           onSelectedItemChanged: (int index) {
@@ -1068,24 +1108,25 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           },
                           children: List.generate(
                             24,
-                                (int index) => Text('$index h'),
+                            (int index) => Text('$index h'),
                           ),
                         ),
                       ),
                       SizedBox(width: 8), // Reduce width
                       Container(
-                        height: 80,  // Reduce height
-                        width: 45,   // Adjust width if necessary
+                        height: 80, // Reduce height
+                        width: 45, // Adjust width if necessary
                         child: CupertinoPicker(
                           itemExtent: 28.0, // Reduce item height
                           onSelectedItemChanged: (int index) {
                             setState(() {
-                              selectedDurationMinutes = index * 5; // 5 minute intervals
+                              selectedDurationMinutes =
+                                  index * 5; // 5 minute intervals
                             });
                           },
                           children: List.generate(
                             12,
-                                (int index) => Text('${index * 5} m'),
+                            (int index) => Text('${index * 5} m'),
                           ),
                         ),
                       ),
@@ -1093,10 +1134,12 @@ class _SearchScheduleState extends State<SearchSchedule> {
                   ),
                 ],
               ),
-
               actions: <Widget>[
                 ElevatedButton(
-                  child: Text('予定追加リクエストの送信',style: TextStyle(color: GlobalColor.SubCol),),
+                  child: Text(
+                    '予定追加リクエストの送信',
+                    style: TextStyle(color: GlobalColor.SubCol),
+                  ),
                   onPressed: () {
                     exceedTime = 0;
                     final totalSelectedTimeInMinutes =
@@ -1120,7 +1163,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 '選択した時間は終了時間を超えています。一部ユーザーが参加不可能になる可能性がありますが続行しますか？'),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: Text('続行',style: TextStyle(color: GlobalColor.SubCol),),
+                                child: Text(
+                                  '続行',
+                                  style: TextStyle(color: GlobalColor.SubCol),
+                                ),
                                 onPressed: () {
                                   for (var request in users) {
                                     SendRequest(
@@ -1145,30 +1191,31 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                             selectedMinute +
                                                 selectedDurationMinutes));
                                   }
-                                  AddSchedule(Summary, DateTime(
-                                      searchResults[index].startTime.year,
-                                      searchResults[index]
-                                          .startTime
-                                          .month,
-                                      searchResults[index].startTime.day,
-                                      selectedHour,
-                                      selectedMinute), DateTime(
-                                      searchResults[index].startTime.year,
-                                      searchResults[index]
-                                          .startTime
-                                          .month,
-                                      searchResults[index].startTime.day,
-                                      selectedHour +
-                                          selectedDurationHours,
-                                      selectedMinute +
-                                          selectedDurationMinutes));
+                                  AddSchedule(
+                                      Summary,
+                                      DateTime(
+                                          searchResults[index].startTime.year,
+                                          searchResults[index].startTime.month,
+                                          searchResults[index].startTime.day,
+                                          selectedHour,
+                                          selectedMinute),
+                                      DateTime(
+                                          searchResults[index].startTime.year,
+                                          searchResults[index].startTime.month,
+                                          searchResults[index].startTime.day,
+                                          selectedHour + selectedDurationHours,
+                                          selectedMinute +
+                                              selectedDurationMinutes));
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                   print('done');
                                 },
                               ),
                               ElevatedButton(
-                                child: Text('キャンセル',style: TextStyle(color: GlobalColor.SubCol),),
+                                child: Text(
+                                  'キャンセル',
+                                  style: TextStyle(color: GlobalColor.SubCol),
+                                ),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -1188,7 +1235,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             content: Text('予定の長さを指定してください。'),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: Text('閉じる',style: TextStyle(color: GlobalColor.SubCol),),
+                                child: Text(
+                                  '閉じる',
+                                  style: TextStyle(color: GlobalColor.SubCol),
+                                ),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -1215,25 +1265,21 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                 searchResults[index].startTime.day,
                                 selectedHour + selectedDurationHours,
                                 selectedMinute + selectedDurationMinutes));
-
                       }
-                      AddSchedule(Summary, DateTime(
-                          searchResults[index].startTime.year,
-                          searchResults[index]
-                              .startTime
-                              .month,
-                          searchResults[index].startTime.day,
-                          selectedHour,
-                          selectedMinute), DateTime(
-                          searchResults[index].startTime.year,
-                          searchResults[index]
-                              .startTime
-                              .month,
-                          searchResults[index].startTime.day,
-                          selectedHour +
-                              selectedDurationHours,
-                          selectedMinute +
-                              selectedDurationMinutes));
+                      AddSchedule(
+                          Summary,
+                          DateTime(
+                              searchResults[index].startTime.year,
+                              searchResults[index].startTime.month,
+                              searchResults[index].startTime.day,
+                              selectedHour,
+                              selectedMinute),
+                          DateTime(
+                              searchResults[index].startTime.year,
+                              searchResults[index].startTime.month,
+                              searchResults[index].startTime.day,
+                              selectedHour + selectedDurationHours,
+                              selectedMinute + selectedDurationMinutes));
                       Navigator.of(context).pop();
                     } else if (searchResults[index].members.length != 0) {
                       showDialog(
@@ -1243,7 +1289,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             title: Text('予定追加リクエストの送信先'),
                             actions: <Widget>[
                               ElevatedButton(
-                                child: Text('参加できる人のみに送信',style: TextStyle(color: GlobalColor.SubCol),),
+                                child: Text(
+                                  '参加できる人のみに送信',
+                                  style: TextStyle(color: GlobalColor.SubCol),
+                                ),
                                 onPressed: () {
                                   for (var request in users) {
                                     bool canJoin = true;
@@ -1258,43 +1307,58 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                           request.uid,
                                           Summary,
                                           DateTime(
-                                              searchResults[index].startTime.year,
-                                              searchResults[index].startTime.month,
-                                              searchResults[index].startTime.day,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .year,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .month,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .day,
                                               selectedHour,
                                               selectedMinute),
                                           DateTime(
-                                              searchResults[index].startTime.year,
-                                              searchResults[index].startTime.month,
-                                              searchResults[index].startTime.day,
-                                              selectedHour + selectedDurationHours,
-                                              selectedMinute + selectedDurationMinutes));
+                                              searchResults[index]
+                                                  .startTime
+                                                  .year,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .month,
+                                              searchResults[index]
+                                                  .startTime
+                                                  .day,
+                                              selectedHour +
+                                                  selectedDurationHours,
+                                              selectedMinute +
+                                                  selectedDurationMinutes));
                                     }
                                   }
 
-                                  AddSchedule(Summary, DateTime(
-                                      searchResults[index].startTime.year,
-                                      searchResults[index]
-                                          .startTime
-                                          .month,
-                                      searchResults[index].startTime.day,
-                                      selectedHour,
-                                      selectedMinute), DateTime(
-                                      searchResults[index].startTime.year,
-                                      searchResults[index]
-                                          .startTime
-                                          .month,
-                                      searchResults[index].startTime.day,
-                                      selectedHour +
-                                          selectedDurationHours,
-                                      selectedMinute +
-                                          selectedDurationMinutes));
+                                  AddSchedule(
+                                      Summary,
+                                      DateTime(
+                                          searchResults[index].startTime.year,
+                                          searchResults[index].startTime.month,
+                                          searchResults[index].startTime.day,
+                                          selectedHour,
+                                          selectedMinute),
+                                      DateTime(
+                                          searchResults[index].startTime.year,
+                                          searchResults[index].startTime.month,
+                                          searchResults[index].startTime.day,
+                                          selectedHour + selectedDurationHours,
+                                          selectedMinute +
+                                              selectedDurationMinutes));
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                 },
                               ),
                               ElevatedButton(
-                                child: Text('参加できない人にも送信',style: TextStyle(color: GlobalColor.SubCol),),
+                                child: Text(
+                                  '参加できない人にも送信',
+                                  style: TextStyle(color: GlobalColor.SubCol),
+                                ),
                                 onPressed: () {
                                   for (var request in users) {
                                     SendRequest(
@@ -1302,41 +1366,48 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                         Summary,
                                         DateTime(
                                             searchResults[index].startTime.year,
-                                            searchResults[index].startTime.month,
+                                            searchResults[index]
+                                                .startTime
+                                                .month,
                                             searchResults[index].startTime.day,
                                             selectedHour,
                                             selectedMinute),
                                         DateTime(
                                             searchResults[index].startTime.year,
-                                            searchResults[index].startTime.month,
+                                            searchResults[index]
+                                                .startTime
+                                                .month,
                                             searchResults[index].startTime.day,
-                                            selectedHour + selectedDurationHours,
-                                            selectedMinute + selectedDurationMinutes));
+                                            selectedHour +
+                                                selectedDurationHours,
+                                            selectedMinute +
+                                                selectedDurationMinutes));
                                   }
 
-                                  AddSchedule(Summary, DateTime(
-                                      searchResults[index].startTime.year,
-                                      searchResults[index]
-                                          .startTime
-                                          .month,
-                                      searchResults[index].startTime.day,
-                                      selectedHour,
-                                      selectedMinute), DateTime(
-                                      searchResults[index].startTime.year,
-                                      searchResults[index]
-                                          .startTime
-                                          .month,
-                                      searchResults[index].startTime.day,
-                                      selectedHour +
-                                          selectedDurationHours,
-                                      selectedMinute +
-                                          selectedDurationMinutes));
+                                  AddSchedule(
+                                      Summary,
+                                      DateTime(
+                                          searchResults[index].startTime.year,
+                                          searchResults[index].startTime.month,
+                                          searchResults[index].startTime.day,
+                                          selectedHour,
+                                          selectedMinute),
+                                      DateTime(
+                                          searchResults[index].startTime.year,
+                                          searchResults[index].startTime.month,
+                                          searchResults[index].startTime.day,
+                                          selectedHour + selectedDurationHours,
+                                          selectedMinute +
+                                              selectedDurationMinutes));
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                 },
                               ),
                               ElevatedButton(
-                                child: Text('キャンセル',style: TextStyle(color: GlobalColor.SubCol),),
+                                child: Text(
+                                  'キャンセル',
+                                  style: TextStyle(color: GlobalColor.SubCol),
+                                ),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -1349,7 +1420,10 @@ class _SearchScheduleState extends State<SearchSchedule> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('キャンセル',style: TextStyle(color: GlobalColor.SubCol),),
+                  child: Text(
+                    'キャンセル',
+                    style: TextStyle(color: GlobalColor.SubCol),
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
