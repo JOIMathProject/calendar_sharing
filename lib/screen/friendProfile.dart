@@ -122,7 +122,7 @@ class _FriendProfileState extends State<FriendProfile> {
                           MaterialPageRoute(
                             builder: (context) => Home(
                               groupId: groupId,
-                              groupName: widget.friend.uid,
+                              groupName: widget.friend.uname,
                               startOnChatScreen: false,
                               firstVisit: opened,
                               is_frined: true,
@@ -154,7 +154,7 @@ class _FriendProfileState extends State<FriendProfile> {
                           MaterialPageRoute(
                             builder: (context) => Home(
                               groupId: groupId,
-                              groupName: widget.friend.uid,
+                              groupName: widget.friend.uname,
                               startOnChatScreen: true,
                               firstVisit: opened,
                               is_frined: true,
