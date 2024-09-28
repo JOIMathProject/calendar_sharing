@@ -4,6 +4,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class ReadQR extends StatefulWidget {
   const ReadQR({Key? key}) : super(key: key);
@@ -28,6 +29,7 @@ class _ReadQRState extends State<ReadQR> {
 
   @override
   Widget build(BuildContext context) {
+    final String? uid = Provider.of<UserData>(context, listen: false).uid;
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -38,6 +40,13 @@ class _ReadQRState extends State<ReadQR> {
                 QRView(
                   key: qrKey,
                   onQRViewCreated: _onQRViewCreated,
+                  overlay: QrScannerOverlayShape(
+                    borderColor: Colors.white,
+                    borderRadius: 10,
+                    borderLength: 30,
+                    borderWidth: 10,
+                    cutOutSize: 300,
+                  ),
                 ),
                 Positioned(
                   top: 20,
@@ -59,9 +68,39 @@ class _ReadQRState extends State<ReadQR> {
           Expanded(
             flex: 1,
             child: Center(
-              child: Text(
-                'QRコードを読み取ってフレンドを追加',
-                style: const TextStyle(fontSize: 20),
+              child: Column(
+                children: [
+                  Spacer(flex: 1,),
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'QRコードを読み取る',
+                      style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Spacer(flex: 1,),
+                  ElevatedButton(
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.qr_code_scanner,
+                            size: 50,
+                          ),
+                          Text('自分のQRを表示'),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(context: context, builder:(BuildContext context) {
+                        return MyQRModal(uid: uid);
+                      });
+                    },
+                  ),
+                  Spacer(flex: 1,),
+                ],
               ),
             ),
           )
@@ -73,17 +112,20 @@ class _ReadQRState extends State<ReadQR> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      if (scanData.code!.length <= 7 && scanData.format != BarcodeFormat.qrcode){
+      if (scanData.code!.length <= 7 &&
+          scanData.format != BarcodeFormat.qrcode) {
         return;
       }
-      if (scanData.code!.substring(0, 7) != 'sando//'){
+      if (scanData.code!.substring(0, 7) != 'sando//') {
         return;
       }
       if (friendAddStatus) {
         return;
       }
       //apiを叩いてフレリクを送信
-      String? uid = Provider.of<UserData>(context, listen: false).uid;
+      String? uid = Provider
+          .of<UserData>(context, listen: false)
+          .uid;
       String friendUid = scanData.code!.substring(7);
       sendFriendRequest(uid!, friendUid);
     });
@@ -98,7 +140,7 @@ class _ReadQRState extends State<ReadQR> {
   //フレンドリクエストを送信する
   void sendFriendRequest(String uid, String friendUid) async {
     friendAddStatus = true;
-    try{
+    try {
       await AddFriendRequest().addFriend(uid, friendUid);
       showDialog(
         context: context,
@@ -197,5 +239,61 @@ class _ReadQRState extends State<ReadQR> {
       }
       return;
     }
+  }
+}
+
+class MyQRModal extends StatelessWidget {
+  const MyQRModal({
+    super.key,
+    required this.uid,
+  });
+
+  final String? uid;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+          //モーダル自体の色
+          color: Colors.white,
+          //角丸にする
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 60,
+            ),
+            Expanded(
+              flex: 2,
+              child: Center(
+                  child: QrImageView(
+                    data: 'sando//$uid',
+                    size: 300,
+                    padding: const EdgeInsets.all(20),
+                  )
+              ),
+            ),
+            const Expanded(
+              flex: 1,
+              child: Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'QRコードを読み取ってフレンドを追加',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        )
+    );
   }
 }
