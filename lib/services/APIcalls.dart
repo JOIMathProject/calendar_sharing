@@ -359,6 +359,23 @@ class AddFriendRequest {
   }
 }
 
+class AddFriendDirectly {
+  Future<void> addFriend(String uid, String friend_uid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/friends/');
+    final response = await http.post(
+      url,
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
+      body: jsonEncode({
+        "uid1": uid,
+        "uid2": friend_uid,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to add friend: ${response.statusCode}';
+    }
+  }
+}
+
 class GetGroupDetail {
   Future<GroupDetail> getGroupDetail(String? gid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
@@ -1190,6 +1207,34 @@ class SendEventRequest {
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Failed to send event request: ${response.statusCode}';
+    }
+  }
+}
+
+class GetGroupLoc {
+  Future<void> getGroupLoc(String? gid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
+    if (response.statusCode != 200) {
+      throw 'Failed to get group: ${response.statusCode}';
+    }
+    final responseBody = jsonDecode(response.body);
+    return responseBody['location'];
+  }
+}
+
+class UpdateGroupLoc{
+  Future<void> updateGroupLoc(String? gid, String? location) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
+      body: jsonEncode({
+        "location": location,
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to update group location: ${response.statusCode}';
     }
   }
 }

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../services/APIcalls.dart';
+import '../services/UserData.dart';
 import '../setting/color.dart' as GlobalColor;
+import 'package:provider/provider.dart';
 
 class AddFriendNearby extends StatefulWidget {
   final String myUid;
@@ -36,7 +38,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
 
   Future<void> _checkPermissionsAndStart() async {
     if (await _checkPermissions()) {
-      _startNearbyServices();
     } else {
       _showErrorSnackBar("Permissions not granted");
     }
@@ -110,6 +111,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     try {
       print("Stopping Advertising...");
       await _nearby.stopAdvertising();
+      if(!mounted) return;
       setState(() {
         isAdvertising = false;
       });
@@ -139,9 +141,24 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
         strategy,
         onEndpointFound: (id, name, serviceId) {
           print("Endpoint found: $id, $name, $serviceId");
-          setState(() {
-            discoveredDevices.add(Device(id, name));
-          });
+          if (!mounted) return; // Ensure the widget is still mounted
+
+          // Access the friends list from Provider
+          List<FriendInformation> friends = Provider.of<UserData>(context, listen: false).friends;
+
+          // Check if the discovered device is already a friend
+          bool isAlreadyFriend = friends.any((friend) => friend.uid == id);
+
+          if (!isAlreadyFriend) {
+            setState(() {
+              // Check if the device is already in the list to prevent duplicates
+              if (!discoveredDevices.any((device) => device.id == id)) {
+                discoveredDevices.add(Device(id, name));
+              }
+            });
+          } else {
+            print("Device $id is already a friend. Skipping display.");
+          }
         },
         onEndpointLost: (id) {
           print("Endpoint lost: $id");
@@ -178,6 +195,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     try {
       print("Stopping Discovery...");
       await _nearby.stopDiscovery();
+      if(!mounted) return;
       setState(() {
         isDiscovering = false;
       });
@@ -238,7 +256,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
   Future<void> _addFriend(String friendUid) async {
     try {
       print("Adding friend with UID: $friendUid");
-      await AddFriendRequest().addFriend(widget.myUid, friendUid);
+      await AddFriendDirectly().addFriend(widget.myUid, friendUid);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('フレンドが追加されました')));
     } catch (e) {
       print("Failed to add friend: $e");
@@ -270,7 +288,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
             ),
             SizedBox(height: 30),
             ElevatedButton(
-              onPressed: isDiscovering ? null : _startDiscovery,
+              onPressed: isDiscovering ? _stopNearbyServices : _startDiscovery,
               child: Text(
                 isDiscovering ? 'デバイスを探しています...' : 'デバイスを探す',
                 style: TextStyle(color: Colors.white),
@@ -282,6 +300,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
               ),
             ),
             SizedBox(height: 20),
+
             Expanded(
               child: discoveredDevices.isEmpty
                   ? Center(child: Text('デバイスが見つかりませんでした。'))
@@ -289,13 +308,82 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                 itemCount: discoveredDevices.length,
                 itemBuilder: (context, index) {
                   Device device = discoveredDevices[index];
-                  return Card(
-                    child: ListTile(
-                      title: Text(device.name),
-                      subtitle: Text(device.id),
-                      trailing: Icon(Icons.arrow_forward),
-                      onTap: () => _connectToDevice(device),
-                    ),
+                  return FutureBuilder<UserInformation>(
+                    future: GetUser().getUser(device.id), // Fetch user info
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ListTile(
+                          title: Text(device.name),
+                          subtitle: Text(device.id),
+                          trailing: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return ListTile(
+                          title: Text(device.name),
+                          subtitle: Text('Error fetching user'),
+                          trailing: Icon(Icons.error, color: Colors.red),
+                        );
+                      } else if (snapshot.hasData) {
+                        UserInformation foundUser = snapshot.data!;
+                        return GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: () {
+                            _connectToDevice(device);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: GlobalColor.ItemCol,
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.grey,
+                                  width: 0.2,
+                                ),
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+// User Icon
+                                    CircleAvatar(
+                                      radius: 25,
+                                      backgroundColor: Colors.white,
+                                      backgroundImage: NetworkImage(
+                                        "https://calendar-files.woody1227.com/user_icon/${foundUser.uicon}",
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+// User Name and UID
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          foundUser.uname,
+                                          style: const TextStyle(fontSize: 22),
+                                        ),
+                                        Text(
+                                          "@${foundUser.uid}",
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            color: Colors.black.withOpacity(0.6),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        return ListTile(
+                          title: Text(device.name),
+                          subtitle: Text(device.id),
+                        );
+                      }
+                    },
                   );
                 },
               ),

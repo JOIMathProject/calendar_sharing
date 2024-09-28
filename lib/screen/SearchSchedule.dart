@@ -113,7 +113,9 @@ class _SearchScheduleState extends State<SearchSchedule> {
     users.remove(users.firstWhere((element) =>
         element.uid == Provider.of<UserData>(context, listen: false).uid));
   }
-
+  Future<void> _getGroupLocation() async {
+    //location = GetGroupLoc().getGroupLoc(widget.groupId);
+  }
   Future<void> _getGroupSize() async {
     var group = await GetUserInGroup().getUserInGroup(widget.groupId);
     GroupSize = group.length;

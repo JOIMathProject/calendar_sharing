@@ -56,7 +56,6 @@ dependencies:
   flutter_datetime_picker: ^1.4.0
   flutter_speed_dial: ^6.2.0
   nearby_connections: ^3.2.0
-  permission_handler: ^10.2.0
 
 flutter_launcher_icons:
   android: "launcher_icon"
