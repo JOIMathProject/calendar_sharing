@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -17,6 +18,8 @@ class AddFriendBluetooth extends StatefulWidget {
 class _AddFriendBluetoothState extends State<AddFriendBluetooth> {
   List<ScanResult> scanResults = [];
   bool isScanning = false;
+  StreamSubscription<List<ScanResult>>? scanSubscription;
+  StreamSubscription<bool>? scanningSubscription;
 
   @override
   void initState() {
@@ -24,13 +27,27 @@ class _AddFriendBluetoothState extends State<AddFriendBluetooth> {
     _checkBluetoothState();
   }
 
+  @override
+  void dispose() {
+    scanSubscription?.cancel();
+    scanningSubscription?.cancel();
+    super.dispose();
+  }
+
   void _checkBluetoothState() async {
-    if (await FlutterBluePlus.isOn) {
-      _startScan();
-    } else {
-      // Request to turn on Bluetooth
-      // This might not work on iOS due to restrictions
-      await FlutterBluePlus.turnOn();
+    try {
+      if (await FlutterBluePlus.isAvailable == false) {
+        throw Exception("Bluetooth not available on this device");
+      }
+
+      if (await FlutterBluePlus.isOn) {
+        _startScan();
+      } else {
+        await FlutterBluePlus.turnOn();
+        _startScan();
+      }
+    } catch (e) {
+      _showErrorSnackBar("Bluetooth error: ${e.toString()}");
     }
   }
 
@@ -40,19 +57,23 @@ class _AddFriendBluetoothState extends State<AddFriendBluetooth> {
       isScanning = true;
     });
 
-    FlutterBluePlus.startScan(timeout: Duration(seconds: 4));
+    try {
+      scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+        setState(() {
+          scanResults = results;
+        });
+      }, onError: (e) => _showErrorSnackBar("Scan error: ${e.toString()}"));
 
-    FlutterBluePlus.scanResults.listen((results) {
-      setState(() {
-        scanResults = results;
+      scanningSubscription = FlutterBluePlus.isScanning.listen((scanning) {
+        setState(() {
+          isScanning = scanning;
+        });
       });
-    });
 
-    FlutterBluePlus.isScanning.listen((scanning) {
-      setState(() {
-        isScanning = scanning;
-      });
-    });
+      FlutterBluePlus.startScan(timeout: Duration(seconds: 4));
+    } catch (e) {
+      _showErrorSnackBar("Failed to start scan: ${e.toString()}");
+    }
   }
 
   void _connectToDevice(BluetoothDevice device) async {
@@ -75,7 +96,7 @@ class _AddFriendBluetoothState extends State<AddFriendBluetooth> {
 
       await device.disconnect();
     } catch (e) {
-      print('Error connecting to device: $e');
+      _showErrorSnackBar("Connection error: ${e.toString()}");
     }
   }
 
@@ -86,11 +107,14 @@ class _AddFriendBluetoothState extends State<AddFriendBluetooth> {
         SnackBar(content: Text('フレンドが追加されました')),
       );
     } catch (e) {
-      print('Error adding friend: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('フレンドの追加に失敗しました。')),
-      );
+      _showErrorSnackBar("フレンドの追加に失敗しました: ${e.toString()}");
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
   @override
@@ -106,7 +130,8 @@ class _AddFriendBluetoothState extends State<AddFriendBluetooth> {
           SizedBox(height: 30),
           ElevatedButton(
             onPressed: isScanning ? null : _startScan,
-            child: Text(isScanning ? 'スキャン中...' : 'デバイスをスキャン',style: TextStyle(color: Colors.white)),
+            child: Text(isScanning ? 'スキャン中...' : 'デバイスをスキャン', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor:  GlobalColor.MainCol),
           ),
           Expanded(
             child: ListView.builder(

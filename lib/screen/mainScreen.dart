@@ -155,7 +155,6 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
-        backgroundColor: GlobalColor.MainCol,
         items: [
           BottomNavigationBarItem(
             icon: badge.Badge(
@@ -208,17 +207,6 @@ class _MainScreenState extends State<MainScreen> {
             label: 'プロフィール',
           ),
         ],
-      ),
-    );
-  }
-}
-
-class PlaceholderWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text('Placeholder'),
       ),
     );
   }

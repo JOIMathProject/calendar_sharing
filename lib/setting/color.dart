@@ -8,12 +8,12 @@ Color MainCol = Color(0xFFFDB164);
 Color MainColSub = Color(0xFFFFBC80);
 Color MainLightCol = Color(0xFFFDE0BA);
 Color SnackCol = Color(0xFFE8A041);
-Color ItemCol = Color(0xFFFFF7F2);
+Color ItemCol = Color(0xFFFFFDFB);
 Color SubCol = Color(0xFFFFF9F3);
 Color bottomBar = Color(0xFFBCBCBC);
 Color Unselected = Color(0xFFECECEC);
 Color loadingCol = Color(0xFFFFD29D);
-Color AppBarCol = Color(0xFFFFF9F3);
+Color AppBarCol = Color(0xFFFFFDFB);
 Color ChatCol = Color(0xFFFDD6AE);
 Color MyCalCol = Color(0xFFF57870);
 Color backGroundCol = Color(0xFFFFF9F3);
@@ -29,7 +29,7 @@ final appTheme = ThemeData(
     onSecondary: Color(0xFFFFFFFF),
     error: Color(0xFFF2CB57),
     onError: Color(0xFFFFFFFF),
-    background: Color(0xFFFFF9F3),
+    background: Color(0xFFFFFDFB),
     onBackground: Color(0xFFFFA74F),
     surface: Color(0xFFFFA74F),
     onSurface: Color(0xFF000000),
