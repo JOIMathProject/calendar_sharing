@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../services/APIcalls.dart';
 import '../services/UserData.dart';
 import 'friendProfile.dart';
+import 'package:calendar_sharing/screen/ReadQR.dart';
 import '../setting/color.dart' as GlobalColor;
 import 'package:calendar_sharing/setting/size_config.dart';
 import 'package:badges/badges.dart' as badge;
@@ -167,6 +168,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
             labelStyle: TextStyle(fontSize: 18.0),
             onTap: () {
               // Add camera functionality here
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReadQR()),
+              );
               print('Camera Add Tapped');
             },
           ),
