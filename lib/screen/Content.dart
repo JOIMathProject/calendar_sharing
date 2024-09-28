@@ -284,10 +284,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(widget.groupName!,
             style: TextStyle(fontFamily: 'MPLUSRounded1c-Medium')),
-        backgroundColor: GlobalColor.SubCol,
-        flexibleSpace: Container(
-          color: GlobalColor.SubCol,
-        ),
+        backgroundColor: GlobalColor.AppBarCol,
         actions: [
           badge.Badge(
             showBadge: _requests.isNotEmpty,

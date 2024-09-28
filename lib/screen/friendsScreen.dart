@@ -401,11 +401,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
           padding: const EdgeInsets.all(8.0),
           child: TextField(
             controller: _searchController,
+            style: TextStyle(color: GlobalColor.SubCol),
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
               hintText: '検索',
               hintStyle: TextStyle(color: GlobalColor.SubCol),
-              fillColor: GlobalColor.MainCol,
+              fillColor: GlobalColor.searchBarCol,
               prefixIcon: const Icon(Icons.search, size: 20.0),
               filled: true,
               border: OutlineInputBorder(

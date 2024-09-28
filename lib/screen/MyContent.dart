@@ -150,10 +150,7 @@ class _MyContentState extends State<MyContent> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.contentsName ?? ''),
-          backgroundColor: GlobalColor.SubCol,
-          flexibleSpace: Container(
-            color: GlobalColor.SubCol,
-          ),
+          backgroundColor: GlobalColor.AppBarCol,
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.settings),

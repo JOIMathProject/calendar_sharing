@@ -65,7 +65,7 @@ class _MyContentSettingState extends State<MyContentSetting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: GlobalColor.SubCol,
+        backgroundColor: GlobalColor.AppBarCol,
       ),
       body: Container(
         padding: EdgeInsets.all(20),

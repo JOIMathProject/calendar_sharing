@@ -17,7 +17,7 @@ class _AddFriendState extends State<AddFriend> {
     UserData userData = Provider.of<UserData>(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: GlobalColor.SubCol,
+        backgroundColor: GlobalColor.AppBarCol,
       ),
       body: Center(
         child: Column(

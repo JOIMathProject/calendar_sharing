@@ -6,15 +6,18 @@ Color Calendar_grid_color = Color(0xFFD7D7D7);
 
 Color MainCol = Color(0xFFFDB164);
 Color MainColSub = Color(0xFFFFBC80);
+Color MainLightCol = Color(0xFFFDE0BA);
 Color SnackCol = Color(0xFFE8A041);
-Color ItemCol = Color(0xFFFFF6EC);
+Color ItemCol = Color(0xFFFFF7F2);
 Color SubCol = Color(0xFFFFF9F3);
 Color bottomBar = Color(0xFFBCBCBC);
 Color Unselected = Color(0xFFECECEC);
-Color AppBarCol = Color(0xFFFDE0BA);
+Color loadingCol = Color(0xFFFFD29D);
+Color AppBarCol = Color(0xFFFFF9F3);
 Color ChatCol = Color(0xFFFDD6AE);
 Color MyCalCol = Color(0xFFF57870);
 Color backGroundCol = Color(0xFFFFF9F3);
+Color searchBarCol = Color(0xFFFFBE7B);
 
 final appTheme = ThemeData(
   fontFamily: 'MPLUSRounded1c-Regular',

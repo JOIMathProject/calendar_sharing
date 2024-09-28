@@ -70,12 +70,13 @@ class _ContentsManageState extends State<ContentsManage>
             padding: EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
+              style: TextStyle(color: GlobalColor.SubCol),
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(vertical: 12.0),
                 hintText: '検索',
                 hintStyle: TextStyle(color: GlobalColor.SubCol),
                 prefixIcon: Icon(Icons.search, size: 20.0),
-                fillColor: GlobalColor.MainCol,
+                fillColor: GlobalColor.searchBarCol,
                 filled: true,
                 border: OutlineInputBorder(
                   borderSide: BorderSide.none,

@@ -67,7 +67,7 @@ class _FriendProfileState extends State<FriendProfile> {
             },
           ),
         ],
-        backgroundColor: GlobalColor.SubCol,
+        backgroundColor: GlobalColor.AppBarCol,
       ),
       body: Center(
         child: Column(
@@ -101,7 +101,7 @@ class _FriendProfileState extends State<FriendProfile> {
               width: 300,
               child:Container(
               decoration: BoxDecoration(
-                color: GlobalColor.AppBarCol, // Bright orange background
+                color: GlobalColor.MainLightCol, // Bright orange background
                 borderRadius: BorderRadius.circular(40.0), // Rounded corners
               ),
               padding: EdgeInsets.symmetric(vertical: 20.0), // Padding inside the container
@@ -113,23 +113,19 @@ class _FriendProfileState extends State<FriendProfile> {
                   ElevatedButton(
                     onPressed: () async {
                       String? uid = Provider.of<UserData>(context, listen: false).uid;
-                      String? groupId = await _checkFriend(uid!, widget.friend.uid);
-
-                      bool opened = await GetOpened().getOpened(uid, groupId!) == 1;
-                      if (groupId != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Home(
-                              groupId: groupId,
-                              groupName: widget.friend.uname,
-                              startOnChatScreen: false,
-                              firstVisit: opened,
-                              is_frined: true,
-                            ),
+                      bool opened = await GetOpened().getOpened(uid, widget.friend.gid) == 1;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Home(
+                            groupId: widget.friend.gid,
+                            groupName: widget.friend.uname,
+                            startOnChatScreen: false,
+                            firstVisit: opened,
+                            is_frined: true,
                           ),
-                        );
-                      }
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       shape: CircleBorder(),

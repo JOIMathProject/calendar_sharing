@@ -102,7 +102,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: !loading,
-            backgroundColor: GlobalColor.SubCol,
+            backgroundColor: GlobalColor.AppBarCol,
           ),
           body: loading
               ? LoadingScreen()

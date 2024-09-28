@@ -217,7 +217,7 @@ class _ContentsSettingState extends State<ContentsSetting> {
     gnameController.text = _groupDetail.gname;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: GlobalColor.SubCol,
+        backgroundColor: GlobalColor.AppBarCol,
       ),
       body: Container(
         padding: EdgeInsets.all(20),

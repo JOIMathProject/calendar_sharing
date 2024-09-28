@@ -125,7 +125,7 @@ class _CreateContentsState extends State<CreateContents> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: GlobalColor.SubCol,
+        backgroundColor: GlobalColor.AppBarCol,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,12 +178,13 @@ class _CreateContentsState extends State<CreateContents> {
                     controller: _groupTitleController,
                     decoration: InputDecoration(
                       hintText: 'グループタイトルを入力...',
+                      hintStyle: TextStyle(color: GlobalColor.SubCol),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: GlobalColor.Unselected,
+                      fillColor: GlobalColor.searchBarCol,
                       suffixIcon: title.isNotEmpty
                           ? IconButton(
                         icon: Icon(Icons.clear),

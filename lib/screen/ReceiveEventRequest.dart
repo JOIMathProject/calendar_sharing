@@ -51,7 +51,7 @@ class _receivedEventRequest extends State<ReceiveEventrequest> {
     String? currentUserUid = Provider.of<UserData>(context, listen: false).uid;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: GlobalColor.SubCol,
+        backgroundColor: GlobalColor.AppBarCol,
         title: Text("イベントリクエスト"),
       ),
       body:

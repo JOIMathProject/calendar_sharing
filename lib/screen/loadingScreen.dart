@@ -18,8 +18,8 @@ class LoadingScreen extends StatelessWidget {
             end: Alignment.bottomCenter, // End at the bottom
             colors: [
               GlobalColor.backGroundCol, // Top color
-              GlobalColor.AppBarCol, // Middle color (Orange)
-              GlobalColor.AppBarCol, // Middle color (Orange)
+              GlobalColor.loadingCol, // Middle color (Orange)
+              GlobalColor.loadingCol, // Middle color (Orange)
               GlobalColor.backGroundCol, // Bottom color
             ],
             stops: [0.0, 0.3 , 0.7, 1.0], // Position of each color

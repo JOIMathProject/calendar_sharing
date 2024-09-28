@@ -510,10 +510,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
     }
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: GlobalColor.SubCol,
-        flexibleSpace: Container(
-          color: GlobalColor.SubCol,
-        ),
+        backgroundColor: GlobalColor.AppBarCol,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -557,7 +554,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           style: TextStyle(color: Colors.black87),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: GlobalColor.AppBarCol,
+                          backgroundColor: GlobalColor.MainLightCol,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                                 6.0), // Subtle rounded corners
@@ -572,8 +569,6 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     ],
                   ),
                   SizedBox(height: 8.0),
-
-// End Date Picker Button
                   Row(
                     children: [
                       ElevatedButton(
@@ -583,7 +578,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                           style: TextStyle(color: Colors.black87),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: GlobalColor.AppBarCol,
+                          backgroundColor: GlobalColor.MainLightCol,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                                 6.0), // Subtle rounded corners

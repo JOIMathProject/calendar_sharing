@@ -382,7 +382,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
     return Scaffold(
         appBar: AppBar(
           title: Text('予定を追加'),
-          backgroundColor: GlobalColor.SubCol,
+          backgroundColor: GlobalColor.AppBarCol,
         ),
         body: ListView(
           padding: EdgeInsets.all(20.0),
