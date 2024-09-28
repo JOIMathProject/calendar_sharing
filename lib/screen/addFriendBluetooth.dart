@@ -1,112 +1,247 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
+import 'package:nearby_connections/nearby_connections.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../services/APIcalls.dart';
 import '../setting/color.dart' as GlobalColor;
 
-class AddFriendBluetooth extends StatefulWidget {
+class AddFriendNearby extends StatefulWidget {
   final String myUid;
 
-  const AddFriendBluetooth({Key? key, required this.myUid}) : super(key: key);
+  const AddFriendNearby({Key? key, required this.myUid}) : super(key: key);
 
   @override
-  _AddFriendBluetoothState createState() => _AddFriendBluetoothState();
+  _AddFriendNearbyState createState() => _AddFriendNearbyState();
 }
 
-class _AddFriendBluetoothState extends State<AddFriendBluetooth> {
-  List<ScanResult> scanResults = [];
-  bool isScanning = false;
-  StreamSubscription<List<ScanResult>>? scanSubscription;
-  StreamSubscription<bool>? scanningSubscription;
+class _AddFriendNearbyState extends State<AddFriendNearby> {
+  final Nearby _nearby = Nearby();
+  List<Device> discoveredDevices = [];
+  bool isDiscovering = false;
+  bool isAdvertising = false;
+  final Strategy strategy = Strategy.P2P_CLUSTER;
 
   @override
   void initState() {
     super.initState();
-    _checkBluetoothState();
+    _checkPermissionsAndStart();
   }
 
   @override
   void dispose() {
-    scanSubscription?.cancel();
-    scanningSubscription?.cancel();
+    _stopNearbyServices();
     super.dispose();
   }
 
-  void _checkBluetoothState() async {
-    try {
-      if (await FlutterBluePlus.isAvailable == false) {
-        throw Exception("Bluetooth not available on this device");
-      }
-
-      if (await FlutterBluePlus.isOn) {
-        _startScan();
-      } else {
-        await FlutterBluePlus.turnOn();
-        _startScan();
-      }
-    } catch (e) {
-      _showErrorSnackBar("Bluetooth error: ${e.toString()}");
+  Future<void> _checkPermissionsAndStart() async {
+    if (await _checkPermissions()) {
+      _startNearbyServices();
+    } else {
+      _showErrorSnackBar("Permissions not granted");
     }
   }
 
-  void _startScan() {
+  Future<bool> _checkPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.location,
+      Permission.bluetooth,
+      Permission.bluetoothAdvertise,
+      Permission.bluetoothConnect,
+      Permission.bluetoothScan,
+    ].request();
+
+    bool allGranted = statuses.values.every((status) => status.isGranted);
+    if (!allGranted) {
+      print("Not all permissions granted.");
+    }
+    return allGranted;
+  }
+
+  void _startNearbyServices() async {
+    // Start Advertising
+    await _startAdvertising();
+
+    // Start Discovery after Advertising has started
+    await _startDiscovery();
+  }
+
+  Future<void> _startAdvertising() async {
+    if (isAdvertising) {
+      print("Already advertising.");
+      return;
+    }
+
+    try {
+      print("Starting Advertising...");
+      bool advertising = await _nearby.startAdvertising(
+        widget.myUid,
+        strategy,
+        onConnectionInitiated: _onConnectionInitiated,
+        onConnectionResult: (id, status) {
+          print("Connection result: $id, $status");
+        },
+        onDisconnected: (id) {
+          print("Disconnected: $id");
+        },
+      );
+
+      if (advertising) {
+        setState(() {
+          isAdvertising = true;
+        });
+        print("Advertising started successfully.");
+      } else {
+        print("Advertising failed to start.");
+        _showErrorSnackBar("Advertising failed to start.");
+      }
+    } catch (e) {
+      print("Failed to start advertising: $e");
+      _showErrorSnackBar("Failed to start advertising: ${e.toString()}");
+    }
+  }
+
+  Future<void> _stopAdvertising() async {
+    if (!isAdvertising) {
+      print("Not currently advertising.");
+      return;
+    }
+
+    try {
+      print("Stopping Advertising...");
+      await _nearby.stopAdvertising();
+      setState(() {
+        isAdvertising = false;
+      });
+      print("Advertising stopped.");
+    } catch (e) {
+      print("Failed to stop advertising: $e");
+      _showErrorSnackBar("Failed to stop advertising: ${e.toString()}");
+    }
+  }
+
+  Future<void> _startDiscovery() async {
+    if (isDiscovering) {
+      print("Already discovering.");
+      _showErrorSnackBar("Discovery is already running.");
+      return;
+    }
+
     setState(() {
-      scanResults.clear();
-      isScanning = true;
+      isDiscovering = true;
+      discoveredDevices.clear();
     });
 
     try {
-      scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+      print("Starting Discovery...");
+      bool discovering = await _nearby.startDiscovery(
+        widget.myUid,
+        strategy,
+        onEndpointFound: (id, name, serviceId) {
+          print("Endpoint found: $id, $name, $serviceId");
+          setState(() {
+            discoveredDevices.add(Device(id, name));
+          });
+        },
+        onEndpointLost: (id) {
+          print("Endpoint lost: $id");
+          setState(() {
+            discoveredDevices.removeWhere((d) => d.id == id);
+          });
+        },
+      );
+
+      if (discovering) {
+        print("Discovery started successfully.");
+      } else {
+        print("Discovery failed to start.");
+        _showErrorSnackBar("Discovery failed to start.");
         setState(() {
-          scanResults = results;
+          isDiscovering = false;
         });
-      }, onError: (e) => _showErrorSnackBar("Scan error: ${e.toString()}"));
-
-      scanningSubscription = FlutterBluePlus.isScanning.listen((scanning) {
-        setState(() {
-          isScanning = scanning;
-        });
-      });
-
-      FlutterBluePlus.startScan(timeout: Duration(seconds: 4));
-    } catch (e) {
-      _showErrorSnackBar("Failed to start scan: ${e.toString()}");
-    }
-  }
-
-  void _connectToDevice(BluetoothDevice device) async {
-    try {
-      await device.connect();
-      List<BluetoothService> services = await device.discoverServices();
-
-      for (BluetoothService service in services) {
-        for (BluetoothCharacteristic characteristic in service.characteristics) {
-          if (characteristic.properties.write) {
-            await characteristic.write(utf8.encode(widget.myUid));
-          }
-          if (characteristic.properties.read) {
-            List<int> value = await characteristic.read();
-            String friendUid = utf8.decode(value);
-            _addFriend(friendUid);
-          }
-        }
       }
-
-      await device.disconnect();
     } catch (e) {
-      _showErrorSnackBar("Connection error: ${e.toString()}");
+      print("Discovery failed: $e");
+      _showErrorSnackBar("Discovery failed: ${e.toString()}");
+      setState(() {
+        isDiscovering = false;
+      });
     }
   }
 
-  void _addFriend(String friendUid) async {
+  Future<void> _stopDiscovery() async {
+    if (!isDiscovering) {
+      print("Not currently discovering.");
+      return;
+    }
+
     try {
-      await AddFriendRequest().addFriend(widget.myUid, friendUid);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('フレンドが追加されました')),
+      print("Stopping Discovery...");
+      await _nearby.stopDiscovery();
+      setState(() {
+        isDiscovering = false;
+      });
+      print("Discovery stopped.");
+    } catch (e) {
+      print("Failed to stop discovery: $e");
+      _showErrorSnackBar("Failed to stop discovery: ${e.toString()}");
+    }
+  }
+
+  Future<void> _stopNearbyServices() async {
+    await _stopAdvertising();
+    await _stopDiscovery();
+  }
+
+  void _onConnectionInitiated(String id, ConnectionInfo info) {
+    print("Connection initiated with $id (${info.endpointName})");
+    _nearby.acceptConnection(
+      id,
+      onPayLoadRecieved: (endid, payload) async { // Corrected parameter name
+        if (payload.bytes != null) {
+          String friendUid = String.fromCharCodes(payload.bytes!);
+          print("Received payload: $friendUid");
+          await _addFriend(friendUid);
+        } else {
+          print("Received empty payload.");
+        }
+      },
+    );
+  }
+
+
+  void _connectToDevice(Device device) async {
+    try {
+      print("Requesting connection to ${device.id} (${device.name})");
+      await _nearby.requestConnection(
+        widget.myUid,
+        device.id,
+        onConnectionInitiated: _onConnectionInitiated,
+        onConnectionResult: (id, status) {
+          print("Connection result: $id, $status");
+          if (status == Status.CONNECTED) {
+            _nearby.sendBytesPayload(id, Uint8List.fromList(widget.myUid.codeUnits));
+            print("Sent UID payload to $id");
+          }
+
+        },
+        onDisconnected: (id) {
+          print("Disconnected from: $id");
+        },
       );
     } catch (e) {
+      print("Connection failed: $e");
+      _showErrorSnackBar("Connection failed: ${e.toString()}");
+    }
+  }
+
+  Future<void> _addFriend(String friendUid) async {
+    try {
+      print("Adding friend with UID: $friendUid");
+      await AddFriendRequest().addFriend(widget.myUid, friendUid);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('フレンドが追加されました')));
+    } catch (e) {
+      print("Failed to add friend: $e");
       _showErrorSnackBar("フレンドの追加に失敗しました: ${e.toString()}");
     }
   }
@@ -123,33 +258,58 @@ class _AddFriendBluetoothState extends State<AddFriendBluetooth> {
       appBar: AppBar(
         backgroundColor: GlobalColor.AppBarCol,
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 50),
-          Text('Bluetoothでフレンドを追加する', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-          SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: isScanning ? null : _startScan,
-            child: Text(isScanning ? 'スキャン中...' : 'デバイスをスキャン', style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(backgroundColor:  GlobalColor.MainCol),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: scanResults.length,
-              itemBuilder: (context, index) {
-                ScanResult result = scanResults[index];
-                return ListTile(
-                  title: Text(result.device.name.isNotEmpty
-                      ? result.device.name
-                      : '不明のデバイス'),
-                  subtitle: Text(result.device.remoteId.toString()),
-                  onTap: () => _connectToDevice(result.device),
-                );
-              },
+      body: Padding( // Optional: Add padding for better UI
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            Text(
+              '近くのデバイスでフレンドを追加する',
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center, // Optional: Center the text
             ),
-          ),
-        ],
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: isDiscovering ? null : _startDiscovery,
+              child: Text(
+                isDiscovering ? 'デバイスを探しています...' : 'デバイスを探す',
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: GlobalColor.MainCol,
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15), // Optional: Button styling
+                textStyle: TextStyle(fontSize: 18),
+              ),
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: discoveredDevices.isEmpty
+                  ? Center(child: Text('デバイスが見つかりませんでした。'))
+                  : ListView.builder(
+                itemCount: discoveredDevices.length,
+                itemBuilder: (context, index) {
+                  Device device = discoveredDevices[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text(device.name),
+                      subtitle: Text(device.id),
+                      trailing: Icon(Icons.arrow_forward),
+                      onTap: () => _connectToDevice(device),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class Device {
+  final String id;
+  final String name;
+
+  Device(this.id, this.name);
 }

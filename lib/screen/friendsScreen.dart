@@ -196,7 +196,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddFriendBluetooth(myUid: Provider.of<UserData>(context).uid!),
+                MaterialPageRoute(builder: (context) => AddFriendNearby(myUid: Provider.of<UserData>(context).uid!),
               )
               );
             },
