@@ -48,8 +48,8 @@ class _ReadQRState extends State<ReadQR> {
                   ),
                 ),
                 Positioned(
-                  top: 20,
-                  left: 20,
+                  top: 30,
+                  left: 30,
                   child: IconButton(
                     icon: const Icon(
                       Icons.arrow_back,
@@ -85,7 +85,7 @@ class _ReadQRState extends State<ReadQR> {
                       child: Column(
                         children: [
                           Icon(
-                            Icons.qr_code_scanner,
+                            Icons.qr_code_2,
                             size: 50,
                           ),
                           Text('自分のQRを表示'),

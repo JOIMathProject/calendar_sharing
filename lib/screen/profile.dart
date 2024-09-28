@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/UserData.dart';
 import '../services/APIcalls.dart';
+import 'ReadQR.dart';
 import '../setting/color.dart' as GlobalColor;
 import '../services/auth.dart';
 import 'package:image/image.dart' as img;
@@ -185,6 +186,25 @@ class _ProfileState extends State<Profile> {
                 SizedBox(height: 20),
                 Text('メールアドレス: ${userData.mailAddress}',
                     style: TextStyle(fontSize: 18)),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text('自分のQRを表示',style: TextStyle(color: Colors.white),),
+                      ],
+                    ),
+                  ),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return MyQRModal(uid: userData.uid);
+                      },
+                    );
+                  },
+                )
               ],
             ),
           ),
