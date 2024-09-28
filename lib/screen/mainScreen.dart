@@ -98,6 +98,9 @@ class _MainScreenState extends State<MainScreen> {
       _MyCalendar = _MyCalendar.where((calendar) => calendar.accessRole != 'reader').toList();
       var _MyContents = await GetMyContents().getMyContents(uid);
 
+
+      List<FriendInformation> friends = await GetFriends().getFriends(uid);
+      Provider.of<UserData>(context, listen: false).updateFriends(friends);
       Provider.of<UserData>(context, listen: false)
           .updateMyContents(_MyContents);
       Provider.of<UserData>(context, listen: false)
@@ -117,7 +120,6 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _fetchReceivedRequests() async {
     try {
       UserData userData = Provider.of<UserData>(context, listen: false);
-      String? uid = userData.uid;
       List<FriendRequestInformation> receivedRequests =
       await GetReceiveFriendRequest().getReceiveFriendRequest(userData.uid);
       List<FriendRequestInformation> sentRequests =

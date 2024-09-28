@@ -54,8 +54,8 @@ dependencies:
   qr_code_scanner: ^1.0.1
   permission_handler: ^11.3.1
   flutter_datetime_picker: ^1.4.0
-  flutter_blue_plus: ^1.5.2
   flutter_speed_dial: ^6.2.0
+  nearby_connections: ^3.2.0
   qr_flutter: ^4.1.0
 
 flutter_launcher_icons:
