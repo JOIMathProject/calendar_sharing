@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
@@ -7,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ReadQR extends StatefulWidget {
-  const ReadQR({Key? key}) : super(key: key);
+  const ReadQR({super.key});
 
   @override
   _ReadQRState createState() => _ReadQRState();
@@ -70,7 +69,7 @@ class _ReadQRState extends State<ReadQR> {
             child: Center(
               child: Column(
                 children: [
-                  Spacer(flex: 1,),
+                  const Spacer(),
                   const Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Text(
@@ -79,7 +78,7 @@ class _ReadQRState extends State<ReadQR> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  Spacer(flex: 1,),
+                  const Spacer(),
                   ElevatedButton(
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
@@ -99,7 +98,7 @@ class _ReadQRState extends State<ReadQR> {
                       });
                     },
                   ),
-                  Spacer(flex: 1,),
+                  const Spacer(),
                 ],
               ),
             ),
@@ -253,7 +252,7 @@ class MyQRModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           //モーダル自体の色
           color: Colors.white,
           //角丸にする
@@ -262,37 +261,44 @@ class MyQRModal extends StatelessWidget {
             topRight: Radius.circular(20),
           ),
         ),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 60,
-            ),
-            Expanded(
-              flex: 2,
-              child: Center(
+        child: Center(
+          child: Column(
+            children: [
+              const Spacer(flex: 2),
+              Expanded(
+                flex: 7,
+                child: Center(
                   child: QrImageView(
                     data: 'sando//$uid',
-                    size: 300,
-                    padding: const EdgeInsets.all(20),
-                  )
+                  ),
+                ),
               ),
-            ),
-            const Expanded(
-              flex: 1,
-              child: Center(
+              const Spacer(),
+              Expanded(
+                flex: 5,
                 child: Column(
                   children: [
                     Text(
-                      'QRコードを読み取ってフレンドを追加',
-                      style: TextStyle(
-                        fontSize: 20,
+                      '@$uid',
+                      style: const TextStyle(
+                        fontSize: 30,
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'このQRコードを友達に読み込んでもらうと、\n友達追加ができます',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         )
     );
   }
