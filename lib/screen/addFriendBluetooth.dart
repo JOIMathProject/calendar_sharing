@@ -32,10 +32,10 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
 
   @override
   void dispose() {
+    print("Disposing AddFriendNearbyState...");
     _stopNearbyServices();
     super.dispose();
   }
-
   Future<void> _checkPermissionsAndStart() async {
     if (await _checkPermissions()) {
     } else {
@@ -128,7 +128,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       _showErrorSnackBar("Discovery is already running.");
       return;
     }
-
     setState(() {
       isDiscovering = true;
       discoveredDevices.clear();
@@ -141,24 +140,9 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
         strategy,
         onEndpointFound: (id, name, serviceId) {
           print("Endpoint found: $id, $name, $serviceId");
-          if (!mounted) return; // Ensure the widget is still mounted
-
-          // Access the friends list from Provider
-          List<FriendInformation> friends = Provider.of<UserData>(context, listen: false).friends;
-
-          // Check if the discovered device is already a friend
-          bool isAlreadyFriend = friends.any((friend) => friend.uid == id);
-
-          if (!isAlreadyFriend) {
-            setState(() {
-              // Check if the device is already in the list to prevent duplicates
-              if (!discoveredDevices.any((device) => device.id == id)) {
-                discoveredDevices.add(Device(id, name));
-              }
-            });
-          } else {
-            print("Device $id is already a friend. Skipping display.");
-          }
+          setState(() {
+            discoveredDevices.add(Device(id, name));
+          });
         },
         onEndpointLost: (id) {
           print("Endpoint lost: $id");
@@ -263,13 +247,11 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       _showErrorSnackBar("フレンドの追加に失敗しました: ${e.toString()}");
     }
   }
-
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -288,7 +270,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
             ),
             SizedBox(height: 30),
             ElevatedButton(
-              onPressed: isDiscovering ? _stopNearbyServices : _startDiscovery,
+              onPressed: isDiscovering ? _stopNearbyServices : _startNearbyServices,
               child: Text(
                 isDiscovering ? 'デバイスを探しています...' : 'デバイスを探す',
                 style: TextStyle(color: Colors.white),
@@ -300,7 +282,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
               ),
             ),
             SizedBox(height: 20),
-
             Expanded(
               child: discoveredDevices.isEmpty
                   ? Center(child: Text('デバイスが見つかりませんでした。'))
@@ -309,7 +290,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                 itemBuilder: (context, index) {
                   Device device = discoveredDevices[index];
                   return FutureBuilder<UserInformation>(
-                    future: GetUser().getUser(device.id), // Fetch user info
+                    future: GetUser().getUser(device.name), // Fetch user info
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ListTile(
@@ -345,7 +326,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                               children: [
                                 Row(
                                   children: [
-// User Icon
+                                    // User Icon
                                     CircleAvatar(
                                       radius: 25,
                                       backgroundColor: Colors.white,
@@ -354,7 +335,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                                       ),
                                     ),
                                     SizedBox(width: 20),
-// User Name and UID
+                                    // User Name and UID
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
