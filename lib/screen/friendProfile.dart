@@ -112,8 +112,6 @@ class _FriendProfileState extends State<FriendProfile> {
                   // コンテンツのボタンとメッセージのボタン
                   ElevatedButton(
                     onPressed: () async {
-                      String? uid = Provider.of<UserData>(context, listen: false).uid;
-                      bool opened = await GetOpened().getOpened(uid, widget.friend.gid) == 1;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -121,7 +119,7 @@ class _FriendProfileState extends State<FriendProfile> {
                             groupId: widget.friend.gid,
                             groupName: widget.friend.uname,
                             startOnChatScreen: false,
-                            firstVisit: opened,
+                            firstVisit: !widget.friend.is_opened,
                             is_frined: true,
                           ),
                         ),
@@ -141,24 +139,19 @@ class _FriendProfileState extends State<FriendProfile> {
                   SizedBox(width: 40),
                   ElevatedButton(
                     onPressed: () async {
-                      String? uid = Provider.of<UserData>(context, listen: false).uid;
-                      String? groupId = await _checkFriend(uid!, widget.friend.uid);
-                      bool opened = await GetOpened().getOpened(uid, groupId!) == 1;
-                      if (groupId != null) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Home(
-                              groupId: groupId,
+                              groupId: widget.friend.gid,
                               groupName: widget.friend.uname,
                               startOnChatScreen: true,
-                              firstVisit: opened,
+                              firstVisit: !widget.friend.is_opened,
                               is_frined: true,
                             ),
                           ),
                         );
-                      }
-                    },
+                      },
                     style: ElevatedButton.styleFrom(
                       shape: CircleBorder(),
                       padding: EdgeInsets.all(30),

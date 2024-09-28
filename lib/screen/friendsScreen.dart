@@ -1,3 +1,4 @@
+import 'package:calendar_sharing/screen/addFriendBluetooth.dart';
 import 'package:calendar_sharing/screen/addFriends.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -10,6 +11,7 @@ import '../setting/color.dart' as GlobalColor;
 import 'package:calendar_sharing/setting/size_config.dart';
 import 'package:badges/badges.dart' as badge;
 import 'dart:async';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -139,18 +141,67 @@ class _FriendsScreenState extends State<FriendsScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => AddFriend()))
-              .then((value) => () {
-                    _fetchFriends();
-                    _fetchReceivedRequests();
-                    setState(() {});
-                  });
-        },
+      floatingActionButton: SpeedDial(
+        icon: Icons.person_add,
+        activeIcon: Icons.close,
         backgroundColor: GlobalColor.MainCol,
-        child: Icon(Icons.person_add, color: GlobalColor.SubCol),
+        foregroundColor: GlobalColor.SubCol,
+        activeBackgroundColor: GlobalColor.MainCol,
+        activeForegroundColor: GlobalColor.SubCol,
+        buttonSize: Size(56.0, 56.0),
+        visible: true,
+        closeManually: false,
+        curve: Curves.bounceIn,
+        overlayColor: Colors.black,
+        overlayOpacity: 0.5,
+        onOpen: () => print('OPENING DIAL'),
+        onClose: () => print('DIAL CLOSED'),
+        elevation: 8.0,
+        shape: CircleBorder(),
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.camera_alt),
+            backgroundColor: GlobalColor.MainCol,
+            foregroundColor: GlobalColor.SubCol,
+            label: 'スキャンで追加',
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () {
+              // Add camera functionality here
+              print('Camera Add Tapped');
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.text_fields),
+            backgroundColor: GlobalColor.MainCol,
+            foregroundColor: GlobalColor.SubCol,
+            label: 'UIDから追加',
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddFriend()),
+              ).then((_) {
+                _fetchFriends();
+                _fetchReceivedRequests();
+                setState(() {});
+              });
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.bluetooth),
+            backgroundColor: GlobalColor.MainCol,
+            foregroundColor: GlobalColor.SubCol,
+            label: 'Bluetoothで追加',
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddFriendBluetooth(myUid: Provider.of<UserData>(context).uid!),
+              )
+              );
+            },
+          ),
+        ],
       ),
     );
   }

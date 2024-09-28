@@ -42,11 +42,13 @@ class FriendInformation {
   final String uname;
   final String uicon;
   final String gid;
+  final bool is_opened;
   FriendInformation(
       {required this.uid,
       required this.uname,
       required this.uicon,
-      required this.gid});
+      required this.gid,
+      required this.is_opened});
 }
 
 class GroupInformation {
@@ -285,6 +287,7 @@ class GetFriends {
         uname: friend['uname'],
         uicon: friend['uicon'],
         gid: friend['gid'],
+        is_opened: friend['is_opened'] == '1',
       ));
     }
     return friends;
@@ -659,6 +662,7 @@ class GetGroupCalendar {
           gid: '',
           uname: member['uname'],
           uicon: member['uicon'],
+          is_opened: false,
         ));
       }
 
