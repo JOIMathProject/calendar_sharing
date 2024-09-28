@@ -40,10 +40,10 @@ class _ContentsManageState extends State<ContentsManage>
       });
     });
     Timer.periodic(Duration(seconds: 2), (timer) {
-      setState(() {});
       if (!mounted) {
         timer.cancel();
       }
+      setState(() {});
     });
   }
 
