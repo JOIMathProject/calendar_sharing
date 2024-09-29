@@ -1212,7 +1212,7 @@ class SendEventRequest {
 }
 
 class GetGroupLoc {
-  Future<void> getGroupLoc(String? gid) async {
+  Future<String> getGroupLoc(String? gid) async {
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
     final response = await http.get(url, headers: {'API_KEY': APIKey});
     if (response.statusCode != 200) {
@@ -1225,6 +1225,7 @@ class GetGroupLoc {
 
 class UpdateGroupLoc{
   Future<void> updateGroupLoc(String? gid, String? location) async {
+    print('updateGroupLoc: $gid, $location');
     final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
     final response = await http.put(
       url,

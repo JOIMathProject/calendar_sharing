@@ -71,11 +71,14 @@ class _ContentsManageState extends State<ContentsManage>
             child: TextField(
               controller: _searchController,
               style: TextStyle(color: GlobalColor.SubCol),
+              cursorColor: GlobalColor.SubCol,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(vertical: 12.0),
                 hintText: '検索',
                 hintStyle: TextStyle(color: GlobalColor.SubCol),
                 prefixIcon: Icon(Icons.search, size: 20.0),
+                prefixIconColor: GlobalColor.SubCol,
+                hoverColor: GlobalColor.SubCol,
                 fillColor: GlobalColor.searchBarCol,
                 filled: true,
                 border: OutlineInputBorder(
@@ -84,7 +87,7 @@ class _ContentsManageState extends State<ContentsManage>
                 ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear),
+                        icon: Icon(Icons.clear, color: GlobalColor.SubCol),
                         onPressed: () {
                           _searchController.clear();
                         },

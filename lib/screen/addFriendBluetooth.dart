@@ -16,33 +16,43 @@ class AddFriendNearby extends StatefulWidget {
   @override
   _AddFriendNearbyState createState() => _AddFriendNearbyState();
 }
-
 class _AddFriendNearbyState extends State<AddFriendNearby> {
   final Nearby _nearby = Nearby();
   List<Device> discoveredDevices = [];
   bool isDiscovering = false;
   bool isAdvertising = false;
+  Map<String, UserInformation?> cachedUserInfo = {}; // Cache for fetched user info
   final Strategy strategy = Strategy.P2P_CLUSTER;
+  List<String> receivedFriendUid = []; // Initialize received UIDs
+  List<String> sentFriendUid = []; // Initialize sent UIDs
+  Set<String> connectedEndpoints = {}; // Track connected endpoints
 
   @override
   void initState() {
     super.initState();
+    _disconnectFromAllEndpoints();
     _checkPermissionsAndStart();
   }
 
   @override
   void dispose() {
-    print("Disposing AddFriendNearbyState...");
+    _disconnectFromAllEndpoints(); // Disconnect when disposing
     _stopNearbyServices();
     super.dispose();
   }
+
   Future<void> _checkPermissionsAndStart() async {
-    if (await _checkPermissions()) {
-    } else {
+    if (!await _checkPermissions()) {
       _showErrorSnackBar("Permissions not granted");
     }
   }
-
+  void SendPayLoad(String id) {
+    _nearby.sendBytesPayload(
+      id,
+      Uint8List.fromList(widget.myUid.codeUnits),
+    );
+    print("Sent UID payload to $id");
+  }
   Future<bool> _checkPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.location,
@@ -59,22 +69,24 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     return allGranted;
   }
 
-  void _startNearbyServices() async {
-    // Start Advertising
-    await _startAdvertising();
+  // Disconnect from all connected endpoints
+  Future<void> _disconnectFromAllEndpoints() async {
+    try {
+      await Nearby().stopAllEndpoints(); // Stops all active connections
+    } catch (e) {
+      print("Error disconnecting endpoints: $e");
+    }
+  }
 
-    // Start Discovery after Advertising has started
+  void _startNearbyServices() async {
+    await _startAdvertising();
     await _startDiscovery();
   }
 
   Future<void> _startAdvertising() async {
-    if (isAdvertising) {
-      print("Already advertising.");
-      return;
-    }
+    if (isAdvertising) return;
 
     try {
-      print("Starting Advertising...");
       bool advertising = await _nearby.startAdvertising(
         widget.myUid,
         strategy,
@@ -93,100 +105,77 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
         });
         print("Advertising started successfully.");
       } else {
-        print("Advertising failed to start.");
         _showErrorSnackBar("Advertising failed to start.");
       }
     } catch (e) {
-      print("Failed to start advertising: $e");
       _showErrorSnackBar("Failed to start advertising: ${e.toString()}");
     }
   }
 
-  Future<void> _stopAdvertising() async {
-    if (!isAdvertising) {
-      print("Not currently advertising.");
-      return;
-    }
-
-    try {
-      print("Stopping Advertising...");
-      await _nearby.stopAdvertising();
-      if(!mounted) return;
-      setState(() {
-        isAdvertising = false;
-      });
-      print("Advertising stopped.");
-    } catch (e) {
-      print("Failed to stop advertising: $e");
-      _showErrorSnackBar("Failed to stop advertising: ${e.toString()}");
-    }
-  }
-
   Future<void> _startDiscovery() async {
-    if (isDiscovering) {
-      print("Already discovering.");
-      _showErrorSnackBar("Discovery is already running.");
-      return;
-    }
+    if (isDiscovering) return;
+
     setState(() {
       isDiscovering = true;
       discoveredDevices.clear();
+      cachedUserInfo.clear(); // Clear previous cached data
     });
-
     try {
-      print("Starting Discovery...");
       bool discovering = await _nearby.startDiscovery(
         widget.myUid,
         strategy,
-        onEndpointFound: (id, name, serviceId) {
-          print("Endpoint found: $id, $name, $serviceId");
+        onEndpointFound: (id, name, serviceId) async {
+          // Fetch friends list outside of setState
+          List<FriendInformation> friends = await GetFriends().getFriends(widget.myUid);
+
+          // Once the friends list is fetched, update the UI
           setState(() {
-            discoveredDevices.add(Device(id, name));
+            Device device = Device(id, name);
+            // Add the device if it is not already in the friends list
+            if (!friends.map((friend) => friend.uid).contains(device.name)) {
+              discoveredDevices.add(device);
+            }
+
+            // Fetch user info if not already cached
+            if (!cachedUserInfo.containsKey(device.name)) {
+              _fetchAndCacheUserInfo(device.name);
+            }
           });
         },
         onEndpointLost: (id) {
-          print("Endpoint lost: $id");
           setState(() {
             discoveredDevices.removeWhere((d) => d.id == id);
+            cachedUserInfo.removeWhere((key, value) => key == id);
+            connectedEndpoints.remove(id); // Remove from connected endpoints
           });
         },
       );
 
-      if (discovering) {
-        print("Discovery started successfully.");
-      } else {
-        print("Discovery failed to start.");
+      if (!discovering) {
         _showErrorSnackBar("Discovery failed to start.");
         setState(() {
           isDiscovering = false;
         });
       }
     } catch (e) {
-      print("Discovery failed: $e");
       _showErrorSnackBar("Discovery failed: ${e.toString()}");
       setState(() {
         isDiscovering = false;
       });
     }
+
   }
 
-  Future<void> _stopDiscovery() async {
-    if (!isDiscovering) {
-      print("Not currently discovering.");
-      return;
-    }
-
+  Future<void> _fetchAndCacheUserInfo(String userId) async {
     try {
-      print("Stopping Discovery...");
-      await _nearby.stopDiscovery();
-      if(!mounted) return;
+      UserInformation userInfo = await GetUser().getUser(userId);
       setState(() {
-        isDiscovering = false;
+        cachedUserInfo[userId] = userInfo; // Cache the user info
       });
-      print("Discovery stopped.");
     } catch (e) {
-      print("Failed to stop discovery: $e");
-      _showErrorSnackBar("Failed to stop discovery: ${e.toString()}");
+      setState(() {
+        cachedUserInfo[userId] = null; // Cache null in case of error
+      });
     }
   }
 
@@ -195,15 +184,55 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     await _stopDiscovery();
   }
 
+  Future<void> _stopAdvertising() async {
+    if (!isAdvertising) return;
+
+    try {
+      await _nearby.stopAdvertising();
+      if (!mounted) return;
+      setState(() {
+        isAdvertising = false;
+      });
+    } catch (e) {
+      _showErrorSnackBar("Failed to stop advertising: ${e.toString()}");
+    }
+  }
+
+  Future<void> _stopDiscovery() async {
+    if (!isDiscovering) return;
+
+    try {
+      await _nearby.stopDiscovery();
+      if (!mounted) return;
+      setState(() {
+        isDiscovering = false;
+      });
+    } catch (e) {
+      _showErrorSnackBar("Failed to stop discovery: ${e.toString()}");
+    }
+  }
   void _onConnectionInitiated(String id, ConnectionInfo info) {
     print("Connection initiated with $id (${info.endpointName})");
     _nearby.acceptConnection(
       id,
-      onPayLoadRecieved: (endid, payload) async { // Corrected parameter name
+      onPayLoadRecieved: (endid, payload) async {
         if (payload.bytes != null) {
           String friendUid = String.fromCharCodes(payload.bytes!);
           print("Received payload: $friendUid");
-          await _addFriend(friendUid);
+
+          if (sentFriendUid.contains(friendUid)) {
+            sentFriendUid.remove(friendUid);
+          } else {
+            receivedFriendUid.add(friendUid);
+          }
+
+          // Send payload back to confirm receipt
+          SendPayLoad(id);
+          print("Sent acknowledgment payload to $id");
+
+          if (receivedFriendUid.contains(friendUid)) {
+            receivedFriendUid.remove(friendUid);
+          }
         } else {
           print("Received empty payload.");
         }
@@ -211,54 +240,75 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     );
   }
 
-
   void _connectToDevice(Device device) async {
     try {
-      print("Requesting connection to ${device.id} (${device.name})");
-      await _nearby.requestConnection(
-        widget.myUid,
-        device.id,
-        onConnectionInitiated: _onConnectionInitiated,
-        onConnectionResult: (id, status) {
-          print("Connection result: $id, $status");
-          if (status == Status.CONNECTED) {
-            _nearby.sendBytesPayload(id, Uint8List.fromList(widget.myUid.codeUnits));
-            print("Sent UID payload to $id");
-          }
+      if (connectedEndpoints.contains(device.id)) {
+        // Already connected, just send the payload
+        SendPayLoad(device.id);
+        print("Already connected, sent UID payload to ${device.id}");
+      } else {
+        print("Requesting connection to ${device.id} (${device.name})");
+        await _nearby.requestConnection(
+          widget.myUid,
+          device.id,
+          onConnectionInitiated: _onConnectionInitiated,
+          onConnectionResult: (id, status) {
+            print("Connection result: $id, $status");
+            if (status == Status.CONNECTED) {
+              // Add to connected endpoints
+              connectedEndpoints.add(id);
+              // Send payload after connection is established
+              SendPayLoad(id);
 
-        },
-        onDisconnected: (id) {
-          print("Disconnected from: $id");
-        },
-      );
+              // Check if a payload was already received from this device
+              if (receivedFriendUid.contains(device.name)) {
+                _addFriend(device.name);
+                receivedFriendUid.remove(device.name);
+              } else {
+                sentFriendUid.add(device.name);
+              }
+            }
+          },
+          onDisconnected: (id) {
+            print("Disconnected from: $id");
+            connectedEndpoints.remove(id);
+          },
+        );
+      }
     } catch (e) {
-      print("Connection failed: $e");
       _showErrorSnackBar("Connection failed: ${e.toString()}");
     }
   }
+
 
   Future<void> _addFriend(String friendUid) async {
     try {
       print("Adding friend with UID: $friendUid");
       await AddFriendDirectly().addFriend(widget.myUid, friendUid);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('フレンドが追加されました')));
+      List<FriendInformation> friends = await GetFriends().getFriends(widget.myUid);
+      setState(() {
+        Provider.of<UserData>(context, listen: false).updateFriends(friends);
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Friend added successfully.')));
     } catch (e) {
-      print("Failed to add friend: $e");
-      _showErrorSnackBar("フレンドの追加に失敗しました: ${e.toString()}");
+      _showErrorSnackBar("Failed to add friend: ${e.toString()}");
     }
   }
+
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalColor.AppBarCol,
       ),
-      body: Padding( // Optional: Add padding for better UI
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -284,88 +334,71 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
             SizedBox(height: 20),
             Expanded(
               child: discoveredDevices.isEmpty
-                  ? Center(child: Text('デバイスが見つかりませんでした。'))
+                  ? Center(child: Text('No devices found.'))
                   : ListView.builder(
                 itemCount: discoveredDevices.length,
                 itemBuilder: (context, index) {
                   Device device = discoveredDevices[index];
-                  return FutureBuilder<UserInformation>(
-                    future: GetUser().getUser(device.name), // Fetch user info
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return ListTile(
-                          title: Text(device.name),
-                          subtitle: Text(device.id),
-                          trailing: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return ListTile(
-                          title: Text(device.name),
-                          subtitle: Text('Error fetching user'),
-                          trailing: Icon(Icons.error, color: Colors.red),
-                        );
-                      } else if (snapshot.hasData) {
-                        UserInformation foundUser = snapshot.data!;
-                        return GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTap: () {
-                            _connectToDevice(device);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: GlobalColor.ItemCol,
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.grey,
-                                  width: 0.2,
-                                ),
-                              ),
-                            ),
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
+                  UserInformation? userInfo = cachedUserInfo[device.name];
+
+                  if (userInfo == null) {
+                    return ListTile(
+                      title: Text(device.name),
+                      subtitle: Text(device.id),
+                      trailing: CircularProgressIndicator(),
+                    );
+                  } else {
+                    bool isSent = sentFriendUid.contains(device.name);
+                    return GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        if (!isSent) {
+                          _connectToDevice(device);
+                        }
+                      },
+                      child: Container(
+                        color: isSent ? Colors.grey[300] : GlobalColor.ItemCol, // Grey out if sent
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            Row(
                               children: [
-                                Row(
+                                CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor: Colors.white,
+                                  backgroundImage: NetworkImage(
+                                    "https://calendar-files.woody1227.com/user_icon/${userInfo.uicon}",
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // User Icon
-                                    CircleAvatar(
-                                      radius: 25,
-                                      backgroundColor: Colors.white,
-                                      backgroundImage: NetworkImage(
-                                        "https://calendar-files.woody1227.com/user_icon/${foundUser.uicon}",
+                                    Text(
+                                      userInfo.uname,
+                                      style: const TextStyle(fontSize: 22),
+                                    ),
+                                    Text(
+                                      "@${userInfo.uid}",
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: Colors.black.withOpacity(0.6),
                                       ),
                                     ),
-                                    SizedBox(width: 20),
-                                    // User Name and UID
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          foundUser.uname,
-                                          style: const TextStyle(fontSize: 22),
-                                        ),
-                                        Text(
-                                          "@${foundUser.uid}",
-                                          style: TextStyle(
-                                            fontSize: 17,
-                                            color: Colors.black.withOpacity(0.6),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    if (isSent)
+                                      Text(
+                                        "送信済み",
+                                        style: TextStyle(color: Colors.red, fontSize: 15),
+                                      ),
                                   ],
                                 ),
                               ],
                             ),
-                          ),
-                        );
-                      } else {
-                        return ListTile(
-                          title: Text(device.name),
-                          subtitle: Text(device.id),
-                        );
-                      }
-                    },
-                  );
+                          ],
+                        ),
+                      ),
+                    );
+                  }
                 },
               ),
             ),

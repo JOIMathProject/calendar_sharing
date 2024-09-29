@@ -177,7 +177,7 @@ class _CreateContentsState extends State<CreateContents> {
                   TextField(
                     controller: _groupTitleController,
                     decoration: InputDecoration(
-                      hintText: 'グループタイトルを入力...',
+                      hintText: 'グループ名を入力...',
                       hintStyle: TextStyle(color: GlobalColor.SubCol),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),

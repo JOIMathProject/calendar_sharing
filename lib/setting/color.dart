@@ -9,15 +9,20 @@ Color MainColSub = Color(0xFFFFBC80);
 Color MainLightCol = Color(0xFFFDE0BA);
 Color SnackCol = Color(0xFFE8A041);
 Color ItemCol = Color(0xFFFFFDFB);
-Color SubCol = Color(0xFFFFF9F3);
+const Color SubCol = Color(0xFFFFF9F3);
 Color bottomBar = Color(0xFFBCBCBC);
+Color bottomBarBack = Color(0xFFFFEBDA);
 Color Unselected = Color(0xFFECECEC);
 Color loadingCol = Color(0xFFFFD29D);
 Color AppBarCol = Color(0xFFFFFDFB);
 Color ChatCol = Color(0xFFFDD6AE);
+Color ChatTextCol = Color(0xFF262626);
 Color MyCalCol = Color(0xFFF57870);
+Color logOutCol = Color(0xFFF57870);
 Color backGroundCol = Color(0xFFFFF9F3);
-Color searchBarCol = Color(0xFFFFBE7B);
+Color buttonCol = Color(0xFFFFD7A1);
+Color searchBarCol = Color(0xFFFDB164);
+Color checkBoxBackCol = Color(0xFFE3E3E3);
 
 final appTheme = ThemeData(
   fontFamily: 'MPLUSRounded1c-Regular',

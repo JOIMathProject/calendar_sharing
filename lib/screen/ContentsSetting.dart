@@ -345,6 +345,11 @@ class _ContentsSettingState extends State<ContentsSetting> {
                                       title: Text(_friends[index].uname),
                                       trailing: Checkbox(
                                         value: isSelected,
+
+                                        activeColor: GlobalColor
+                                            .checkBoxBackCol, // color of the checkbox when selected
+                                        checkColor: GlobalColor
+                                            .MainCol, // color of the checkmark
                                         onChanged: isUserAlreadyAdded
                                             ? null
                                             : (bool? value) {

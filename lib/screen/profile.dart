@@ -186,47 +186,83 @@ class _ProfileState extends State<Profile> {
                 SizedBox(height: 20),
                 Text('メールアドレス: ${userData.mailAddress}',
                     style: TextStyle(fontSize: 18)),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Text('自分のQRを表示',style: TextStyle(color: Colors.white),),
-                      ],
+                Spacer(flex: 2,),
+                Center(
+                  child: ElevatedButton(
+                    // Removed 'const' from Padding to allow dynamic colors
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min, // Ensures minimal vertical space
+                        children: [
+                          Icon(
+                            Icons.qr_code_2,
+                            size: 50,
+                            color: Colors.black, // Ensure SubCol is correctly defined
+                          ),
+                          SizedBox(height: 8), // Adds some spacing between Icon and Text
+                          Text('自分のQRを表示', style: TextStyle(fontSize: 15, color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return MyQRModal(uid: userData.uid);
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: GlobalColor.SubCol, // Optional: Set button background color
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.grey, width: 2), // Optional: Border width
+                        borderRadius: BorderRadius.circular(12), // Optional: Rounded corners
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5), // Optional: Adjust padding
                     ),
                   ),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return MyQRModal(uid: userData.uid);
-                      },
-                    );
-                  },
-                )
+                ),
+                Spacer(flex: 3,),
               ],
             ),
           ),
           Positioned(
-            bottom: 16,
-            right: 16,
-            child: ElevatedButton(
-              onPressed: () {
-                _auth.signOut(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Wrapper()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                backgroundColor: GlobalColor.MainCol,
-              ),
-              child: Text(
-                'ログアウト',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
+            bottom: 50, // You can adjust this value to position the button vertically
+            left: 0,
+            right: 0, // This makes the Positioned span the full width
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center, // Centers the button horizontally
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    await _auth.signOut(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => Wrapper()),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.logout,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  label: Text(
+                    'ログアウト',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 100, vertical: 12),
+                    backgroundColor: GlobalColor.logOutCol,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

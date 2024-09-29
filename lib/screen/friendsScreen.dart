@@ -179,7 +179,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
             child: Icon(Icons.text_fields),
             backgroundColor: GlobalColor.MainCol,
             foregroundColor: GlobalColor.SubCol,
-            label: 'UIDから追加',
+            label: 'ユーザーIDから追加',
             labelStyle: TextStyle(fontSize: 18.0),
             onTap: () {
               Navigator.push(
@@ -458,11 +458,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
           child: TextField(
             controller: _searchController,
             style: TextStyle(color: GlobalColor.SubCol),
+            cursorColor: GlobalColor.SubCol,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
               hintText: '検索',
               hintStyle: TextStyle(color: GlobalColor.SubCol),
               fillColor: GlobalColor.searchBarCol,
+              prefixIconColor: GlobalColor.SubCol,
+              hoverColor: GlobalColor.SubCol,
               prefixIcon: const Icon(Icons.search, size: 20.0),
               filled: true,
               border: OutlineInputBorder(

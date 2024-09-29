@@ -5,6 +5,7 @@ import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
@@ -64,9 +65,23 @@ class _MyContentState extends State<MyContent> {
   CalendarInformation? selectedCalendar;
   bool _isLoadingCalendars = true;
 
+  DateTime currentDate = DateTime.now();
+
+  DateTime startDate = DateTime(2024, 01, 01);
+
+  DateTime endDate = DateTime(2025, 01, 01);
+  String formattedStartDate = '2024-01-01';
+  String formattedEndDate = '2025-01-01';
+
   @override
   void initState() {
     super.initState();
+
+    startDate = DateTime(currentDate.year, currentDate.month - 3, currentDate.day);
+    endDate = DateTime(currentDate.year, currentDate.month + 6, currentDate.day);
+
+    formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+    formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
     _getCalendar();
     _getSelectedCalendars(
         Provider.of<UserData>(context, listen: false).uid!, widget.cid!);
@@ -85,6 +100,7 @@ class _MyContentState extends State<MyContent> {
     setState(() {
       calendars = selectedCalendarsTmp;
       _isLoadingCalendars = false;
+      selectedCalendar = selectedCalendarsTmp[0];
     });
   }
 
@@ -93,7 +109,7 @@ class _MyContentState extends State<MyContent> {
 
     // Fetch events from your API
     List<eventInformation> eventsCollection = await GetMyContentsSchedule()
-        .getMyContentsSchedule(uid, widget.cid, '2024-01-01', '2025-12-11');
+        .getMyContentsSchedule(uid, widget.cid, formattedStartDate, formattedEndDate);
 
     List<Appointment> fetchedAppointments = eventsCollection.map((event) {
       // Concatenate description with metadata separated by '|'
@@ -216,107 +232,83 @@ class _MyContentState extends State<MyContent> {
               ),
             );
           },
-          onTap: (CalendarTapDetails details) {
-            if (details.targetElement == CalendarElement.appointment) {
-              final Appointment appointment = details.appointments!.first;
-              ParsedNotes parsedNotes =
-                  ParsedNotes.fromString(appointment.notes ?? '');
+          onTap: (CalendarTapDetails details) {if (details.targetElement == CalendarElement.appointment) {
+            final Appointment appointment = details.appointments!.first;
+            ParsedNotes parsedNotes = ParsedNotes.fromString(appointment.notes ?? '');
 
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  // Local variable to manage the selected calendar within the dialog
-                  CalendarInformation? localSelectedCalendar = selectedCalendar;
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true, // Allow the bottom modal to expand as needed
+              backgroundColor: GlobalColor.SubCol, // Adjust the background color if needed
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)), // Rounded top corners
+              ),
+              builder: (BuildContext context) {
+                // Local variable to manage the selected calendar within the bottom modal
+                CalendarInformation? localSelectedCalendar = selectedCalendar;
 
-                  return StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return AlertDialog(
-                        title: Text(appointment.subject),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start, // Align content to the left
-                            mainAxisSize: MainAxisSize.min, // Minimize vertical space usage
-                            children: [
-                              // Description Text
-                              Text(
-                                parsedNotes.description.isNotEmpty
-                                    ? parsedNotes.description
-                                    : '概要なし',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              SizedBox(height: 20), // Spacing between description and dropdown
-
-                              // DropdownButton with Orange Tint
-                              if (parsedNotes.isLocal)
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange.withOpacity(0.1), // Slight orange tint
-                                    border: Border.all(
-                                      color: GlobalColor.MainColSub, // Optional: Orange border
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: DropdownButton<CalendarInformation>(
-                                    isExpanded: true, // Makes dropdown take full width
-                                    value: localSelectedCalendar,
-                                    hint: Text('カレンダーを選択'),
-                                    onChanged: (CalendarInformation? newValue) {
-                                      setState(() {
-                                        localSelectedCalendar = newValue!;
-                                      });
-                                    },
-                                    items: calendars.map<DropdownMenuItem<CalendarInformation>>(
-                                          (CalendarInformation value) {
-                                        return DropdownMenuItem<CalendarInformation>(
-                                          value: value,
-                                          child: Text(value.summary),
-                                        );
-                                      },
-                                    ).toList(),
-                                    underline: SizedBox(), // Removes the default underline
-                                  ),
-                                ),
-
-                              // 'Googleカレンダーにアップロード' Button with Background Color
-                              if (parsedNotes.isLocal)
-                                Align(
-                                  alignment: Alignment.centerRight, // Aligns the button to the right
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: GlobalColor.ItemCol, // Background color (change as needed)
-                                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Reduced padding for smaller size
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8), // Rounded corners
-                                      ),
-                                      textStyle: TextStyle(fontSize: 14), // Optional: Reduce font size
-                                    ),
-                                    child: Text('Googleカレンダーにアップロード'),
-                                    onPressed: () {
-                                      if (localSelectedCalendar != null) {
-                                        _uploadLocalEvents(
-                                          localSelectedCalendar!.calendar_id,
-                                          parsedNotes.eventId,
-                                        );
-                                      } else {
-                                        // Show a warning if no calendar is selected
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('カレンダーを選択してください。')),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ),
-
-                            ],
+                return StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min, // Minimize vertical space usage
+                        children: [
+                          // Title
+                          Text(
+                            appointment.subject,
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        actions: <Widget>[
-                          // Row to hold '削除' and '閉じる' buttons side by side
+                          SizedBox(height: 20),
+
+                          // Description Text
+                          Text(
+                            parsedNotes.description.isNotEmpty
+                                ? parsedNotes.description
+                                : '概要なし', // 'No summary' in Japanese
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(height: 20), // Spacing between description and dropdown
+
+                          // DropdownButton with Orange Tint
+                          if (parsedNotes.isLocal)
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: GlobalColor.MainColSub, // Optional: Orange border
+                                  width: 1,
+                                ),
+                              ),
+                              child: DropdownButton<CalendarInformation>(
+                                isExpanded: true, // Makes dropdown take full width
+                                value: localSelectedCalendar,
+                                hint: Text('カレンダーを選択'),
+                                onChanged: (CalendarInformation? newValue) {
+                                  setState(() {
+                                    localSelectedCalendar = newValue!;
+                                  });
+                                },
+                                items: calendars.map<DropdownMenuItem<CalendarInformation>>(
+                                      (CalendarInformation value) {
+                                    return DropdownMenuItem<CalendarInformation>(
+                                      value: value,
+                                      child: Text(value.summary),
+                                    );
+                                  },
+                                ).toList(),
+                                underline: SizedBox(), // Removes the default underline
+                              ),
+                            ),
+
+                          if (parsedNotes.isLocal)
+                            SizedBox(height: 10), // Space after dropdown
+
+                          // Row to hold '削除' and 'Googleカレンダーにアップロード' buttons at the bottom
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Ensure space between the two buttons
                             children: [
-                              if (parsedNotes.isLocal)
                                 TextButton(
                                   child: Text(
                                     '削除',
@@ -328,27 +320,46 @@ class _MyContentState extends State<MyContent> {
                                     } else {
                                       _deleteEvent(parsedNotes.calendarId, parsedNotes.eventId);
                                     }
-                                    Navigator.of(context).pop(); // Close the dialog after deletion
                                   },
                                 ),
-                              SizedBox(width: 8), // Spacing between buttons
-                              TextButton(
-                                child: Text('閉じる'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
+
+                              // 'Googleカレンダーにアップロード' Button
+                              if (parsedNotes.isLocal)
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: GlobalColor.ItemCol, // Background color (change as needed)
+                                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Reduced padding for smaller size
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8), // Rounded corners
+                                    ),
+                                    textStyle: TextStyle(fontSize: 14), // Optional: Reduce font size
+                                  ),
+                                  child: Text('Googleカレンダーにアップロード'),
+                                  onPressed: () {
+                                    if (localSelectedCalendar != null) {
+                                      _uploadLocalEvents(
+                                        localSelectedCalendar!.calendar_id,
+                                        parsedNotes.eventId,
+                                      );
+                                    } else {
+                                      // Show a warning if no calendar is selected
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('カレンダーを選択してください。')),
+                                      );
+                                    }
+                                  },
+                                ),
                             ],
                           ),
                         ],
-                      );
-                    },
-                  );
-                },
-              );
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          }
 
-
-            }
           },
         ),
         floatingActionButton: FloatingActionButton(
