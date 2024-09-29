@@ -16,6 +16,7 @@ class ReadQR extends StatefulWidget {
 class _ReadQRState extends State<ReadQR> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   bool friendAddStatus = false;
+  bool SnackBarStatus = false;
   QRViewController? controller;
 
   // In order to get hot reload to work we need to pause the camera if the platform
@@ -147,6 +148,14 @@ class _ReadQRState extends State<ReadQR> {
 
   void checkFriendRequest(String uid, String friendUid) async {
     friendAddStatus = true;
+    if (friendUid == uid) {
+      FriendAddSnackBar(context,"自分自身をフレンドに追加することはできません",const Icon(
+        Icons.error,
+        color: Colors.red,
+      ));
+      friendAddStatus = false;
+      return;
+    }
     //本当にフレンドリクエストを送信するかどうかの確認画面
     try {
       final UserInformation friendInfo = await GetUser().getUser(friendUid);
@@ -159,26 +168,37 @@ class _ReadQRState extends State<ReadQR> {
               return true;
             },
             child: AlertDialog(
-              title: const Text('フレンドの追加'),
+              title: const Text('フレンドリクエストを送る'),
               content: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircleAvatar(
-                    radius: 80,
+                    radius: 50,
                     backgroundColor: Colors.white,
                     backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/${friendInfo.uicon}"),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '@${friendInfo.uid}',
-                      style: const TextStyle(fontSize: 20),
+                    child: Column(
+                      children: [
+                        Text(
+                          friendInfo.uname,
+                          style: const TextStyle(fontSize: 25),
+                        ),
+                        Text(
+                          "@${friendInfo.uid}",
+                          style: const TextStyle(fontSize: 20, color: Colors.grey),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    '${friendInfo.uname}にフレンド申請を送信しますか？',
-                    style: const TextStyle(fontSize: 20),
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: const Text(
+                      'フレンド申請を送信しますか？',
+                      style: TextStyle(fontSize: 20),
+                    ),
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -202,7 +222,7 @@ class _ReadQRState extends State<ReadQR> {
                     sendFriendRequest(uid, friendUid);
                     Navigator.of(context).pop();
                   },
-                  child: const Text('送信'),
+                  child: Text('送信',style: TextStyle(color: GlobalColor.MainCol),),
                 ),
               ],
             ),
@@ -212,82 +232,17 @@ class _ReadQRState extends State<ReadQR> {
     } catch (e) {
       print('Error checking friend request: $e');
       if (e.toString() == "Failed to get user: 404") {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return WillPopScope(
-              onWillPop: () async {
-                friendAddStatus = false;
-                return true;
-              },
-              child: AlertDialog(
-                title: const Text('フレンドの追加'),
-                content: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.error,
-                      color: Colors.red,
-                      size: 50,
-                    ),
-                    Text('ユーザーが見つかりません', style: const TextStyle(fontSize: 20)),
-                  ],
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      friendAddStatus = false;
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
+        FriendAddSnackBar(context,"ユーザーが見つかりません",const Icon(
+          Icons.error,
+          color: Colors.red,
+        ));
       } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return WillPopScope(
-              onWillPop: () async {
-                friendAddStatus = false;
-                return true;
-              },
-              child: AlertDialog(
-                title: const Text('フレンドの追加'),
-                content: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.error,
-                      color: Colors.red,
-                      size: 50,
-                    ),
-                    Text('エラーが発生しました'),
-                    Text(
-                      'もう一度やりなおしてください',
-                      style: const TextStyle(color: Colors.grey, fontSize: 10),
-                    )
-                  ],
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      friendAddStatus = false;
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
+        FriendAddSnackBar(context,"エラーが発生しました。",const Icon(
+          Icons.error,
+          color: Colors.red,
+        ));
       }
+      friendAddStatus = false;
       return;
     }
   }
@@ -318,6 +273,10 @@ class _ReadQRState extends State<ReadQR> {
   }
 
   void FriendAddSnackBar(BuildContext context,String msg,Icon icon) {
+    if (SnackBarStatus) {
+      return;
+    }
+    SnackBarStatus = true;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: GlobalColor.SnackCol,
@@ -333,6 +292,9 @@ class _ReadQRState extends State<ReadQR> {
       ),
     );
     friendAddStatus = false;
+    Future.delayed(const Duration(seconds: 4), () {
+      SnackBarStatus = false;
+    });
   }
 }
 

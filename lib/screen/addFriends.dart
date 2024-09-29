@@ -81,32 +81,50 @@ class _AddFriendState extends State<AddFriend> {
   void checkUser(String myUid, String friendUid) async{
     //dialogを使用して、本当に追加するかどうかの確認
     FocusScope.of(context).requestFocus(new FocusNode());
+    if (friendUid == myUid) {
+      FriendAddSnackBar(context,"自分自身をフレンドに追加することはできません",const Icon(
+        Icons.error,
+        color: Colors.red,
+      ));
+      return;
+    }
     try {
       final UserInformation friendInfo = await GetUser().getUser(friendUid);
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('フレンドの追加'),
+            title: const Text('フレンドリクエストを送る'),
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 CircleAvatar(
-                  radius: 80,
+                  radius: 50,
                   backgroundColor: Colors.white,
                   backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/${friendInfo.uicon}"),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '@${friendInfo.uid}',
-                    style: const TextStyle(fontSize: 20),
+                  child: Column(
+                    children: [
+                      Text(
+                        friendInfo.uname,
+                        style: const TextStyle(fontSize: 25),
+                      ),
+                      Text(
+                        "@${friendInfo.uid}",
+                        style: const TextStyle(fontSize: 20, color: Colors.grey),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  '${friendInfo.uname}にフレンド申請を送信しますか？',
-                  style: const TextStyle(fontSize: 20),
+                Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  child: const Text(
+                    'フレンド申請を送信しますか？',
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ),
                 const Padding(
                   padding: EdgeInsets.all(8.0),
@@ -129,7 +147,7 @@ class _AddFriendState extends State<AddFriend> {
                   addFriend(myUid, friendUid);
                   Navigator.of(context).pop();
                 },
-                child: const Text('送信'),
+                child: Text('送信',style: TextStyle(color: GlobalColor.MainCol),),
               ),
             ],
           );
@@ -138,67 +156,15 @@ class _AddFriendState extends State<AddFriend> {
     } catch (e) {
       print('Error checking friend request: $e');
       if (e.toString() == "Failed to get user: 404") {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('フレンドの追加'),
-              content: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 50,
-                  ),
-                  Text('ユーザーが見つかりません', style: const TextStyle(fontSize: 20)),
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+        FriendAddSnackBar(context,"ユーザーが見つかりません",const Icon(
+          Icons.error,
+          color: Colors.red,
+        ));
       } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('フレンドの追加'),
-              content: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 50,
-                  ),
-                  Text('エラーが発生しました'),
-                  Text(
-                    'もう一度やりなおしてください',
-                    style: const TextStyle(color: Colors.grey, fontSize: 10),
-                  )
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+        FriendAddSnackBar(context,"エラーが発生しました。",const Icon(
+          Icons.error,
+          color: Colors.red,
+        ));
       }
       return;
     }
