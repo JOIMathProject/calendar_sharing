@@ -158,7 +158,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
         onOpen: () => print('OPENING DIAL'),
         onClose: () => print('DIAL CLOSED'),
         elevation: 8.0,
-        shape: CircleBorder(),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        spaceBetweenChildren: 10.0,
         children: [
           SpeedDialChild(
             child: Icon(Icons.camera_alt),
@@ -166,6 +169,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
             foregroundColor: GlobalColor.SubCol,
             label: 'スキャンで追加',
             labelStyle: TextStyle(fontSize: 18.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
             onTap: () {
               // Add camera functionality here
               Navigator.push(
@@ -181,6 +187,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
             foregroundColor: GlobalColor.SubCol,
             label: 'ユーザーIDから追加',
             labelStyle: TextStyle(fontSize: 18.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
             onTap: () {
               Navigator.push(
                 context,
@@ -196,6 +205,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
             child: Icon(Icons.bluetooth),
             backgroundColor: GlobalColor.MainCol,
             foregroundColor: GlobalColor.SubCol,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
             label: 'Bluetoothで追加',
             labelStyle: TextStyle(fontSize: 18.0),
             onTap: () {
