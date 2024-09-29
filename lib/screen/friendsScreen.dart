@@ -43,12 +43,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
     Timer.periodic(
       const Duration(seconds: 3),
       (timer) async{
-        await _fetchFriends();
-        await _fetchReceivedRequests();
-        setState(() {});
         if (!mounted) {
           timer.cancel();
         }
+        await _fetchFriends();
+        await _fetchReceivedRequests();
+        setState(() {});
       },
     );
   }

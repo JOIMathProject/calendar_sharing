@@ -4,6 +4,7 @@ import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 
 class ReadQR extends StatefulWidget {
   const ReadQR({super.key});
@@ -74,12 +75,19 @@ class _ReadQRState extends State<ReadQR> {
                     padding: EdgeInsets.all(16.0),
                     child: Text(
                       'QRコードを読み取る',
-                      style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const Spacer(),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Column(
@@ -93,12 +101,14 @@ class _ReadQRState extends State<ReadQR> {
                       ),
                     ),
                     onPressed: () {
-                      showModalBottomSheet(context: context, builder:(BuildContext context) {
-                        return MyQRModal(uid: uid);
-                      });
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return MyQRModal(uid: uid);
+                          });
                     },
                   ),
-                  const Spacer(),
+                  const Spacer(flex: 2,),
                 ],
               ),
             ),
@@ -122,11 +132,9 @@ class _ReadQRState extends State<ReadQR> {
         return;
       }
       //apiを叩いてフレリクを送信
-      String? uid = Provider
-          .of<UserData>(context, listen: false)
-          .uid;
+      String? uid = Provider.of<UserData>(context, listen: false).uid;
       String friendUid = scanData.code!.substring(7);
-      sendFriendRequest(uid!, friendUid);
+      checkFriendRequest(uid!, friendUid);
     });
   }
 
@@ -136,108 +144,194 @@ class _ReadQRState extends State<ReadQR> {
     super.dispose();
   }
 
-  //フレンドリクエストを送信する
-  void sendFriendRequest(String uid, String friendUid) async {
+  void checkFriendRequest(String uid, String friendUid) async {
     friendAddStatus = true;
+    //本当にフレンドリクエストを送信するかどうかの確認画面
     try {
-      await AddFriendRequest().addFriend(uid, friendUid);
+      final UserInformation friendInfo = await GetUser().getUser(friendUid);
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('フレンドの追加'),
-            content: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 50,
+          return WillPopScope(
+            onWillPop: () async {
+              friendAddStatus = false;
+              return true;
+            },
+            child: AlertDialog(
+              title: const Text('フレンドの追加'),
+              content: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 80,
+                    backgroundColor: Colors.white,
+                    backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/${friendInfo.uicon}"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '@${friendInfo.uid}',
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  Text(
+                    '${friendInfo.uname}にフレンド申請を送信しますか？',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'フレンド申請を送信すると、相手にあなたのカレンダーが公開されます',
+                      style: TextStyle(color: Colors.grey, fontSize: 15),
+                    ),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    friendAddStatus = false;
+                  },
+                  child: const Text('キャンセル'),
                 ),
-                Text('フレンド申請を送信しました'),
+                TextButton(
+                  onPressed: () {
+                    sendFriendRequest(uid, friendUid);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('送信'),
+                ),
               ],
             ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  friendAddStatus = false;
-                },
-                child: const Text('OK'),
-              ),
-            ],
           );
         },
       );
     } catch (e) {
-      print('Error sending friend request: $e');
-      if (e.toString() == "Failed to add friend: 404") {
+      print('Error checking friend request: $e');
+      if (e.toString() == "Failed to get user: 404") {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('フレンドの追加'),
-              content: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 50,
+            return WillPopScope(
+              onWillPop: () async {
+                friendAddStatus = false;
+                return true;
+              },
+              child: AlertDialog(
+                title: const Text('フレンドの追加'),
+                content: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error,
+                      color: Colors.red,
+                      size: 50,
+                    ),
+                    Text('ユーザーが見つかりません', style: const TextStyle(fontSize: 20)),
+                  ],
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      friendAddStatus = false;
+                    },
+                    child: const Text('OK'),
                   ),
-                  Text('ユーザーが見つかりませんでした',
-                      style: const TextStyle(fontSize: 20)),
                 ],
               ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    friendAddStatus = false;
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
             );
           },
         );
-      } else if (e.toString() == "Failed to add friend: 409") {
+      } else {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('フレンドの追加'),
-              content: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 50,
+            return WillPopScope(
+              onWillPop: () async {
+                friendAddStatus = false;
+                return true;
+              },
+              child: AlertDialog(
+                title: const Text('フレンドの追加'),
+                content: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error,
+                      color: Colors.red,
+                      size: 50,
+                    ),
+                    Text('エラーが発生しました'),
+                    Text(
+                      'もう一度やりなおしてください',
+                      style: const TextStyle(color: Colors.grey, fontSize: 10),
+                    )
+                  ],
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      friendAddStatus = false;
+                    },
+                    child: const Text('OK'),
                   ),
-                  Text('すでにフレンド申請を送信しています',
-                      style: const TextStyle(fontSize: 20)),
                 ],
               ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    friendAddStatus = false;
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
             );
           },
         );
       }
       return;
     }
+  }
+
+  //フレンドリクエストを送信する
+  void sendFriendRequest(String uid, String friendUid) async {
+    try {
+      await AddFriendRequest().addFriend(uid, friendUid);
+      FriendAddSnackBar(context,"フレンド申請を送信しました",const Icon(
+        Icons.check_circle,
+        color: Colors.green,
+      ));
+    } catch (e) {
+      print('Error sending friend request: $e');
+      if (e.toString() == "Failed to add friend: 404") {
+        FriendAddSnackBar(context,"ユーザーが見つかりません",const Icon(
+          Icons.error,
+          color: Colors.red,
+        ));
+      } else if (e.toString() == "Failed to add friend: 409") {
+        FriendAddSnackBar(context,"既にフレンド申請を送信しています",const Icon(
+          Icons.error,
+          color: Colors.red,
+        ));
+      }
+      return;
+    }
+  }
+
+  void FriendAddSnackBar(BuildContext context,String msg,Icon icon) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: GlobalColor.SnackCol,
+        content: Row(
+          children: [
+            icon,
+            Container(
+              margin: const EdgeInsets.only(left: 10),
+                child: Text(msg,style: TextStyle(color: GlobalColor.SubCol))
+            ),
+          ],
+        ),
+      ),
+    );
+    friendAddStatus = false;
   }
 }
 
@@ -299,7 +393,6 @@ class MyQRModal extends StatelessWidget {
               )
             ],
           ),
-        )
-    );
+        ));
   }
 }
