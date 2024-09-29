@@ -155,16 +155,18 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed, // Ensure fixed type
         onTap: onTabTapped,
         currentIndex: _currentIndex,
+        //backgroundColor: GlobalColor.backGroundCol, // Set to the intended color
+        selectedItemColor: GlobalColor.MainCol, // Optional: Set selected item color
+        unselectedItemColor: GlobalColor.bottomBar, // Optional: Set unselected items color
         items: [
           BottomNavigationBarItem(
             icon: badge.Badge(
               child: Icon(
                 Icons.home,
-                color: _currentIndex != 0
-                    ? GlobalColor.bottomBar
-                    : GlobalColor.MainCol,
+                // Removed color from here to use selected/unselected colors
               ),
               badgeContent: Text(
                 unreadMessages.toString(),
@@ -177,9 +179,7 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.calendar_month,
-              color: _currentIndex != 1
-                  ? GlobalColor.bottomBar
-                  : GlobalColor.MainCol,
+              // Removed color from here to use selected/unselected colors
             ),
             label: 'マイコンテンツ',
           ),
@@ -187,9 +187,7 @@ class _MainScreenState extends State<MainScreen> {
             icon: badge.Badge(
               child: Icon(
                 Icons.group,
-                color: _currentIndex != 2
-                    ? GlobalColor.bottomBar
-                    : GlobalColor.MainCol,
+                // Removed color from here to use selected/unselected colors
               ),
               badgeContent: Text(
                 receivedRequestsCount.toString(),
@@ -202,14 +200,13 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.person,
-              color: _currentIndex != 3
-                  ? GlobalColor.bottomBar
-                  : GlobalColor.MainCol,
+              // Removed color from here to use selected/unselected colors
             ),
             label: 'プロフィール',
           ),
         ],
       ),
+
     );
   }
 }

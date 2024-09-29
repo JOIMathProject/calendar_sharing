@@ -85,13 +85,16 @@ class _ChatScreenState extends State<ChatScreen> {
               l10n: const ChatL10nJa(),
               hideBackgroundOnEmojiMessages: false,
               theme: DefaultChatTheme(
-                backgroundColor: GlobalColor.backGroundCol,
+                //backgroundColor: GlobalColor.backGroundCol,
+                inputBackgroundColor: GlobalColor.ChatCol,
+                inputTextCursorColor: GlobalColor.ChatTextCol,
+                inputTextColor: GlobalColor.ChatTextCol,
                 userAvatarNameColors: [
                   GlobalColor.MainCol,
                 ],
                 primaryColor: GlobalColor.ChatCol,
                 sentMessageBodyTextStyle: TextStyle(
-                  color: Colors.black87,
+                  color: GlobalColor.ChatTextCol,
                 ),
                 messageInsetsVertical: 10, // Adjust vertical padding
                 messageInsetsHorizontal: 15, // Adjust horizontal padding

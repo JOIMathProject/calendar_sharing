@@ -470,7 +470,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                           ),
                           child: Text(
                             '${_startDateTime.toLocal()}'.split('.')[0],
-                            style: TextStyle(fontSize: 16, color: GlobalColor.MainCol),
+                            style: TextStyle(fontSize: 16),
                           ),
                         ),
                       ),
@@ -495,7 +495,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                           ),
                           child: Text(
                             '${_endDateTime.toLocal()}'.split('.')[0],
-                            style: TextStyle(fontSize: 16, color: GlobalColor.MainCol),
+                            style: TextStyle(fontSize: 16,),
                           ),
                         ),
                       ),

@@ -15,6 +15,9 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../services/auth.dart';
 import '../setting/color.dart' as GlobalColor;
 import 'package:badges/badges.dart' as badge;
+import 'package:intl/intl.dart';
+
+import 'FirstVisitScreen.dart';
 
 class Home extends StatefulWidget {
   final String? groupId;
@@ -56,9 +59,23 @@ class _HomeState extends State<Home> {
   MyContentsInformation? selectedContent;
   CalendarInformation? selectedCalendar;
 
+
+  DateTime currentDate = DateTime.now();
+
+  DateTime startDate = DateTime(2024, 01, 01);
+
+  DateTime endDate = DateTime(2025, 01, 01);
+  String formattedStartDate = '2024-01-01';
+  String formattedEndDate = '2025-01-01';
+
   @override
   void initState() {
     super.initState();
+    startDate = DateTime(currentDate.year, currentDate.month - 3, currentDate.day);
+    endDate = DateTime(currentDate.year, currentDate.month + 6, currentDate.day);
+
+    formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+    formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
     _pageController =
         PageController(initialPage: widget.startOnChatScreen ? 1 : 0);
     _currentPage = widget.startOnChatScreen ? 1 : 0;
@@ -67,8 +84,12 @@ class _HomeState extends State<Home> {
     _MyContents =
         Provider.of<UserData>(context, listen: false).MyContentsChoice;
 
+    if (widget.firstVisit) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _showFirstVisitDialog());
+    }
     _getReceivedEvent();
-    _initializeData();
+    _getMyContents();
     _getGroupCal();
     _getCalendar();
     Timer.periodic(Duration(seconds: 5), (timer) {
@@ -89,125 +110,28 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Future<void> _initializeData() async {
-    await _getMyContents(Provider.of<UserData>(context, listen: false).uid);
-    if (widget.firstVisit) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _showFirstVisitDialog());
-    }
-  }
 
-  Future<void> _getMyContents(String? uid) async {
-    usedContent = await _getCurrentUserContent(widget.groupId!, uid!);
+  Future<void> _getMyContents() async {
+    usedContent = await _getCurrentUserContent(widget.groupId!, Provider.of<UserData>(context, listen: false).uid!);
     selectedContent = _MyContents.isNotEmpty ? _MyContents[0] : null;
     selectedCalendar = _MyCalendar.isNotEmpty ? _MyCalendar[0] : null;
     if (mounted) {
       setState(() {});
     }
   }
-
-  Future<void> _addContentToGroup(String gid, String cid) async {
-    await AddContentsToGroup().addContentsToGroup(gid, cid);
-  }
-
-  Future<void> _addCalendarToGroup(
-      String gid, String? uid, String calendar_id) async {
-    await SetGroupPrimaryCalendar()
-        .setGroupPrimaryCalendar(gid, uid, calendar_id);
-  }
-
   void _showFirstVisitDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // Prevents dialog from being dismissed by touching outside
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-            return false;
-          },
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return AlertDialog(
-                title: Text('カレンダーと\nコンテンツを選択'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text("表示コンテンツを選択"),
-                    if (_MyContents.isNotEmpty)
-                      DropdownButton<MyContentsInformation>(
-                        value: selectedContent,
-                        items: _MyContents.map((MyContentsInformation content) {
-                          return DropdownMenuItem<MyContentsInformation>(
-                            value: content,
-                            child: Text(content.cname),
-                          );
-                        }).toList(),
-                        onChanged: (MyContentsInformation? newValue) async {
-                          if (newValue != null) {
-                            setState(() {
-                              selectedContent = newValue;
-                            });
-                          }
-                        },
-                      ),
-                    SizedBox(height: 20),
-                    Text("予定追加先カレンダーを選択"),
-                    if (_MyCalendar.isNotEmpty)
-                      DropdownButton<CalendarInformation>(
-                        value: selectedCalendar,
-                        items: _MyCalendar.map((CalendarInformation content) {
-                          return DropdownMenuItem<CalendarInformation>(
-                            value: content,
-                            child: Text(content.summary),
-                          );
-                        }).toList(),
-                        onChanged: (CalendarInformation? newValue) async {
-                          if (newValue != null) {
-                            setState(() {
-                              selectedCalendar = newValue;
-                            });
-                          }
-                        },
-                      ),
-                  ],
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    child: Text('キャンセル'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  TextButton(
-                      child: Text('登録'),
-                      onPressed: () async {
-                        if (selectedContent?.cname != 'なし') {
-                          await _addContentToGroup(
-                              widget.groupId!, selectedContent!.cid);
-                        }
-                        await _addCalendarToGroup(
-                          widget.groupId!,
-                          Provider.of<UserData>(context, listen: false).uid,
-                          selectedCalendar!.calendar_id,
-                        );
-                        await SetOpened().setOpened(
-                            Provider.of<UserData>(context, listen: false).uid,
-                            widget.groupId!);
-                        Navigator.of(context).pop();
-                      }),
-                ],
-              );
-            },
-          ),
-        );
-      },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (BuildContext context) {
+          return FirstVisitScreen(
+            groupId: widget.groupId!,
+            isFriend: widget.is_frined,
+          );
+        },
+      ),
     );
   }
-
   Future<MyContentsInformation?> _getCurrentUserContent(
       String gid, String uid) async {
     List<ContentsInformation>? contents =
@@ -232,7 +156,7 @@ class _HomeState extends State<Home> {
           List<eventInformation> eventsCollection = [];
           eventsCollection = await GetMyContentsSchedule()
               .getMyContentsSchedule(
-                  uid, content.cid, '2024-01-00', '2025-12-11');
+                  uid, content.cid, formattedStartDate, formattedEndDate);
           List<Appointment> fetchedAppointments = [];
           for (var event in eventsCollection) {
             fetchedAppointments.add(Appointment(
@@ -411,86 +335,101 @@ class _HomeState extends State<Home> {
                 specialRegions: getAppointments(BackCalendar),
                 onTap: (CalendarTapDetails details) {
                   // Check if there are appointments tapped
-                  if (details.appointments != null &&
-                      details.appointments!.isNotEmpty) {
+                  if (details.appointments != null && details.appointments!.isNotEmpty) {
                     final Appointment appointment = details.appointments!.first;
                     print(
                         "Tapped appointment: ${appointment.subject}, Notes: ${appointment.notes}"); // Debugging
 
                     if (flipped) {
                       // Logic for when _isFlipped is true
-                      showDialog(
+                      showModalBottomSheet(
                         context: context,
+                        backgroundColor: GlobalColor.SubCol,
+                        isScrollControlled: true, // Allows better control over modal height
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                        ),
                         builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text(appointment.subject),
-                            content: Text(
-                              (appointment.notes == null ||
-                                      appointment.notes!.isEmpty)
-                                  ? '概要なし' // 'No summary' in Japanese
-                                  : appointment.notes!,
+                          return Container(
+                            width: double.infinity, // Set the width to the full available width
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min, // Keep the height as per content
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  appointment.subject,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  (appointment.notes == null || appointment.notes!.isEmpty)
+                                      ? '概要なし' // 'No summary' in Japanese
+                                      : appointment.notes!,
+                                ),
+                                SizedBox(height: 16),
+                              ],
                             ),
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text('閉じる'), // 'Close' in Japanese
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
                           );
                         },
                       );
                     } else {
                       // Logic for when _isFlipped is false
-                      showDialog(
+                      showModalBottomSheet(
                         context: context,
+                        backgroundColor: GlobalColor.SubCol,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                        ),
                         builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text(
-                                '予定あり'), // 'Appointment exists' in Japanese
-                            content: SingleChildScrollView(
+                          return Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: SingleChildScrollView(
                               child: Column(
-                                children:
-                                    appointment.subject.split('\n').map((line) {
-                                  List<String> parts = line.split(' - ');
-                                  if (parts.length == 2) {
-                                    String uicon = parts[0].trim();
-                                    String uname = parts[1].trim();
-                                    return ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                          "https://calendar-files.woody1227.com/user_icon/$uicon",
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    '予定あり',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,),
+                                  ),
+                                  SizedBox(height: 16),
+                                  ...appointment.subject.split('\n').map((line) {
+                                    List<String> parts = line.split(' - ');
+                                    if (parts.length == 2) {
+                                      String uicon = parts[0].trim();
+                                      String uname = parts[1].trim();
+                                      return ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                            "https://calendar-files.woody1227.com/user_icon/$uicon",
+                                          ),
                                         ),
-                                      ),
-                                      title: Text(uname),
-                                    );
-                                  } else {
-                                    // Handle lines that don't match the expected format
-                                    return SizedBox.shrink();
-                                  }
-                                }).toList(),
+                                        title: Text(uname),
+                                      );
+                                    } else {
+                                      // Handle lines that don't match the expected format
+                                      return SizedBox.shrink();
+                                    }
+                                  }).toList(),
+                                ],
                               ),
                             ),
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text('閉じる'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
                           );
                         },
                       );
                     }
                   } else {
-                    print(
-                        "Tapped on a non-appointment area or no appointments present."); // Debugging
+                    print("Tapped on a non-appointment area or no appointments present."); // Debugging
                   }
                 },
               ),
-              ChatScreen(gid: widget.groupId),
+                ChatScreen(gid: widget.groupId),
             ],
           ),
         ],
@@ -519,8 +458,8 @@ class _HomeState extends State<Home> {
                       });
                     },
                     child:
-                        Icon(Icons.flip, color: GlobalColor.SubCol, size: 30),
-                    tooltip: 'Flip Events',
+                        Icon(Icons.autorenew, color: GlobalColor.SubCol, size: 30),
+                    tooltip: 'イベント表示を切り替える',
                   ),
                   SizedBox(width: 16), // Spacing between FABs
                   // **Existing Floating Action Button for Search**
@@ -539,7 +478,7 @@ class _HomeState extends State<Home> {
                     },
                     child:
                         Icon(Icons.search, color: GlobalColor.SubCol, size: 30),
-                    tooltip: 'Search Schedule',
+                    tooltip: '予定を検索',
                   ),
                 ],
               ),
@@ -550,7 +489,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _getGroupCal() async {
     var fetchedRegions = await GetGroupCalendar()
-        .getGroupCalendar(widget.groupId, '2023-01-00', '2025-12-11');
+        .getGroupCalendar(widget.groupId, formattedStartDate, formattedEndDate);
     setState(() {
       GroupCal = fetchedRegions;
     });

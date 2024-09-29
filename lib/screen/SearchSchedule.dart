@@ -29,14 +29,14 @@ class _SearchScheduleState extends State<SearchSchedule> {
   int minMinutes = 0;
   int minParticipants = 1;
   int GroupSize = 6;
-
+  String location = '';
   bool considerWeather = false;
   String? selectedRegion;
   String? selectedCity;
-  bool isSunny = false;
-  bool isCloudy = false;
-  bool isRainy = false;
-  bool isSnowy = false;
+  bool isSunny = true;
+  bool isCloudy = true;
+  bool isRainy = true;
+  bool isSnowy = true;
 
   List<String> regions = [
     '北海道',
@@ -88,6 +88,8 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
   void initState() {
     super.initState();
+    _getGroupLocation();
+    setState(() {});
     _getGroupSize();
     _getGroupUsers();
     getPrimaryCalendar();
@@ -114,7 +116,15 @@ class _SearchScheduleState extends State<SearchSchedule> {
         element.uid == Provider.of<UserData>(context, listen: false).uid));
   }
   Future<void> _getGroupLocation() async {
-    //location = GetGroupLoc().getGroupLoc(widget.groupId);
+    location = await GetGroupLoc().getGroupLoc(widget.groupId);
+
+    selectedRegion = getRegionAndCity(location).split(' - ')[0];
+    selectedCity = getRegionAndCity(location).split(' - ')[1];
+    print('$selectedRegion, $selectedCity');
+    print(location);
+  }
+  Future<void> _updateGroupLocation() async {
+    await UpdateGroupLoc().updateGroupLoc(widget.groupId, getAreaCode(selectedRegion!, selectedCity!));
   }
   Future<void> _getGroupSize() async {
     var group = await GetUserInGroup().getUserInGroup(widget.groupId);
@@ -299,6 +309,150 @@ class _SearchScheduleState extends State<SearchSchedule> {
         return 'Unknown';
     }
   }
+  String getRegionAndCity(String id) {
+    switch (id) {
+    // 北海道
+      case '011000':
+        return '北海道 - 宗谷地方';
+      case '012000':
+        return '北海道 - 上川・留萌地方';
+      case '013000':
+        return '北海道 - 網走・北見・紋別地方';
+      case '015000':
+        return '北海道 - 釧路・根室地方';
+      case '016000':
+        return '北海道 - 胆振・日高地方';
+      case '017000':
+        return '北海道 - 石狩・空知・後志地方';
+      case '018000':
+        return '北海道 - 渡島・檜山地方';
+
+    // 東北
+      case '020000':
+        return '東北 - 青森県';
+      case '030000':
+        return '東北 - 岩手県';
+      case '040000':
+        return '東北 - 宮城県';
+      case '050000':
+        return '東北 - 秋田県';
+      case '060000':
+        return '東北 - 山形県';
+      case '070000':
+        return '東北 - 福島県';
+
+    // 関東甲信
+      case '080000':
+        return '関東甲信 - 茨城県';
+      case '090000':
+        return '関東甲信 - 栃木県';
+      case '100000':
+        return '関東甲信 - 群馬県';
+      case '110000':
+        return '関東甲信 - 埼玉県';
+      case '120000':
+        return '関東甲信 - 千葉県';
+      case '130000':
+        return '関東甲信 - 東京都';
+      case '140000':
+        return '関東甲信 - 神奈川県';
+      case '190000':
+        return '関東甲信 - 山梨県';
+      case '200000':
+        return '関東甲信 - 長野県';
+
+    // 東海
+      case '210000':
+        return '東海 - 岐阜県';
+      case '220000':
+        return '東海 - 静岡県';
+      case '230000':
+        return '東海 - 愛知県';
+      case '240000':
+        return '東海 - 三重県';
+
+    // 北陸
+      case '150000':
+        return '北陸 - 新潟県';
+      case '160000':
+        return '北陸 - 富山県';
+      case '170000':
+        return '北陸 - 石川県';
+      case '180000':
+        return '北陸 - 福井県';
+
+    // 近畿
+      case '250000':
+        return '近畿 - 滋賀県';
+      case '260000':
+        return '近畿 - 京都府';
+      case '270000':
+        return '近畿 - 大阪府';
+      case '280000':
+        return '近畿 - 兵庫県';
+      case '290000':
+        return '近畿 - 奈良県';
+      case '300000':
+        return '近畿 - 和歌山県';
+
+    // 中国
+      case '310000':
+        return '中国 - 鳥取県';
+      case '320000':
+        return '中国 - 島根県';
+      case '330000':
+        return '中国 - 岡山県';
+      case '340000':
+        return '中国 - 広島県';
+      case '350000':
+        return '中国 - 山口県';
+
+    // 四国
+      case '360000':
+        return '四国 - 徳島県';
+      case '370000':
+        return '四国 - 香川県';
+      case '380000':
+        return '四国 - 愛媛県';
+      case '390000':
+        return '四国 - 高知県';
+
+    // 九州北部
+      case '400000':
+        return '九州北部 - 福岡県';
+      case '410000':
+        return '九州北部 - 佐賀県';
+      case '420000':
+        return '九州北部 - 長崎県';
+      case '430000':
+        return '九州北部 - 熊本県';
+      case '440000':
+        return '九州北部 - 大分県';
+
+    // 九州南部・奄美
+      case '450000':
+        return '九州南部・奄美 - 宮崎県';
+      case '460100':
+        return '九州南部・奄美 - 鹿児島県';
+      case '460040':
+        return '九州南部・奄美 - 奄美地方';
+
+    // 沖縄
+      case '471000':
+        return '沖縄 - 沖縄本島地方';
+      case '472000':
+        return '沖縄 - 大東島地方';
+      case '473000':
+        return '沖縄 - 宮古島地方';
+      case '474000':
+        return '沖縄 - 石垣島地方';
+      case '474010':
+        return '沖縄 - 与那国島地方';
+
+      default:
+        return '関東甲信 - 東京都';
+    }
+  }
 
   Future<void> _searchSchedule() async {
     expansionTileController.collapse();
@@ -318,6 +472,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
         String formattedStartTime = formatWithLeadingZero(startTime);
         String formattedEndTime = formatWithLeadingZero(endTime);
 
+        _updateGroupLocation();
         searchResults =
             await SearchContentScheduleWeather().searchContentScheduleWeather(
           widget.groupId.toString(),
@@ -539,32 +694,31 @@ class _SearchScheduleState extends State<SearchSchedule> {
                     '${(selectedRegion != null && considerWeather == true) ? selectedRegion : ''} '
                     '${(selectedCity != null && considerWeather == true) ? selectedCity : ''} '
                     '${[
-                  if (isSunny) '晴れ',
-                  if (isCloudy) '曇り',
-                  if (isRainy) '雨',
-                  if (isSnowy) '雪'
+                  if (isSunny)considerWeather == true? '晴れ' : '',
+                  if (isCloudy)considerWeather == true? '曇り' :'',
+                  if (isRainy)considerWeather == true? '雨':'',
+                  if (isSnowy)considerWeather == true? '雪':''
                 ].where((condition) => condition.isNotEmpty).join('/')}'),
                 dense: true,
                 children: [
                   SizedBox(height: 16.0), // Start Date Picker Button
                   Row(
                     children: [
-                      ElevatedButton(
-                        onPressed: _pickStartDate,
-                        child: Text(
-                          '開始日: ${DateFormat('yyyy/MM/dd').format(_startDate)}',
-                          style: TextStyle(color: Colors.black87),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: GlobalColor.MainLightCol,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                6.0), // Subtle rounded corners
-                          ),
+                      GestureDetector(
+                        onTap: _pickStartDate,
+                        child: Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 12.0), // Consistent padding
+                              vertical: 12, horizontal: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            '開始日: ${DateFormat('yyyy/MM/dd').format(_startDate)}',
+                            style: TextStyle(color: Colors.black87),
+                          ),
                         ),
+
                       ),
                       SizedBox(width: 8.0),
                       Spacer(),
@@ -573,21 +727,19 @@ class _SearchScheduleState extends State<SearchSchedule> {
                   SizedBox(height: 8.0),
                   Row(
                     children: [
-                      ElevatedButton(
-                        onPressed: _pickEndDate,
-                        child: Text(
-                          '終了日: ${DateFormat('yyyy/MM/dd').format(_endDate)}',
-                          style: TextStyle(color: Colors.black87),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: GlobalColor.MainLightCol,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                6.0), // Subtle rounded corners
-                          ),
+                      GestureDetector(
+                        onTap: _pickEndDate,
+                        child: Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 12.0), // Consistent padding
+                              vertical: 12, horizontal: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            '終了日: ${DateFormat('yyyy/MM/dd').format(_endDate)}',
+                            style: TextStyle(color: Colors.black87),
+                          ),
                         ),
                       ),
                       SizedBox(width: 8.0),
@@ -662,7 +814,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             if (considerWeather) {
                               selectedRegion ??= regions.first;
                               cities = _getCitiesForRegion(selectedRegion!);
-                              selectedCity = cities.first;
+                              selectedCity ??= cities.first;
                             }
                           });
                         },
@@ -711,11 +863,11 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             });
                           },
                           activeColor: GlobalColor
-                              .SubCol, // color of the checkbox when selected
+                              .checkBoxBackCol, // color of the checkbox when selected
                           checkColor:
                               GlobalColor.MainCol, // color of the checkmark
                         ),
-                        Text('晴れ'),
+                        Icon(Icons.wb_sunny),
                         Checkbox(
                           value: isCloudy,
                           onChanged: (bool? value) {
@@ -724,11 +876,11 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             });
                           },
                           activeColor: GlobalColor
-                              .SubCol, // color of the checkbox when selected
+                              .checkBoxBackCol, // color of the checkbox when selected
                           checkColor:
                               GlobalColor.MainCol, // color of the checkmark
                         ),
-                        Text('曇り'),
+                        Icon(Icons.cloud),
                         Checkbox(
                           value: isRainy,
                           onChanged: (bool? value) {
@@ -737,11 +889,11 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             });
                           },
                           activeColor: GlobalColor
-                              .SubCol, // color of the checkbox when selected
+                              .checkBoxBackCol, // color of the checkbox when selected
                           checkColor:
                               GlobalColor.MainCol, // color of the checkmark
                         ),
-                        Text('雨'),
+                        Icon(Icons.beach_access),
                         Checkbox(
                           value: isSnowy,
                           onChanged: (bool? value) {
@@ -750,11 +902,11 @@ class _SearchScheduleState extends State<SearchSchedule> {
                             });
                           },
                           activeColor: GlobalColor
-                              .SubCol, // color of the checkbox when selected
+                              .checkBoxBackCol, // color of the checkbox when selected
                           checkColor:
                               GlobalColor.MainCol, // color of the checkmark
                         ),
-                        Text('雪'),
+                        Icon(Icons.ac_unit),
                       ],
                     ),
                   ],
@@ -893,7 +1045,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                         ),
                                         actions: <Widget>[
                                           ElevatedButton(
-                                            child: Text('Close'),
+                                            child: Text('閉じる',style: TextStyle(color: GlobalColor.SubCol),),
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },

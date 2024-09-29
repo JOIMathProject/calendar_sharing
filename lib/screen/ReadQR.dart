@@ -4,7 +4,7 @@ import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
+import '../setting/color.dart' as GlobalColor;
 
 class ReadQR extends StatefulWidget {
   const ReadQR({super.key});
@@ -95,8 +95,9 @@ class _ReadQRState extends State<ReadQR> {
                           Icon(
                             Icons.qr_code_2,
                             size: 50,
+                            color: GlobalColor.SubCol,
                           ),
-                          Text('自分のQRを表示'),
+                          Text('自分のQRを表示', style: TextStyle(color: GlobalColor.SubCol)),
                         ],
                       ),
                     ),
