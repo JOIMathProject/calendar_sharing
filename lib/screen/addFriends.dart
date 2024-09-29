@@ -62,16 +62,9 @@ class _AddFriendState extends State<AddFriend> {
                     ),
                   ),
                   onPressed: () {
-                    Future<void> addFriend = AddFriendRequest()
-                        .addFriend(userData.uid!, _searchController.text);
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return addFriendResultDialog(addFriend);
-                      },
-                    );
+                    checkUser(userData.uid!, _searchController.text);
                   },
-                  child: Text(
+                  child: const Text(
                     'フレンドリクエストを送る',
                     style: TextStyle(fontSize: 20, color: GlobalColor.SubCol),
                   ),
@@ -79,6 +72,175 @@ class _AddFriendState extends State<AddFriend> {
               ),
             ),
             Spacer(flex: 1), // Adds space at the bottom for better balancing
+          ],
+        ),
+      ),
+    );
+  }
+
+  void checkUser(String myUid, String friendUid) async{
+    //dialogを使用して、本当に追加するかどうかの確認
+    FocusScope.of(context).requestFocus(new FocusNode());
+    try {
+      final UserInformation friendInfo = await GetUser().getUser(friendUid);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('フレンドの追加'),
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 80,
+                  backgroundColor: Colors.white,
+                  backgroundImage: NetworkImage("https://calendar-files.woody1227.com/user_icon/${friendInfo.uicon}"),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '@${friendInfo.uid}',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ),
+                Text(
+                  '${friendInfo.uname}にフレンド申請を送信しますか？',
+                  style: const TextStyle(fontSize: 20),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'フレンド申請を送信すると、相手にあなたのカレンダーが公開されます',
+                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('キャンセル'),
+              ),
+              TextButton(
+                onPressed: () {
+                  addFriend(myUid, friendUid);
+                  Navigator.of(context).pop();
+                },
+                child: const Text('送信'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      print('Error checking friend request: $e');
+      if (e.toString() == "Failed to get user: 404") {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('フレンドの追加'),
+              content: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error,
+                    color: Colors.red,
+                    size: 50,
+                  ),
+                  Text('ユーザーが見つかりません', style: const TextStyle(fontSize: 20)),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('フレンドの追加'),
+              content: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error,
+                    color: Colors.red,
+                    size: 50,
+                  ),
+                  Text('エラーが発生しました'),
+                  Text(
+                    'もう一度やりなおしてください',
+                    style: const TextStyle(color: Colors.grey, fontSize: 10),
+                  )
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      return;
+    }
+  }
+
+  void addFriend(String myUid, String friendUid) async{
+    //snackを使用して、フレンドリクエストを送信しましたと表示
+    try {
+      await AddFriendRequest().addFriend(myUid, friendUid);
+      FriendAddSnackBar(context,"フレンド申請を送信しました",const Icon(
+        Icons.check_circle,
+        color: Colors.green,
+      ));
+      _searchController.clear();
+    } catch (e) {
+      print('Error sending friend request: $e');
+      if (e.toString() == "Failed to add friend: 404") {
+        FriendAddSnackBar(context,"ユーザーが見つかりません",const Icon(
+          Icons.error,
+          color: Colors.red,
+        ));
+      } else if (e.toString() == "Failed to add friend: 409") {
+        FriendAddSnackBar(context,"既にフレンド申請を送信しています",const Icon(
+          Icons.error,
+          color: Colors.red,
+        ));
+      }
+      return;
+    }
+  }
+
+  void FriendAddSnackBar(BuildContext context,String msg,Icon icon) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: GlobalColor.SnackCol,
+        content: Row(
+          children: [
+            icon,
+            Container(
+                margin: const EdgeInsets.only(left: 10),
+                child: Text(msg,style: TextStyle(color: GlobalColor.SubCol))
+            ),
           ],
         ),
       ),
