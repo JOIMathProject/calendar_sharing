@@ -76,7 +76,10 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       // Show SnackBar if friends have changed and it's not the first load
       if (friendsChanged) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('フレンドを追加しました')),
+          SnackBar(
+            backgroundColor: GlobalColor.SnackCol,
+            content: Text('フレンドを追加しました', style: TextStyle(color: GlobalColor.SubCol),),
+          )
         );
       }
     } catch (e) {

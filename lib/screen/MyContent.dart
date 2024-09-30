@@ -591,7 +591,10 @@ class _MyContentState extends State<MyContent> {
                                           } else {
                                             // Show a warning if no calendar is selected
                                             ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('カレンダーを選択してください。')),
+                                              SnackBar(
+                                                  backgroundColor: GlobalColor.SnackCol,
+                                                  content: Text('カレンダーを選択してください。',style: TextStyle(color: GlobalColor.SubCol),)
+                                              ),
                                             );
                                           }
                                         },

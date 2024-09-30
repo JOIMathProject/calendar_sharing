@@ -166,13 +166,19 @@ class _MyContentSettingState extends State<MyContentSetting> {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     if (title.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('タイトルを入力してください')),
+        SnackBar(
+            backgroundColor: GlobalColor.SnackCol,
+            content: Text('タイトルを入力してください',style: TextStyle(color: GlobalColor.SubCol),)
+        ),
       );
       return;
     }
     if (selectedCalendars.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('最低でも一つはカレンダーを選択してください')),
+        SnackBar(
+            backgroundColor: GlobalColor.SnackCol,
+            content: Text('最低でも一つはカレンダーを選択してください',style: TextStyle(color: GlobalColor.SubCol),)
+        ),
       );
       return;
     }
