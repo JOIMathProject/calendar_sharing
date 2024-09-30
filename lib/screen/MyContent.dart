@@ -478,6 +478,32 @@ class _MyContentState extends State<MyContent> {
                                                       final picked = await showTimePicker(
                                                         context: context,
                                                         initialTime: TimeOfDay.fromDateTime(startTime),
+                                                        builder: (BuildContext context, Widget? child) {
+                                                          return Theme(
+                                                            data: ThemeData(
+                                                              colorScheme: ColorScheme.light(
+                                                                primary:
+                                                                GlobalColor.timeDateSelectionCol, // Header background color (selected day)
+                                                                onPrimary: Colors.black, // Header text color
+                                                                surface: GlobalColor.SubCol, // Dialog background color
+                                                                onSurface: Colors.black, // Body text color (dates)
+                                                              ),
+                                                              dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
+                                                              textButtonTheme: TextButtonThemeData(
+                                                                style: TextButton.styleFrom(
+                                                                  backgroundColor: GlobalColor.timeDateSelectionCol,
+                                                                  foregroundColor: GlobalColor.SubCol, // Button text color
+                                                                  // backgroundColor can be set if needed
+                                                                ),
+                                                              ),
+                                                              textTheme: TextTheme(
+                                                                bodyMedium: TextStyle(color: Colors.black), // Date text color
+                                                                // You can customize other text styles if needed
+                                                              ),
+                                                            ),
+                                                            child: child!,
+                                                          );
+                                                        },
                                                       );
                                                       if (picked != null) {
                                                         setState(() {

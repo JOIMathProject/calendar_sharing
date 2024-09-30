@@ -83,6 +83,51 @@ class _ReadQRState extends State<ReadQR> {
                   ),
                   const Spacer(),
                   ElevatedButton(
+                    // Removed 'const' from Padding to allow dynamic colors
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize
+                            .min, // Ensures minimal vertical space
+                        children: [
+                          Icon(
+                            Icons.qr_code_2,
+                            size: 50,
+                            color: Colors
+                                .black, // Ensure SubCol is correctly defined
+                          ),
+                          SizedBox(
+                              height:
+                              8), // Adds some spacing between Icon and Text
+                          Text('自分のQRを表示',
+                              style: TextStyle(
+                                  fontSize: 15, color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                      onPressed: () {
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MyQRModal(uid: uid);
+                            });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: GlobalColor
+                          .SubCol, // Optional: Set button background color
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                            color: Colors.grey,
+                            width: 2), // Optional: Border width
+                        borderRadius: BorderRadius.circular(
+                            12), // Optional: Rounded corners
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 5), // Optional: Adjust padding
+                    ),
+                  ),
+                  ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                       shape: RoundedRectangleBorder(

@@ -45,15 +45,38 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     _stopNearbyServices();
     super.dispose();
   }
+  bool _isFirstLoad = true;
+  Set<String> _previousFriendUids = {};
   Future<void> _updateDiscoveredDevices() async {
     try {
+      // Fetch the current list of friends
       List<FriendInformation> friends = await GetFriends().getFriends(widget.myUid);
+      Set<String> currentFriendUids = friends.map((f) => f.uid).toSet();
+
+      bool friendsChanged = false;
+
+      if (!_isFirstLoad) {
+        // Check if there are any new friends added
+        friendsChanged = currentFriendUids.difference(_previousFriendUids).isNotEmpty;
+      }
 
       setState(() {
-        discoveredDevices.removeWhere((device) {
-          return friends.map((friend) => friend.uid).contains(device.name);
-        });
+        // Update the discovered devices by removing those that are now friends
+        discoveredDevices.removeWhere((device) => currentFriendUids.contains(device.name));
+
+        _previousFriendUids = currentFriendUids;
+
+        if (_isFirstLoad) {
+          _isFirstLoad = false;
+        }
       });
+
+      // Show SnackBar if friends have changed and it's not the first load
+      if (friendsChanged) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('フレンドを追加しました')),
+        );
+      }
     } catch (e) {
       print("Failed to update discovered devices: $e");
     }
@@ -62,13 +85,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     if (!await _checkPermissions()) {
       _showErrorSnackBar("Permissions not granted");
     }
-  }
-  void SendPayLoad(String id) {
-    _nearby.sendBytesPayload(
-      id,
-      Uint8List.fromList(widget.myUid.codeUnits),
-    );
-    print("Sent UID payload to $id");
   }
   Future<bool> _checkPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
@@ -230,6 +246,13 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
   }
 
 
+  void SendPayLoad(String id) {
+    _nearby.sendBytesPayload(
+      id,
+      Uint8List.fromList(widget.myUid.codeUnits),
+    );
+    print("Sent UID payload to $id");
+  }
   void _onConnectionInitiated(String id, ConnectionInfo info) {
     print("Connection initiated with $id (${info.endpointName})");
     _nearby.acceptConnection(
@@ -245,14 +268,10 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       print("Received payload from $endpointId: $friendUid");
 
       if (sentFriendUid.contains(friendUid)) {
-        // We sent a request to this user, and now they've responded
         sentFriendUid.remove(friendUid);
-        _addFriend(friendUid);
       } else if (!receivedFriendUid.contains(friendUid)) {
         // This is a new friend request
         receivedFriendUid.add(friendUid);
-        // Send acknowledgment
-        SendPayLoad(endpointId);
       }
 
       setState(() {}); // Update UI
@@ -278,10 +297,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
             if (status == Status.CONNECTED) {
               connectedEndpoints.add(id);
               SendPayLoad(id);
-              if(receivedFriendUid.contains(device.name)){
-                receivedFriendUid.remove(device.name);
-                _addFriend(device.name);
-              }
               if (!sentFriendUid.contains(device.name)) {
                 sentFriendUid.add(device.name);
               }
@@ -373,6 +388,10 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                       behavior: HitTestBehavior.translucent,
                       onTap: () {
                         if (!isSent) {
+                          if(receivedFriendUid.contains(device.name)){
+                            receivedFriendUid.remove(device.name);
+                            _addFriend(device.name);
+                          }
                           _connectToDevice(device);
                         }
                       },

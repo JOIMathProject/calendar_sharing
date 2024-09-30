@@ -156,7 +156,7 @@ class _MyContentsManageState extends State<MyContentsManage> {
                                 children: [
                                   Spacer(flex: 1),
                                   Icon(
-                                    Icons.no_accounts,
+                                    Icons.not_interested,
                                     size: 35,
                                     color: Colors.black.withOpacity(0.5),
                                   ),

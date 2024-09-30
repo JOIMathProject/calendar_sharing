@@ -75,7 +75,8 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
     // _MyContents = Provider.of<UserData>(context, listen: false).MyContentsChoice;
     return WillPopScope(
       onWillPop: () async {
-        // Return false to disable the back button
+        Navigator.pop(context);
+        Navigator.pop(context);
         return false;
       },
       child: Scaffold(
