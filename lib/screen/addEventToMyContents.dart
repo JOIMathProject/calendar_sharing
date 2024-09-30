@@ -6,6 +6,8 @@ import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
 import 'package:provider/provider.dart';
 import '../services/APIcalls.dart';
 import '../services/UserData.dart';
+import 'package:intl/intl.dart';
+
 
 // Renamed classes to follow Dart naming conventions
 class AddEventToMyContents extends StatefulWidget {
@@ -482,7 +484,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                               child: Text(
-                                '${_startDateTime.toLocal()}'.split('.')[0],
+                                '${DateFormat('yyyy/MM/dd hh:mm').format(_startDateTime.toLocal())}'.split('.')[0],
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),

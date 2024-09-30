@@ -267,26 +267,13 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       String friendUid = String.fromCharCodes(payload.bytes!);
       print("Received payload from $endpointId: $friendUid");
 
-      if (sentFriendUid.contains(friendUid)) {
-        sentFriendUid.remove(friendUid);
-      } else if (!receivedFriendUid.contains(friendUid)) {
-        // This is a new friend request
-        receivedFriendUid.add(friendUid);
-      }
+      receivedFriendUid.add(friendUid);
 
       setState(() {}); // Update UI
     }
   }
   void _connectToDevice(Device device) async {
     try {
-      if (connectedEndpoints.contains(device.id)) {
-        // Already connected, just send the payload
-        SendPayLoad(device.id);
-        if (!sentFriendUid.contains(device.name)) {
-          sentFriendUid.add(device.name);
-        }
-        print("Already connected, sent UID payload to ${device.id}");
-      } else {
         print("Requesting connection to ${device.id} (${device.name})");
         await _nearby.requestConnection(
           widget.myUid,
@@ -309,7 +296,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
             setState(() {}); // Update UI
           },
         );
-      }
     } catch (e) {
       _showErrorSnackBar("接続が失敗しました: ${e.toString()}");
     }

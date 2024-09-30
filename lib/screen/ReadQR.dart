@@ -105,12 +105,12 @@ class _ReadQRState extends State<ReadQR> {
                         ],
                       ),
                     ),
-                      onPressed: () {
-                        showModalBottomSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return MyQRModal(uid: uid);
-                            });
+                    onPressed: () {
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return MyQRModal(uid: uid);
+                          });
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: GlobalColor
@@ -126,34 +126,6 @@ class _ReadQRState extends State<ReadQR> {
                           horizontal: 15,
                           vertical: 5), // Optional: Adjust padding
                     ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.qr_code_2,
-                            size: 50,
-                            color: GlobalColor.SubCol,
-                          ),
-                          Text('自分のQRを表示', style: TextStyle(color: GlobalColor.SubCol)),
-                        ],
-                      ),
-                    ),
-                    onPressed: () {
-                      showModalBottomSheet(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return MyQRModal(uid: uid);
-                          });
-                    },
                   ),
                   const Spacer(flex: 2,),
                 ],
