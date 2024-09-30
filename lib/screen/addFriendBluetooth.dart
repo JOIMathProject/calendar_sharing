@@ -26,12 +26,15 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
   List<String> receivedFriendUid = []; // Initialize received UIDs
   List<String> sentFriendUid = []; // Initialize sent UIDs
   Set<String> connectedEndpoints = {}; // Track connected endpoints
-
+  bool sending = false;
   @override
   void initState() {
     super.initState();
     _disconnectFromAllEndpoints();
     _checkPermissionsAndStart();
+    setState(() {
+      discoveredDevices.clear();
+    });
     Timer.periodic(Duration(seconds: 3), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -76,8 +79,13 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       // Show SnackBar if friends have changed and it's not the first load
       if (friendsChanged) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('フレンドを追加しました')),
-        );
+          SnackBar(
+              backgroundColor: GlobalColor.SnackCol,
+              content: Text('フレンドを追加しました', style: TextStyle(color: GlobalColor.SubCol)),
+        ));
+        if(sending) {
+          Navigator.of(context).pop();
+        }
       }
     } catch (e) {
       print("Failed to update discovered devices: $e");
@@ -127,7 +135,9 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
           print("Connection result: $id, $status");
         },
         onDisconnected: (id) {
-          discoveredDevices.removeWhere((d) => d.id == id);
+          setState(() {
+            discoveredDevices.removeWhere((d) => d.id == id);
+          });
           print("Disconnected: $id");
         },
       );
@@ -339,7 +349,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
             SizedBox(height: 20),
             Expanded(
               child: discoveredDevices.isEmpty
-                  ? Center(child: Text('デバイスが見つかりませんでした'))
+                  ? Center(child: Text('デバイスが見つかりません'))
                   : ListView.builder(
                 itemCount: discoveredDevices.length,
                 itemBuilder: (context, index) {
@@ -353,12 +363,10 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                       trailing: CircularProgressIndicator(),
                     );
                   } else {
-                    bool isSent = sentFriendUid.contains(device.name);
                     return GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onTap: () {
-                        if (!isSent) {
-
+                        sending = true;
                           print('sending the request to ${device.name}!!!');
                           if(receivedFriendUid.contains(device.name)){
                             receivedFriendUid.remove(device.name);
@@ -400,7 +408,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                                     child: Text('キャンセル'),
                                     onPressed: () {
                                       _nearby.disconnectFromEndpoint(device.id);
-                                      isSent = false;
+                                      sending =  false;
                                       sentFriendUid.remove(device.name);
                                       Navigator.of(context).pop();
                                     },
@@ -410,10 +418,9 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                             },
                           );
 
-                        }
                       },
                       child: Container(
-                        color: isSent ? Colors.grey[300] : GlobalColor.ItemCol, // Grey out if sent
+                        color:  GlobalColor.ItemCol, // Grey out if sent
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
                           children: [
@@ -441,11 +448,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                                         color: Colors.black.withOpacity(0.6),
                                       ),
                                     ),
-                                    if (isSent)
-                                      Text(
-                                        "送信済み",
-                                        style: TextStyle(color: Colors.red, fontSize: 15),
-                                      ),
                                   ],
                                 ),
                               ],
