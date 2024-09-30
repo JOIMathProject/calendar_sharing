@@ -508,7 +508,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                               child: Text(
-                                '${_endDateTime.toLocal()}'.split('.')[0],
+                                '${DateFormat('yyyy/MM/dd hh:mm').format(_endDateTime.toLocal())}'.split('.')[0],
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),

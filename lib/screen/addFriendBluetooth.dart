@@ -374,6 +374,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                       behavior: HitTestBehavior.translucent,
                       onTap: () {
                         if (!isSent) {
+                          print('sending the request to ${device.name}!!!');
                           if(receivedFriendUid.contains(device.name)){
                             receivedFriendUid.remove(device.name);
                             _addFriend(device.name);
