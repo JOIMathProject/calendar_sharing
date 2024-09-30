@@ -111,9 +111,20 @@ class _friendContentsSettingState extends State<friendContentsSetting> {
             Text('設定',
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
-            Text("コンテンツを選択", style: bigFont),
+            Text("共有するコンテンツを選択", style: bigFont),
             if (_MyContents.isNotEmpty)
-              DropdownButton<MyContentsInformation>(
+              DropdownButtonFormField<MyContentsInformation>(
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: GlobalColor.MainCol),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: GlobalColor.MainCol),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                ),
                 value: selectedContent,
                 items: _MyContents.map((MyContentsInformation content) {
                   return DropdownMenuItem<MyContentsInformation>(
@@ -137,9 +148,20 @@ class _friendContentsSettingState extends State<friendContentsSetting> {
                   }
                 },
               ),SizedBox(height: 20),
-            Text("カレンダーを選択", style: bigFont),
+            Text("予定追加先カレンダーを選択", style: bigFont),
             if (_MyCalendar.isNotEmpty)
-              DropdownButton<CalendarInformation>(
+              DropdownButtonFormField<CalendarInformation>(
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: GlobalColor.MainCol),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: GlobalColor.MainCol),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                ),
                 value: selectedCalendar,
                 items: _MyCalendar.map((CalendarInformation content) {
                   return DropdownMenuItem<CalendarInformation>(

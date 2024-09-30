@@ -131,7 +131,12 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
           DropdownButtonFormField<MyContentsInformation>(
             value: selectedContent,
             decoration: InputDecoration(
-              border: OutlineInputBorder(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: GlobalColor.MainCol),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: GlobalColor.MainCol),
                 borderRadius: BorderRadius.circular(12),
               ),
               contentPadding:
@@ -168,7 +173,12 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
           DropdownButtonFormField<CalendarInformation>(
             value: selectedCalendar,
             decoration: InputDecoration(
-              border: OutlineInputBorder(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: GlobalColor.MainCol),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: GlobalColor.MainCol),
                 borderRadius: BorderRadius.circular(12),
               ),
               contentPadding:
