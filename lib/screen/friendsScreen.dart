@@ -14,6 +14,8 @@ import 'package:badges/badges.dart' as badge;
 import 'dart:async';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
+import 'mainScreen.dart';
+
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
 
@@ -42,7 +44,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     //3秒ごとに
     Timer.periodic(
       const Duration(seconds: 3),
-      (timer) async{
+      (timer) async {
         if (!mounted) {
           timer.cancel();
         }
@@ -104,121 +106,129 @@ class _FriendsScreenState extends State<FriendsScreen> {
     List<FriendInformation> friends = userData.friends;
     List<FriendRequestInformation> requests = userData.receivedRequests;
 
-    return Scaffold(
-      body: DefaultTabController(
-        length: 2,
-        child: Column(
-          children: [
-            TabBar(
-              tabs: [
-                const Tab(text: 'フレンド'),
-                Tab(
-                    child: badge.Badge(
-                  badgeContent: null,
-                  showBadge: receivedRequestCount > 0,
-                  child: const Text('リクエスト'),
-                )),
-              ],
-              indicator: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: GlobalColor.MainCol,
-                    width: 3.0,
+    return WillPopScope(
+      onWillPop: () async {
+        // Return false to disable the back button
+        mainScreenKey.currentState?.updateTab(0);
+        return false;
+      },
+      child: Scaffold(
+        body: DefaultTabController(
+          length: 2,
+          child: Column(
+            children: [
+              TabBar(
+                tabs: [
+                  const Tab(text: 'フレンド'),
+                  Tab(
+                      child: badge.Badge(
+                    badgeContent: null,
+                    showBadge: receivedRequestCount > 0,
+                    child: const Text('リクエスト'),
+                  )),
+                ],
+                indicator: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: GlobalColor.MainCol,
+                      width: 3.0,
+                    ),
                   ),
                 ),
+                labelStyle: const TextStyle(fontSize: 16.0),
+                dividerColor: GlobalColor.Unselected,
+                labelColor: GlobalColor.MainCol,
               ),
-              labelStyle: const TextStyle(fontSize: 16.0),
-              dividerColor: GlobalColor.Unselected,
-              labelColor: GlobalColor.MainCol,
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    Friends(friends),
+                    Requests(requests, userData),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: SpeedDial(
+          icon: Icons.person_add,
+          activeIcon: Icons.close,
+          backgroundColor: GlobalColor.MainCol,
+          foregroundColor: GlobalColor.SubCol,
+          activeBackgroundColor: GlobalColor.MainCol,
+          activeForegroundColor: GlobalColor.SubCol,
+          buttonSize: Size(56.0, 56.0),
+          visible: true,
+          closeManually: false,
+          curve: Curves.bounceIn,
+          overlayColor: Colors.black,
+          overlayOpacity: 0.5,
+          onOpen: () => print('OPENING DIAL'),
+          onClose: () => print('DIAL CLOSED'),
+          elevation: 8.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          spaceBetweenChildren: 10.0,
+          children: [
+            SpeedDialChild(
+              child: Icon(Icons.camera_alt),
+              backgroundColor: GlobalColor.MainCol,
+              foregroundColor: GlobalColor.SubCol,
+              label: 'スキャンで追加',
+              labelStyle: TextStyle(fontSize: 18.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              onTap: () {
+                // Add camera functionality here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReadQR()),
+                );
+                print('Camera Add Tapped');
+              },
             ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  Friends(friends),
-                  Requests(requests, userData),
-                ],
+            SpeedDialChild(
+              child: Icon(Icons.text_fields),
+              backgroundColor: GlobalColor.MainCol,
+              foregroundColor: GlobalColor.SubCol,
+              label: 'ユーザーIDから追加',
+              labelStyle: TextStyle(fontSize: 18.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddFriend()),
+                ).then((_) {
+                  _fetchFriends();
+                  _fetchReceivedRequests();
+                  setState(() {});
+                });
+              },
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.bluetooth),
+              backgroundColor: GlobalColor.MainCol,
+              foregroundColor: GlobalColor.SubCol,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              label: 'Bluetoothで追加',
+              labelStyle: TextStyle(fontSize: 18.0),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddFriendNearby(
+                          myUid: Provider.of<UserData>(context).uid!),
+                    ));
+              },
             ),
           ],
         ),
-      ),
-      floatingActionButton: SpeedDial(
-        icon: Icons.person_add,
-        activeIcon: Icons.close,
-        backgroundColor: GlobalColor.MainCol,
-        foregroundColor: GlobalColor.SubCol,
-        activeBackgroundColor: GlobalColor.MainCol,
-        activeForegroundColor: GlobalColor.SubCol,
-        buttonSize: Size(56.0, 56.0),
-        visible: true,
-        closeManually: false,
-        curve: Curves.bounceIn,
-        overlayColor: Colors.black,
-        overlayOpacity: 0.5,
-        onOpen: () => print('OPENING DIAL'),
-        onClose: () => print('DIAL CLOSED'),
-        elevation: 8.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        spaceBetweenChildren: 10.0,
-        children: [
-          SpeedDialChild(
-            child: Icon(Icons.camera_alt),
-            backgroundColor: GlobalColor.MainCol,
-            foregroundColor: GlobalColor.SubCol,
-            label: 'スキャンで追加',
-            labelStyle: TextStyle(fontSize: 18.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            onTap: () {
-              // Add camera functionality here
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReadQR()),
-              );
-              print('Camera Add Tapped');
-            },
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.text_fields),
-            backgroundColor: GlobalColor.MainCol,
-            foregroundColor: GlobalColor.SubCol,
-            label: 'ユーザーIDから追加',
-            labelStyle: TextStyle(fontSize: 18.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddFriend()),
-              ).then((_) {
-                _fetchFriends();
-                _fetchReceivedRequests();
-                setState(() {});
-              });
-            },
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.bluetooth),
-            backgroundColor: GlobalColor.MainCol,
-            foregroundColor: GlobalColor.SubCol,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            label: 'Bluetoothで追加',
-            labelStyle: TextStyle(fontSize: 18.0),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddFriendNearby(myUid: Provider.of<UserData>(context).uid!),
-              )
-              );
-            },
-          ),
-        ],
       ),
     );
   }
@@ -459,7 +469,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
     List<FriendInformation> filteredFriends = friends.where((friend) {
       return friend.uname
           .toLowerCase()
-          .contains(_searchController.text.toLowerCase());
+          .contains(_searchController.text.toLowerCase()) || friend.uid
+          .toLowerCase()
+          .contains(_searchController.text.toLowerCase()) ;
     }).toList();
 
     return Column(children: [
@@ -544,13 +556,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               backgroundImage: NetworkImage(
                                   "https://calendar-files.woody1227.com/user_icon/${filteredFriends[index].uicon}"),
                             ),
-                            SizedBox(width: SizeConfig.blockSizeHorizontal! * 3),
+                            SizedBox(
+                                width: SizeConfig.blockSizeHorizontal! * 3),
                             // 名前
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  filteredFriends[index].uname, // Changed from friends[index] to filteredFriends[index]
+                                  filteredFriends[index]
+                                      .uname, // Changed from friends[index] to filteredFriends[index]
                                   style: const TextStyle(fontSize: 22),
                                 ),
                                 Text(
@@ -570,7 +584,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 );
               },
             ),
-
           ),
         )
       else

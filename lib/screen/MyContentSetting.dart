@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:calendar_sharing/services/UserData.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
@@ -19,7 +20,7 @@ class _MyContentSettingState extends State<MyContentSetting> {
   List<CalendarInformation> selectedCalendars = [];
   final List<CalendarInformation> selectedCalendarsFirst = [];
   final TextEditingController titleController = TextEditingController();
-
+  bool isEditingTitle = false;
   @override
   void dispose() {
     titleController.dispose();
@@ -74,32 +75,52 @@ class _MyContentSettingState extends State<MyContentSetting> {
           children: <Widget>[
             Text('マイコンテンツの設定', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(hintText: 'コンテンツ名'),
-              onChanged: (String value) {
+            buildProfileField(
+              context,
+              label: 'コンテンツ名',
+              controller: titleController,
+              isEditing: isEditingTitle,
+              restrictInput: false,
+              onEditToggle: () {
                 setState(() {
-                  title = value;
+                  isEditingTitle = !isEditingTitle;
                 });
               },
-              controller: titleController,
-              style: TextStyle(fontSize: 25),
+              onSave: () {
+                if(titleController.text.isNotEmpty && titleController.text != widget.contentsName){
+                  _updateContents(Provider.of<UserData>(context, listen: false).uid! , widget.cid!, titleController.text);
+                }
+                setState(() {
+                  isEditingTitle = false;
+                });
+              },
             ),
             SizedBox(height: 20),
             Text('カレンダーの編集', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
-            Expanded(child: _buildCalendarList(context)),
-            Row(
-              children: [
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    _updateMyContent(context, widget.cid!, title, selectedCalendars);
-                  },
-                  child: Text('保存',style:TextStyle(color: GlobalColor.SubCol)),
-                ),
-              ],
+            Container(
+              height: 300, // Adjust the height as needed
+              child: _buildCalendarList(context),
+            ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end, // Aligns children to the end (right)
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                _updateMyContent(context, widget.cid!, title, selectedCalendars);
+              },
+              child: Text(
+                '保存',
+                style: TextStyle(fontSize: 15, color: GlobalColor.SubCol),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: GlobalColor.MainCol,
+              ),
             ),
           ],
+        ),
+
+        ],
         ),
       ),
     );
@@ -141,43 +162,6 @@ class _MyContentSettingState extends State<MyContentSetting> {
       ],
     );
   }
-
-  Future<void> _deleteContent(String uid, String cid) async {
-    await DeleteMyContents().deleteMyContents(uid, cid);
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
-  }
-
-  void _showDeleteConfirmationDialog(BuildContext context, String uid, String cid, String cname) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('マイコンテンツを削除'),
-          content: Text('本当にマイコンテンツ「$cname」を削除しますか? この操作は取り消せません。'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('キャンセル'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _reloadContents(); // Reload contents if deletion is canceled
-              },
-            ),
-            TextButton(
-              child: Text('削除', style: TextStyle(color: Colors.red)),
-              onPressed: () async {
-                await _deleteContent(uid, cid);
-                print('deleted');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('「$cname」を削除しました')),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
   void _updateMyContent(BuildContext context, String cid, String title, List<CalendarInformation> selectedCalendars) async {
     String? uid = Provider.of<UserData>(context, listen: false).uid;
     if (title.isEmpty){
@@ -192,11 +176,12 @@ class _MyContentSettingState extends State<MyContentSetting> {
       );
       return;
     }
-    if (title != widget.contentsName){
-      _updateContents(uid!, cid, title);
-    }
     _updateCalendars(uid!, cid, selectedCalendars);
     Navigator.of(context).pop();
+  }
+  void _changeContentsName(BuildContext context, String cid, String title) async {
+    String? uid = Provider.of<UserData>(context, listen: false).uid;
+    await UpdateMyContents().updateContents(uid!, cid, title);
   }
   void _updateCalendars(String uid, String cid, List<CalendarInformation> selectedCalendars) async {
     List<CalendarInformation> addCalendars = [];
@@ -221,4 +206,60 @@ class _MyContentSettingState extends State<MyContentSetting> {
   void _updateContents(String uid, String cid, String title) async {
     await UpdateMyContents().updateContents(uid, cid, title);
   }
+}
+Widget buildProfileField(
+    BuildContext context, {
+      required String label,
+      required TextEditingController controller,
+      required bool isEditing,
+      required bool restrictInput, // New parameter to control input restriction
+      required VoidCallback onEditToggle,
+      required VoidCallback onSave,
+    }) {
+  // Add listener to enforce 15-character limit
+  controller.addListener(() {
+    final text = controller.text;
+    if (text.length > 15) {
+      // Trim the text to 15 characters and update the controller
+      controller.text = text.substring(0, 15);
+      controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length),
+      );
+    }
+  });
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        isEditing
+            ? Expanded(
+          child: TextField(
+            maxLength: 15,
+            controller: controller,
+            style: TextStyle(fontSize: 18),
+            decoration: InputDecoration(
+              labelText: label,
+              hintText: label,
+            ),
+            inputFormatters: restrictInput
+                ? [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
+            ]
+                : [], // No restriction if restrictInput is false
+          ),
+        )
+            : Text(
+            label == 'ユーザーID'
+                ? '$label: @${controller.text}'
+                : '$label: ${controller.text}',
+            style: TextStyle(fontSize: 18)),
+        IconButton(
+          icon: Icon(isEditing ? Icons.check : Icons.edit),
+          onPressed: isEditing ? onSave : onEditToggle,
+        ),
+      ],
+    ),
+  );
 }

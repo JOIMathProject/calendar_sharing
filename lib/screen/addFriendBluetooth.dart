@@ -32,6 +32,11 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     super.initState();
     _disconnectFromAllEndpoints();
     _checkPermissionsAndStart();
+    Timer.periodic(Duration(seconds: 3), (timer) {
+      if (!mounted) {
+        timer.cancel();
+      }_updateDiscoveredDevices();
+    });
   }
 
   @override
@@ -40,7 +45,19 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     _stopNearbyServices();
     super.dispose();
   }
+  Future<void> _updateDiscoveredDevices() async {
+    try {
+      List<FriendInformation> friends = await GetFriends().getFriends(widget.myUid);
 
+      setState(() {
+        discoveredDevices.removeWhere((device) {
+          return friends.map((friend) => friend.uid).contains(device.name);
+        });
+      });
+    } catch (e) {
+      print("Failed to update discovered devices: $e");
+    }
+  }
   Future<void> _checkPermissionsAndStart() async {
     if (!await _checkPermissions()) {
       _showErrorSnackBar("Permissions not granted");
@@ -211,40 +228,44 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       _showErrorSnackBar("Failed to stop discovery: ${e.toString()}");
     }
   }
+
+
   void _onConnectionInitiated(String id, ConnectionInfo info) {
     print("Connection initiated with $id (${info.endpointName})");
     _nearby.acceptConnection(
       id,
       onPayLoadRecieved: (endid, payload) async {
-        if (payload.bytes != null) {
-          String friendUid = String.fromCharCodes(payload.bytes!);
-          print("Received payload: $friendUid");
-
-          if (sentFriendUid.contains(friendUid)) {
-            sentFriendUid.remove(friendUid);
-          } else {
-            receivedFriendUid.add(friendUid);
-          }
-
-          // Send payload back to confirm receipt
-          SendPayLoad(id);
-          print("Sent acknowledgment payload to $id");
-
-          if (receivedFriendUid.contains(friendUid)) {
-            receivedFriendUid.remove(friendUid);
-          }
-        } else {
-          print("Received empty payload.");
-        }
+        _handlePayload(endid, payload);
       },
     );
   }
+  void _handlePayload(String endpointId, Payload payload) {
+    if (payload.type == PayloadType.BYTES) {
+      String friendUid = String.fromCharCodes(payload.bytes!);
+      print("Received payload from $endpointId: $friendUid");
 
+      if (sentFriendUid.contains(friendUid)) {
+        // We sent a request to this user, and now they've responded
+        sentFriendUid.remove(friendUid);
+        _addFriend(friendUid);
+      } else if (!receivedFriendUid.contains(friendUid)) {
+        // This is a new friend request
+        receivedFriendUid.add(friendUid);
+        // Send acknowledgment
+        SendPayLoad(endpointId);
+      }
+
+      setState(() {}); // Update UI
+    }
+  }
   void _connectToDevice(Device device) async {
     try {
       if (connectedEndpoints.contains(device.id)) {
         // Already connected, just send the payload
         SendPayLoad(device.id);
+        if (!sentFriendUid.contains(device.name)) {
+          sentFriendUid.add(device.name);
+        }
         print("Already connected, sent UID payload to ${device.id}");
       } else {
         print("Requesting connection to ${device.id} (${device.name})");
@@ -255,28 +276,27 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
           onConnectionResult: (id, status) {
             print("Connection result: $id, $status");
             if (status == Status.CONNECTED) {
-              // Add to connected endpoints
               connectedEndpoints.add(id);
-              // Send payload after connection is established
               SendPayLoad(id);
-
-              // Check if a payload was already received from this device
-              if (receivedFriendUid.contains(device.name)) {
-                _addFriend(device.name);
+              if(receivedFriendUid.contains(device.name)){
                 receivedFriendUid.remove(device.name);
-              } else {
+                _addFriend(device.name);
+              }
+              if (!sentFriendUid.contains(device.name)) {
                 sentFriendUid.add(device.name);
               }
+              setState(() {}); // Update UI
             }
           },
           onDisconnected: (id) {
             print("Disconnected from: $id");
             connectedEndpoints.remove(id);
+            setState(() {}); // Update UI
           },
         );
       }
     } catch (e) {
-      _showErrorSnackBar("Connection failed: ${e.toString()}");
+      _showErrorSnackBar("接続が失敗しました: ${e.toString()}");
     }
   }
 
@@ -290,9 +310,9 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
         Provider.of<UserData>(context, listen: false).updateFriends(friends);
       });
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Friend added successfully.')));
+          .showSnackBar(SnackBar(content: Text('フレンドを追加しました')));
     } catch (e) {
-      _showErrorSnackBar("Failed to add friend: ${e.toString()}");
+      _showErrorSnackBar("フレンドの追加に失敗しました: ${e.toString()}");
     }
   }
 
@@ -314,7 +334,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
           children: [
             SizedBox(height: 20),
             Text(
-              '近くのデバイスでフレンドを追加する',
+              '近くのデバイスで\nフレンドを追加する',
               style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center, // Optional: Center the text
             ),
@@ -334,7 +354,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
             SizedBox(height: 20),
             Expanded(
               child: discoveredDevices.isEmpty
-                  ? Center(child: Text('No devices found.'))
+                  ? Center(child: Text('デバイスが見つかりませんでした'))
                   : ListView.builder(
                 itemCount: discoveredDevices.length,
                 itemBuilder: (context, index) {

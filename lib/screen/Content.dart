@@ -21,16 +21,16 @@ import 'FirstVisitScreen.dart';
 
 class Home extends StatefulWidget {
   final String? groupId;
-  final String? groupName;
   final bool startOnChatScreen;
   final bool firstVisit;
+  final String groupName;
   bool is_frined;
 
   Home(
       {required this.groupId,
-      required this.groupName,
       required this.firstVisit,
       required this.is_frined,
+      required this.groupName,
       this.startOnChatScreen = false});
 
   @override
@@ -49,11 +49,11 @@ class _HomeState extends State<Home> {
   CalendarView _currentView = CalendarView.week;
   MyContentsInformation? usedContent;
   List<Appointment> GroupCal = [];
-
+  int unreadMessageCount = 0;
   bool flipped = false;
   List<Appointment> FrontCalendar = [];
   List<Appointment> BackCalendar = [];
-
+  String groupName = '';
   List<MyContentsInformation> _MyContents = [];
   List<CalendarInformation> _MyCalendar = [];
   MyContentsInformation? selectedContent;
@@ -67,7 +67,7 @@ class _HomeState extends State<Home> {
   DateTime endDate = DateTime(2025, 01, 01);
   String formattedStartDate = '2024-01-01';
   String formattedEndDate = '2025-01-01';
-
+  bool loading = true;
   @override
   void initState() {
     super.initState();
@@ -88,10 +88,34 @@ class _HomeState extends State<Home> {
       WidgetsBinding.instance
           .addPostFrameCallback((_) => _showFirstVisitDialog());
     }
-    _getReceivedEvent();
-    _getMyContents();
-    _getGroupCal();
-    _getCalendar();
+    _initializeData();
+  }
+  Future<void> _initializeData() async {
+    setState(() {
+      loading = true; // Show loading indicator
+    });
+
+    try {
+      // Await all asynchronous operations concurrently
+      await Future.wait([
+        _getName(),
+        _getReceivedEvent(),
+        _getMyContents(),
+        _getGroupCal(),
+        _getCalendar(),
+        _getChatUnread(),
+      ]);
+    } catch (e) {
+      // Handle any errors that occur during the async operations
+      print("Error initializing data: $e");
+      // Optionally, you can set an error state here to display an error message to the user
+    } finally {
+      setState(() {
+        loading = false; // Hide loading indicator after all operations are complete
+      });
+    }
+
+    // Start periodic updates after initial data fetch
     Timer.periodic(Duration(seconds: 5), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -106,11 +130,16 @@ class _HomeState extends State<Home> {
       _getReceivedEvent();
       _getGroupCal();
       _getCalendar();
+      _getChatUnread();
+      _getName();
       setState(() {});
     });
   }
 
 
+  Future<void> _getChatUnread() async{
+    unreadMessageCount = await UnreadMessage().unreadMessage(Provider.of<UserData>(context, listen: false).uid!,widget.groupId);
+  }
   Future<void> _getMyContents() async {
     usedContent = await _getCurrentUserContent(widget.groupId!, Provider.of<UserData>(context, listen: false).uid!);
     selectedContent = _MyContents.isNotEmpty ? _MyContents[0] : null;
@@ -145,7 +174,12 @@ class _HomeState extends State<Home> {
     }
     return _MyContents[0];
   }
-
+  Future<void> _getName() async {
+    groupName = await GetGroupName().getGroupName(widget.groupId);
+    if (mounted) {
+      setState(() {});
+    }
+  }
   Future<void> _getCalendar() async {
     List<ContentsInformation>? contents =
         await GetContentInGroup().getContentInGroup(widget.groupId);
@@ -206,7 +240,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.groupName!,
+        title: Text(widget.is_frined?widget.groupName:groupName,
             style: TextStyle(fontFamily: 'MPLUSRounded1c-Medium')),
         backgroundColor: GlobalColor.AppBarCol,
         actions: [
@@ -230,10 +264,29 @@ class _HomeState extends State<Home> {
             ),
           ),
           IconButton(
-            icon: Icon(
-              _currentPage == 0
-                  ? Icons.chat
-                  : Icons.calendar_today, // Change icon based on page
+            icon: _currentPage == 0
+                ? badge.Badge(
+              position: badge.BadgePosition.topEnd(top: -6, end: -2),
+              badgeStyle: badge.BadgeStyle(
+                badgeColor: Colors.red, // Set your desired badge color
+                padding: EdgeInsets.all(5),
+              ),
+              badgeContent: Text(
+                unreadMessageCount.toString(),
+                style: TextStyle(
+                  color: GlobalColor.SubCol,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              showBadge: unreadMessageCount > 0,
+              child: Icon(
+                Icons.chat,
+                size: 30,
+              ),
+            )
+                : Icon(
+              Icons.calendar_today,
               size: 30,
             ),
             onPressed: () {
@@ -250,6 +303,7 @@ class _HomeState extends State<Home> {
               }
             },
           ),
+
           IconButton(
             icon: Icon(
               Icons.settings,
@@ -432,6 +486,16 @@ class _HomeState extends State<Home> {
                 ChatScreen(gid: widget.groupId),
             ],
           ),
+          if (loading)
+            Container(
+              color: Colors.black.withOpacity(0.5), // Semi-transparent overlay
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor:
+                  AlwaysStoppedAnimation<Color>(GlobalColor.MainCol),
+                ),
+              ),
+            ),
         ],
       ),
       floatingActionButton: _showFab

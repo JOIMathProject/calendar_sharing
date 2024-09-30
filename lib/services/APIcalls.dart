@@ -1222,6 +1222,17 @@ class GetGroupLoc {
     return responseBody['location'];
   }
 }
+class GetGroupName {
+  Future<String> getGroupName(String? gid) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/groups/$gid');
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
+    if (response.statusCode != 200) {
+      throw 'Failed to get group name: ${response.statusCode}';
+    }
+    final responseBody = jsonDecode(response.body);
+    return responseBody['gname'];
+  }
+}
 
 class UpdateGroupLoc{
   Future<void> updateGroupLoc(String? gid, String? location) async {
@@ -1464,5 +1475,58 @@ class AddAllLocalToGoogleCal {
       throw 'Failed to add local event to the google calendar: ${response.statusCode}';
     }
     return;
+  }
+}
+
+class UnreadMessage {
+  Future<int> unreadMessage(String? uid, String? gid) async {
+    print('uid:$uid,gid:$gid');
+    final url = Uri.parse(
+        'https://calendar-api.woody1227.com/groups/$gid/member/$uid/messages/unread');
+    final response = await http.get(url, headers: {'API_KEY': APIKey});
+
+    if (response.statusCode != 200) {
+      throw 'Failed to get unread messages: ${response.statusCode}';
+    }
+    final responseBody = jsonDecode(response.body);
+    print(responseBody['unread_count']);
+    return int.parse(responseBody['unread_count']);
+  }
+}
+
+class GoogleEventEdit{
+  Future<void> googleEventEdit(String? uid, String? calendar_id, String? event_id, String? summary, String? description, DateTime? start_dateTime, DateTime? end_dateTime) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/calendars/$calendar_id/events/$event_id');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
+      body: jsonEncode({
+        "summary": summary,
+        "description": description,
+        "start_dateTime": start_dateTime.toString().substring(0, 19),
+        "end_dateTime": end_dateTime.toString().substring(0, 19),
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to update event: ${response.statusCode}';
+    }
+  }
+}
+class LocalEventEdit{
+  Future<void> localEventEdit(String? uid, String? cid, String? event_id, String? summary, String? description, DateTime? start_dateTime, DateTime? end_dateTime) async {
+    final url = Uri.parse('https://calendar-api.woody1227.com/user/$uid/contents/$cid/events/$event_id');
+    final response = await http.put(
+      url,
+      headers: {'Content-type': 'application/json', 'API_KEY': APIKey},
+      body: jsonEncode({
+        "summary": summary,
+        "description": description,
+        "start_dateTime": start_dateTime.toString().substring(0, 19),
+        "end_dateTime": end_dateTime.toString().substring(0, 19),
+      }),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw 'Failed to update event: ${response.statusCode}';
+    }
   }
 }

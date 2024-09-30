@@ -60,6 +60,7 @@ class _SignInState extends State<SignIn> {
                 height: 70.0, // Desired height
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: GlobalColor.MainCol,
                     shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(5), // Adjust as needed

@@ -33,6 +33,13 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
     super.initState();
     _getSelectedCalendars(
         Provider.of<UserData>(context, listen: false).uid!, widget.cid!);
+
+    _summaryController.addListener(() {
+      setState(() {}); // Rebuild the widget when text changes
+    });
+    _descriptionController.addListener(() {
+      setState(() {}); // Rebuild the widget when text changes
+    });
   }
 
   Future<void> _getSelectedCalendars(String uid, String cid) async {
@@ -113,8 +120,8 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
           return Theme(
             data: ThemeData(
               colorScheme: ColorScheme.light(
-                primary: GlobalColor
-                    .MainCol, // Header background color (selected day)
+                primary:
+                GlobalColor.timeDateSelectionCol, // Header background color (selected day)
                 onPrimary: Colors.black, // Header text color
                 surface: GlobalColor.SubCol, // Dialog background color
                 onSurface: Colors.black, // Body text color (dates)
@@ -122,13 +129,13 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
               dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  backgroundColor: GlobalColor.MainCol,
+                  backgroundColor: GlobalColor.timeDateSelectionCol,
                   foregroundColor: GlobalColor.SubCol, // Button text color
                   // backgroundColor can be set if needed
                 ),
               ),
               textTheme: TextTheme(
-                bodyMedium: TextStyle(color: Colors.black), // Time text color
+                bodyMedium: TextStyle(color: Colors.black), // Date text color
                 // You can customize other text styles if needed
               ),
             ),
@@ -170,7 +177,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
           data: ThemeData(
             colorScheme: ColorScheme.light(
               primary:
-                  GlobalColor.MainCol, // Header background color (selected day)
+              GlobalColor.timeDateSelectionCol, // Header background color (selected day)
               onPrimary: Colors.black, // Header text color
               surface: GlobalColor.SubCol, // Dialog background color
               onSurface: Colors.black, // Body text color (dates)
@@ -178,7 +185,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
             dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                backgroundColor: GlobalColor.MainCol,
+                backgroundColor: GlobalColor.timeDateSelectionCol,
                 foregroundColor: GlobalColor.SubCol, // Button text color
                 // backgroundColor can be set if needed
               ),
@@ -376,203 +383,218 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
     }
     // Optionally, navigate back or clear fields after adding the event
   }
-
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double calculatedFontSize = screenWidth * 0.036; // 4% of screen width
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text('予定を追加'),
-          backgroundColor: GlobalColor.AppBarCol,
-        ),
-        body: ListView(
-          padding: EdgeInsets.all(20.0),
-          children: [
-            // **Updated Summary Input Field**
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white, // Background color of the input field
-                borderRadius: BorderRadius.circular(10), // Rounded corners
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3), // Shadow color
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3), // Shadow position
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: _summaryController,
-                decoration: InputDecoration(
-                  labelText: '予定名',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Rounded border
-                    borderSide: BorderSide.none, // Remove the default border
-                  ),
-                  filled: true,
-                  fillColor: Colors
-                      .transparent, // Transparent since Container has color
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 15, horizontal: 20), // Padding inside the field
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            // **Updated Description Input Field**
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white, // Background color of the input field
-                borderRadius: BorderRadius.circular(10), // Rounded corners
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3), // Shadow color
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3), // Shadow position
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: _descriptionController,
-                decoration: InputDecoration(
-                  labelText: '概要',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Rounded border
-                    borderSide: BorderSide.none, // Remove the default border
-                  ),
-                  filled: true,
-                  fillColor: Colors
-                      .transparent, // Transparent since Container has color
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 15, horizontal: 20), // Padding inside the field
-                ),
-                maxLines: null, // Allow multiple lines
-                keyboardType: TextInputType.multiline,
-              ),
-            ),
-            SizedBox(height: 20),
-            Row(
+      appBar: AppBar(
+        backgroundColor: GlobalColor.AppBarCol,
+      ),
+      body: Column(
+        children: [
+          Text('イベントを追加', style: TextStyle(fontSize: 30)),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(20.0),
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('開始時間'),
-                      SizedBox(height: 5),
-                      GestureDetector(
-                        onTap: _pickStartDateTime,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 10),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(5),
+                TextField(
+                  controller: _summaryController,
+                  decoration: InputDecoration(
+                    labelText: '予定名',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10), // Rounded border
+                      borderSide: BorderSide.none, // Remove the default border
+                    ),
+                    filled: true,
+                    fillColor: Colors.transparent, // Transparent since Container has color
+                    contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    suffixIcon: _summaryController.text.isNotEmpty
+                        ? IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        _summaryController.clear();
+                      },
+                    )
+                        : null,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: GlobalColor.MainCol,
+                          width: 1.0), // Color and thickness of the bottom line
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: GlobalColor.MainCol,
+                          width: 2.0), // Color and thickness when focused
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(
+                    labelText: '概要',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10), // Rounded border
+                      borderSide: BorderSide.none, // Remove the default border
+                    ),
+                    filled: true,
+                    fillColor: Colors.transparent,
+                    contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    suffixIcon: _descriptionController.text.isNotEmpty
+                        ? IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        _descriptionController.clear();
+                      },
+                    )
+                        : null,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: GlobalColor.MainCol,
+                          width: 1.0),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: GlobalColor.MainCol,
+                          width: 2.0),
+                    ),
+                  ),
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('開始時間'),
+                          SizedBox(height: 5),
+                          GestureDetector(
+                            onTap: _pickStartDateTime,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                '${_startDateTime.toLocal()}'.split('.')[0],
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
                           ),
-                          child: Text(
-                            '${_startDateTime.toLocal()}'.split('.')[0],
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('終了時間'),
-                      SizedBox(height: 5),
-                      GestureDetector(
-                        onTap: _pickEndDateTime,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 10),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(5),
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('終了時間'),
+                          SizedBox(height: 5),
+                          GestureDetector(
+                            onTap: _pickEndDateTime,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                '${_endDateTime.toLocal()}'.split('.')[0],
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
                           ),
-                          child: Text(
-                            '${_endDateTime.toLocal()}'.split('.')[0],
-                            style: TextStyle(fontSize: 16,),
-                          ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: RadioListTile<bool>(
-                    title: Text('ローカル追加'),
-                    value: true,
-                    groupValue: isLocalAdd,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isLocalAdd = value!;
-                      });
-                    },
-                  ),
+                SizedBox(height: 20),
+                Text('追加先', style: TextStyle(fontSize: 20)),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: RadioListTile<bool>(
+                        title: Text('ローカル', style: TextStyle(fontSize: calculatedFontSize)),
+                        value: true,
+                        groupValue: isLocalAdd,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            isLocalAdd = newValue!;
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: RadioListTile<bool>(
+                        title: Text('Googleカレンダー', style: TextStyle(fontSize: calculatedFontSize)),
+                        value: false,
+                        groupValue: isLocalAdd,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            isLocalAdd = newValue!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: RadioListTile<bool>(
-                    title: Text('Googleカレンダーに追加'),
-                    value: false,
-                    groupValue: isLocalAdd,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isLocalAdd = value!;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            if (!isLocalAdd)
-              _isLoadingCalendars
-                  ? Center(child: CircularProgressIndicator())
-                  : calendars.isEmpty
+                SizedBox(height: 20),
+                if (!isLocalAdd)
+                  _isLoadingCalendars
+                      ? Center(child: CircularProgressIndicator())
+                      : calendars.isEmpty
                       ? Text('利用可能なカレンダーがありません')
                       : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('カレンダーを選択'),
-                            DropdownButton<CalendarInformation>(
-                              value: selectedCalendar,
-                              hint: Text('カレンダーを選択'),
-                              onChanged: (CalendarInformation? newValue) {
-                                setState(() {
-                                  selectedCalendar = newValue!;
-                                });
-                              },
-                              items: calendars
-                                  .map<DropdownMenuItem<CalendarInformation>>(
-                                      (CalendarInformation value) {
-                                return DropdownMenuItem<CalendarInformation>(
-                                  value: value,
-                                  child: Text(value.summary),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _addEvent,
-              child: Text('追加',
-                  style: TextStyle(color: GlobalColor.SubCol, fontSize: 30)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: GlobalColor.MainCol,
-                padding: EdgeInsets.symmetric(vertical: 15),
-              ),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('カレンダーを選択', style: TextStyle(fontSize: 20)),
+                      DropdownButton<CalendarInformation>(
+                        value: selectedCalendar,
+                        hint: Text('カレンダーを選択'),
+                        onChanged: (CalendarInformation? newValue) {
+                          setState(() {
+                            selectedCalendar = newValue!;
+                          });
+                        },
+                        items: calendars
+                            .map<DropdownMenuItem<CalendarInformation>>(
+                                (CalendarInformation value) {
+                              return DropdownMenuItem<CalendarInformation>(
+                                value: value,
+                                child: Text(value.summary),
+                              );
+                            }).toList(),
+                      ),
+                    ],
+                  ),
+              ],
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: ElevatedButton(
+          onPressed: _addEvent,
+          child: Text('追加',
+              style: TextStyle(color: GlobalColor.SubCol, fontSize: 30)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: GlobalColor.MainCol,
+            padding: EdgeInsets.symmetric(vertical: 15),
+          ),
+        ),
+      ),
+    );
+
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:calendar_sharing/services/APIcalls.dart';
 import 'package:calendar_sharing/services/UserData.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:calendar_sharing/setting/color.dart' as GlobalColor;
@@ -83,6 +84,21 @@ class _ChatScreenState extends State<ChatScreen> {
               showUserAvatars: true,
               showUserNames: true,
               l10n: const ChatL10nJa(),
+              dateFormat: DateFormat('yyyy/MM/dd HH:mm'),
+              dateHeaderBuilder: (date) => Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child:
+                Center(child:
+                    Padding(padding: EdgeInsets.all(15),child:
+                  Text(
+                  DateFormat('yyyy/MM/dd HH:mm', 'ja').format(date.dateTime),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),),),
+              ),
               hideBackgroundOnEmojiMessages: false,
               theme: DefaultChatTheme(
                 //backgroundColor: GlobalColor.backGroundCol,

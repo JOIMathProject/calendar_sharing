@@ -57,6 +57,7 @@ class _AddFriendState extends State<AddFriend> {
                 width: 400,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: GlobalColor.MainCol,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                     ),
@@ -84,7 +85,7 @@ class _AddFriendState extends State<AddFriend> {
     if (friendUid == myUid) {
       FriendAddSnackBar(context,"自分自身をフレンドに追加することはできません",const Icon(
         Icons.error,
-        color: Colors.red,
+        color: GlobalColor.SubCol,
       ));
       return;
     }
@@ -94,11 +95,11 @@ class _AddFriendState extends State<AddFriend> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('フレンドリクエストを送る'),
             content: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
+                SizedBox(height: 50),
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.white,
@@ -120,16 +121,18 @@ class _AddFriendState extends State<AddFriend> {
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.only(top: 10),
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.only(top: 10, bottom: 10),
                   child: const Text(
-                    'フレンド申請を送信しますか？',
+                    'フレンドリクエストを\n送信しますか？',
+                    textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
                 const Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(10.0),
                   child: Text(
-                    'フレンド申請を送信すると、相手にあなたのカレンダーが公開されます',
+                    '相手がフレンドリクエストを承認すると自動的にフレンドに追加されます。',
                     style: TextStyle(color: Colors.grey, fontSize: 15),
                   ),
                 ),
@@ -158,12 +161,12 @@ class _AddFriendState extends State<AddFriend> {
       if (e.toString() == "Failed to get user: 404") {
         FriendAddSnackBar(context,"ユーザーが見つかりません",const Icon(
           Icons.error,
-          color: Colors.red,
+          color: GlobalColor.SubCol,
         ));
       } else {
         FriendAddSnackBar(context,"エラーが発生しました。",const Icon(
           Icons.error,
-          color: Colors.red,
+          color: GlobalColor.SubCol,
         ));
       }
       return;
@@ -174,9 +177,9 @@ class _AddFriendState extends State<AddFriend> {
     //snackを使用して、フレンドリクエストを送信しましたと表示
     try {
       await AddFriendRequest().addFriend(myUid, friendUid);
-      FriendAddSnackBar(context,"フレンド申請を送信しました",const Icon(
+      FriendAddSnackBar(context,"フレンドリクエストを送信しました",const Icon(
         Icons.check_circle,
-        color: Colors.green,
+        color: GlobalColor.SubCol,
       ));
       _searchController.clear();
     } catch (e) {
@@ -184,12 +187,12 @@ class _AddFriendState extends State<AddFriend> {
       if (e.toString() == "Failed to add friend: 404") {
         FriendAddSnackBar(context,"ユーザーが見つかりません",const Icon(
           Icons.error,
-          color: Colors.red,
+          color: GlobalColor.SubCol,
         ));
       } else if (e.toString() == "Failed to add friend: 409") {
-        FriendAddSnackBar(context,"既にフレンド申請を送信しています",const Icon(
+        FriendAddSnackBar(context,"既にフレンドリクエストを送信しています",const Icon(
           Icons.error,
-          color: Colors.red,
+          color: GlobalColor.SubCol,
         ));
       }
       return;
@@ -228,10 +231,10 @@ class _AddFriendState extends State<AddFriend> {
                   children: [
                     Icon(
                       Icons.check_circle,
-                      color: Colors.green,
+                      color: GlobalColor.SubCol,
                       size: 50,
                     ),
-                    Text('フレンド申請を送信しました'),
+                    Text('フレンドリクエストを送信しました'),
                   ],
                 );
               } else if (snapshot.hasError) {
@@ -240,7 +243,7 @@ class _AddFriendState extends State<AddFriend> {
                     children: [
                       Icon(
                         Icons.error,
-                        color: Colors.red,
+                        color: GlobalColor.SubCol,
                         size: 50,
                       ),
                       Text('すでにフレンドもしくは\n送信済みです', style: TextStyle(fontSize: 20)),
@@ -251,7 +254,7 @@ class _AddFriendState extends State<AddFriend> {
                     children: [
                       Icon(
                         Icons.error,
-                        color: Colors.red,
+                        color: GlobalColor.SubCol,
                         size: 50,
                       ),
                       Text('ユーザーが見つかりません', style: TextStyle(fontSize: 20)),
@@ -263,7 +266,7 @@ class _AddFriendState extends State<AddFriend> {
                     children: [
                       const Icon(
                         Icons.error,
-                        color: Colors.red,
+                        color: GlobalColor.SubCol,
                         size: 50,
                       ),
                       Text('エラーが発生しました'),

@@ -12,6 +12,8 @@ import '../setting/color.dart' as GlobalColor;
 import '../services/auth.dart';
 import 'package:image/image.dart' as img;
 
+import 'mainScreen.dart';
+
 class Profile extends StatefulWidget {
   @override
   _ProfileState createState() => _ProfileState();
@@ -83,6 +85,7 @@ class _ProfileState extends State<Profile> {
 
     return null; // No image was picked
   }
+
   @override
   void dispose() {
     uidController.dispose();
@@ -94,190 +97,220 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     UserData userData = Provider.of<UserData>(context);
     final AuthService _auth = AuthService();
-    return Scaffold(
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(
-                            "https://calendar-files.woody1227.com/user_icon/${userData.uicon}"),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () async {
-                            String? image = await getImageFromGallery();
-                            if (image != null) {
-                              await UpdateUserImage()
-                                  .updateUserImage(userData.uid, image);
-                              UserInformation newUserData = await GetUser().getUser(userData.uid);
-                              Provider.of<UserData>(context, listen: false).uicon = newUserData.uicon;
-                              setState(() {});
-                            }
-                          },
-                          child: CircleAvatar(
-                            backgroundColor: Colors.grey[200],
-                            radius: 18,
-                            child: Icon(Icons.edit, color: Colors.black),
+
+    return WillPopScope(
+      onWillPop: () async {
+        // Return false to disable the back button
+        mainScreenKey.currentState?.updateTab(0);
+        return false;
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Center(
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: NetworkImage(
+                              "https://calendar-files.woody1227.com/user_icon/${userData.uicon}"),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: () async {
+                              String? image = await getImageFromGallery();
+                              if (image != null) {
+                                await UpdateUserImage()
+                                    .updateUserImage(userData.uid, image);
+                                UserInformation newUserData =
+                                    await GetUser().getUser(userData.uid);
+                                Provider.of<UserData>(context, listen: false)
+                                    .uicon = newUserData.uicon;
+                                setState(() {});
+                              }
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: Colors.grey[200],
+                              radius: 18,
+                              child: Icon(Icons.edit, color: Colors.black),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 30),
-                buildProfileField(
-                  context,
-                  label: 'ユーザーID',
-                  controller: uidController,
-                  isEditing: isEditingUID,
-                  restrictInput: true,
-                  onEditToggle: () {
-                    setState(() {
-                      isEditingUID = !isEditingUID;
-                    });
-                  },
-                  onSave: () async {
-                    if (uidController.text.isNotEmpty &&
-                        uidController.text != userData.uid) {
-                      await UpdateUserID()
-                          .updateUserID(userData.uid, uidController.text);
-                      Provider.of<UserData>(context, listen: false).uid =
-                          uidController.text;
-                    }
-                    setState(() {
-                      isEditingUID = false;
-                    });
-                  },
-                ),
-                buildProfileField(
-                  context,
-                  label: 'ユーザー名',
-                  controller: usernameController,
-                  isEditing: isEditingUsername,
-                  restrictInput: false,
-                  onEditToggle: () {
-                    setState(() {
-                      isEditingUsername = !isEditingUsername;
-                    });
-                  },
-                  onSave: () async {
-                    if (usernameController.text.isNotEmpty &&
-                        usernameController.text != userData.uname) {
-                      await UpdateUserName().updateUserName(
-                          userData.uid, usernameController.text);
-                      Provider.of<UserData>(context, listen: false).uname =
-                          usernameController.text;
-                    }
-                    setState(() {
-                      isEditingUsername = false;
-                    });
-                  },
-                ),
-                SizedBox(height: 20),
-                Text('メールアドレス: ${userData.mailAddress}',
-                    style: TextStyle(fontSize: 18)),
-                Spacer(flex: 2,),
-                Center(
-                  child: ElevatedButton(
-                    // Removed 'const' from Padding to allow dynamic colors
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min, // Ensures minimal vertical space
-                        children: [
-                          Icon(
-                            Icons.qr_code_2,
-                            size: 50,
-                            color: Colors.black, // Ensure SubCol is correctly defined
-                          ),
-                          SizedBox(height: 8), // Adds some spacing between Icon and Text
-                          Text('自分のQRを表示', style: TextStyle(fontSize: 15, color: Colors.black)),
-                        ],
+                  SizedBox(height: 30),
+                  buildProfileField(
+                    context,
+                    label: 'ユーザーID',
+                    controller: uidController,
+                    isEditing: isEditingUID,
+                    restrictInput: true,
+                    onEditToggle: () {
+                      setState(() {
+                        isEditingUID = !isEditingUID;
+                      });
+                    },
+                    onSave: () async {
+                      if (uidController.text.isNotEmpty &&
+                          uidController.text != userData.uid) {
+                        await UpdateUserID()
+                            .updateUserID(userData.uid, uidController.text);
+                        Provider.of<UserData>(context, listen: false).uid =
+                            uidController.text;
+                      }
+                      setState(() {
+                        isEditingUID = false;
+                      });
+                    },
+                  ),
+                  buildProfileField(
+                    context,
+                    label: 'ユーザー名',
+                    controller: usernameController,
+                    isEditing: isEditingUsername,
+                    restrictInput: false,
+                    onEditToggle: () {
+                      setState(() {
+                        isEditingUsername = !isEditingUsername;
+                      });
+                    },
+                    onSave: () async {
+                      if (usernameController.text.isNotEmpty &&
+                          usernameController.text != userData.uname) {
+                        await UpdateUserName().updateUserName(
+                            userData.uid, usernameController.text);
+                        Provider.of<UserData>(context, listen: false).uname =
+                            usernameController.text;
+                      }
+                      setState(() {
+                        isEditingUsername = false;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  Text('メールアドレス: ${userData.mailAddress}',
+                      style: TextStyle(fontSize: 18)),
+                  Spacer(
+                    flex: 2,
+                  ),
+                  Center(
+                    child: ElevatedButton(
+                      // Removed 'const' from Padding to allow dynamic colors
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize
+                              .min, // Ensures minimal vertical space
+                          children: [
+                            Icon(
+                              Icons.qr_code_2,
+                              size: 50,
+                              color: Colors
+                                  .black, // Ensure SubCol is correctly defined
+                            ),
+                            SizedBox(
+                                height:
+                                    8), // Adds some spacing between Icon and Text
+                            Text('自分のQRを表示',
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return MyQRModal(uid: userData.uid);
+                          },
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: GlobalColor
+                            .SubCol, // Optional: Set button background color
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                              color: Colors.grey,
+                              width: 2), // Optional: Border width
+                          borderRadius: BorderRadius.circular(
+                              12), // Optional: Rounded corners
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 5), // Optional: Adjust padding
                       ),
                     ),
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return MyQRModal(uid: userData.uid);
-                        },
+                  ),
+                  Spacer(
+                    flex: 3,
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom:
+                  50, // You can adjust this value to position the button vertically
+              left: 0,
+              right: 0, // This makes the Positioned span the full width
+              child: Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.center, // Centers the button horizontally
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await _auth.signOut(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Wrapper()),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalColor.SubCol, // Optional: Set button background color
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.grey, width: 2), // Optional: Border width
-                        borderRadius: BorderRadius.circular(12), // Optional: Rounded corners
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5), // Optional: Adjust padding
-                    ),
-                  ),
-                ),
-                Spacer(flex: 3,),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 50, // You can adjust this value to position the button vertically
-            left: 0,
-            right: 0, // This makes the Positioned span the full width
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center, // Centers the button horizontally
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    await _auth.signOut(context);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => Wrapper()),
-                    );
-                  },
-                  icon: Icon(
-                    Icons.logout,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  label: Text(
-                    'ログアウト',
-                    style: TextStyle(
-                      fontSize: 16,
+                    icon: Icon(
+                      Icons.logout,
                       color: Colors.white,
+                      size: 20,
+                    ),
+                    label: Text(
+                      'ログアウト',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 100, vertical: 12),
+                      backgroundColor: GlobalColor.logOutCol,
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 100, vertical: 12),
-                    backgroundColor: GlobalColor.logOutCol,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
   Widget buildProfileField(
-      BuildContext context, {
-        required String label,
-        required TextEditingController controller,
-        required bool isEditing,
-        required bool restrictInput, // New parameter to control input restriction
-        required VoidCallback onEditToggle,
-        required VoidCallback onSave,
-      }) {
+    BuildContext context, {
+    required String label,
+    required TextEditingController controller,
+    required bool isEditing,
+    required bool restrictInput, // New parameter to control input restriction
+    required VoidCallback onEditToggle,
+    required VoidCallback onSave,
+  }) {
     // Add listener to enforce 15-character limit
     controller.addListener(() {
       final text = controller.text;
@@ -291,31 +324,33 @@ class _ProfileState extends State<Profile> {
     });
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           isEditing
               ? Expanded(
-            child: TextField(
-              maxLength: 15,
-              controller: controller,
-              style: TextStyle(fontSize: 18),
-              decoration: InputDecoration(
-                hintText: label,
-              ),
-              inputFormatters: restrictInput
-                  ? [
-                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
-              ]
-                  : [], // No restriction if restrictInput is false
-            ),
-          )
+                  child: TextField(
+                    maxLength: 15,
+                    controller: controller,
+                    style: TextStyle(fontSize: 18),
+                    decoration: InputDecoration(
+                      labelText: label,
+                      hintText: label,
+                    ),
+                    inputFormatters: restrictInput
+                        ? [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[a-zA-Z0-9_]')),
+                          ]
+                        : [], // No restriction if restrictInput is false
+                  ),
+                )
               : Text(
-              label == 'ユーザーID'
-                  ? '$label: @${controller.text}'
-                  : '$label: ${controller.text}',
-              style: TextStyle(fontSize: 18)),
+                  label == 'ユーザーID'
+                      ? '$label: @${controller.text}'
+                      : '$label: ${controller.text}',
+                  style: TextStyle(fontSize: 18)),
           IconButton(
             icon: Icon(isEditing ? Icons.check : Icons.edit),
             onPressed: isEditing ? onSave : onEditToggle,

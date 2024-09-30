@@ -89,11 +89,12 @@ class _FriendProfileState extends State<FriendProfile> {
                 fontSize: 30,
               ),
             ),
-            //uid
+            //uid'
             Text(
               "@" + widget.friend.uid,
               style: TextStyle(
                 fontSize: 25,
+                color: Colors.black54,
               ),
             ),
             SizedBox(height: 80),

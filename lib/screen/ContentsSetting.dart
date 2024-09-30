@@ -303,29 +303,20 @@ class _ContentsSettingState extends State<ContentsSetting> {
               ),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: GlobalColor.MainCol,
+              ),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
                   backgroundColor: GlobalColor.SubCol,
-                  isScrollControlled: true, // Makes the BottomSheet larger
                   builder: (BuildContext context) {
                     return StatefulBuilder(
                       builder: (BuildContext context, StateSetter setState) {
-                        return FractionallySizedBox(
-                          heightFactor:
-                              0.9, // Adjust the height of the BottomSheet
-                          child: Column(
+                        return Column(
                             children: [
-                              // White notch at the top
-                              Container(
-                                width: 50,
-                                height: 5,
-                                margin: EdgeInsets.only(top: 10, bottom: 10),
-                                decoration: BoxDecoration(
-                                  color: GlobalColor.MainCol,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
+                              Padding(padding: EdgeInsets.all(20.0),
+                              child:Text('追加するユーザーを選択', style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),),
                               Expanded(
                                 child: ListView.builder(
                                   itemCount: _friends.length,
@@ -347,9 +338,9 @@ class _ContentsSettingState extends State<ContentsSetting> {
                                         value: isSelected,
 
                                         activeColor: GlobalColor
-                                            .checkBoxBackCol, // color of the checkbox when selected
+                                            .MainCol, // color of the checkbox when selected
                                         checkColor: GlobalColor
-                                            .MainCol, // color of the checkmark
+                                            .SubCol, // color of the checkmark
                                         onChanged: isUserAlreadyAdded
                                             ? null
                                             : (bool? value) {
@@ -387,6 +378,9 @@ class _ContentsSettingState extends State<ContentsSetting> {
                                 padding: EdgeInsets.only(
                                     bottom: 20.0), // Moves the button upward
                                 child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: GlobalColor.MainCol,
+                                  ),
                                   onPressed: () {
                                     // Handle the addition of selected friends
                                     for (String friendUid in selectedFriends) {
@@ -401,7 +395,6 @@ class _ContentsSettingState extends State<ContentsSetting> {
                                 ),
                               ),
                             ],
-                          ),
                         );
                       },
                     );
@@ -463,6 +456,9 @@ class _ContentsSettingState extends State<ContentsSetting> {
               ),
             SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: GlobalColor.MainCol,
+              ),
               onPressed: () async {
                 await _removeUserFromGroup(widget.groupId!, currentUserUid!);
                 Navigator.of(context).pop();
@@ -477,43 +473,54 @@ class _ContentsSettingState extends State<ContentsSetting> {
       ),
     );
   }
-
   Widget buildProfileField(
-    BuildContext context, {
-    required String label,
-    required TextEditingController controller,
-    required bool isEditing,
-    required bool restrictInput, // New parameter to control input restriction
-    required VoidCallback onEditToggle,
-    required VoidCallback onSave,
-  }) {
+      BuildContext context, {
+        required String label,
+        required TextEditingController controller,
+        required bool isEditing,
+        required bool restrictInput, // New parameter to control input restriction
+        required VoidCallback onEditToggle,
+        required VoidCallback onSave,
+      }) {
+    // Add listener to enforce 15-character limit
+    controller.addListener(() {
+      final text = controller.text;
+      if (text.length > 15) {
+        // Trim the text to 15 characters and update the controller
+        controller.text = text.substring(0, 15);
+        controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: controller.text.length),
+        );
+      }
+    });
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           isEditing
               ? Expanded(
-                  child: TextField(
-                    maxLength: 15,
-                    controller: controller,
-                    style: TextStyle(fontSize: 18),
-                    decoration: InputDecoration(
-                      hintText: label,
-                    ),
-                    inputFormatters: restrictInput
-                        ? [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'[a-zA-Z0-9_]')),
-                          ]
-                        : [], // No restriction if restrictInput is false
-                  ),
-                )
+            child: TextField(
+              maxLength: 15,
+              controller: controller,
+              style: TextStyle(fontSize: 18),
+              decoration: InputDecoration(
+                labelText: label,
+                hintText: label,
+              ),
+              inputFormatters: restrictInput
+                  ? [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
+              ]
+                  : [], // No restriction if restrictInput is false
+            ),
+          )
               : Text(
-                  label == 'ユーザーID'
-                      ? '$label: @${controller.text}'
-                      : '$label: ${controller.text}',
-                  style: TextStyle(fontSize: 18)),
+              label == 'ユーザーID'
+                  ? '$label: @${controller.text}'
+                  : '$label: ${controller.text}',
+              style: TextStyle(fontSize: 18)),
           IconButton(
             icon: Icon(isEditing ? Icons.check : Icons.edit),
             onPressed: isEditing ? onSave : onEditToggle,

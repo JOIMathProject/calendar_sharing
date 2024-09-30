@@ -271,46 +271,48 @@ class _ContentsManageState extends State<ContentsManage>
                   ),
                   backgroundColor: GlobalColor.Unselected,
                 ),
-                title: Text(filteredContents[index].gname),
-                subtitle: Text(
-                  filteredContents[index].latest_message.length > 15
-                      ? '${filteredContents[index].latest_message.substring(0, 15)}...'
-                      : filteredContents[index].latest_message,
+                title: Text(filteredContents[index].gname,
+                maxLines: 1,overflow: TextOverflow.ellipsis,),
+                subtitle: Text(filteredContents[index].latest_message,
+
+                  maxLines: 1,overflow: TextOverflow.ellipsis,
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    badge.Badge(
-                      showBadge: filteredContents[index].unread_messages > 0,
-                      badgeContent: Text(
-                        filteredContents[index].unread_messages.toString(),
-                        style: TextStyle(color: GlobalColor.SubCol),
-                      ),
-                    ),
-                    const SizedBox(width: 10.0),
+
                     Text(
                       // Today: show time; Otherwise: show date
                       isToday(filteredContents[index].latest_message_time)
                           ? timeFormat.format(filteredContents[index].latest_message_time)
                           : dateFormat.format(filteredContents[index].latest_message_time),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.chat, color: Colors.black54),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Home(
-                              groupId: filteredContents[index].gid,
-                              groupName: filteredContents[index].gname,
-                              firstVisit: filteredContents[index].is_opened == '0',
-                              startOnChatScreen: true,
-                              is_frined: filteredContents[index].is_friends == '1',
+                    badge.Badge(
+                      position: badge.BadgePosition.topEnd(top: -1, end: 5),
+                      child: IconButton(
+                        icon: Icon(Icons.chat, color: Colors.black54),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Home(
+                                groupId: filteredContents[index].gid,
+                                groupName: filteredContents[index].gname,
+                                firstVisit: filteredContents[index].is_opened == '0',
+                                startOnChatScreen: true,
+                                is_frined: filteredContents[index].is_friends == '1',
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
+                      showBadge: filteredContents[index].unread_messages > 0,
+                      badgeContent: Text(
+                        filteredContents[index].unread_messages.toString(),
+                        style: TextStyle(color: GlobalColor.SubCol),
+                      ),
                     ),
+
                   ],
                 ),
               ),

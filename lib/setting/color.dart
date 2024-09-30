@@ -9,7 +9,7 @@ Color MainColSub = Color(0xFFFFBC80);
 Color MainLightCol = Color(0xFFFDE0BA);
 Color SnackCol = Color(0xFFE8A041);
 Color ItemCol = Color(0xFFFFFDFB);
-const Color SubCol = Color(0xFFFFF9F3);
+const Color SubCol = Color(0xFFFAFAFA);
 Color bottomBar = Color(0xFFBCBCBC);
 Color bottomBarBack = Color(0xFFFFEBDA);
 Color Unselected = Color(0xFFECECEC);
@@ -22,7 +22,9 @@ Color logOutCol = Color(0xFFF57870);
 Color backGroundCol = Color(0xFFFFF9F3);
 Color buttonCol = Color(0xFFFFD7A1);
 Color searchBarCol = Color(0xFFFDB164);
+Color weatherMark = Color(0xFFEE9C39);
 Color checkBoxBackCol = Color(0xFFE3E3E3);
+Color timeDateSelectionCol = Color(0xFFFFBB77);
 
 final appTheme = ThemeData(
   fontFamily: 'MPLUSRounded1c-Regular',
@@ -35,8 +37,8 @@ final appTheme = ThemeData(
     error: Color(0xFFF2CB57),
     onError: Color(0xFFFFFFFF),
     background: Color(0xFFFFFDFB),
-    onBackground: Color(0xFFFFA74F),
-    surface: Color(0xFFFFA74F),
+    onBackground: Color(0xFFFFFDFB),
+    surface: Color(0xFFFFFDFB),
     onSurface: Color(0xFF000000),
   ),
 );

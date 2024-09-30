@@ -37,7 +37,7 @@ class _CreateMyContentsState extends State<CreateMyContents> {
   Future<void> _addCalendarToContents(String uid, String cid, String calendar_id) async {
     await AddCalendarToContents().addCalendarToContents(uid, cid, calendar_id);
   }
-
+  TextEditingController contentsNameController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,21 +47,54 @@ class _CreateMyContentsState extends State<CreateMyContents> {
       body: Container(
         padding: EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text('マイコンテンツの作成', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-            SizedBox(height: 20),
+            SizedBox(height: 40),
             TextField(
-              decoration: InputDecoration(hintText: 'コンテンツ名'),
-              onChanged: (String value) {
+              controller: contentsNameController,
+              maxLength: 15,
+              decoration: InputDecoration(
+                labelText: 'コンテンツ名',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10), // Keep the rounded corners
+                  borderSide: BorderSide.none, // No border for the outer edge
+                ),
+                filled: true,
+                fillColor: Colors.transparent, // Transparent as the Container has color
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 5, horizontal: 10,
+                ),
+                suffixIcon: title.isNotEmpty
+                    ? IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    contentsNameController.clear();
+                    setState(() {
+                      title = ''; // Clear the title value
+                    });
+                  },
+                )
+                    : null,
+                // Add an underline only at the bottom
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: GlobalColor.MainCol, width: 1.0), // Color and thickness of the bottom line
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: GlobalColor.MainCol, width: 2.0), // Color and thickness when focused
+                ),
+              ),
+              onChanged: (value) {
                 setState(() {
                   title = value;
                 });
               },
-              style: TextStyle(fontSize: 25),
             ),
-            SizedBox(height: 20),
-            Text("カレンダーを選択", style: bigFont),
+            SizedBox(height: 30),
+            Align(
+              alignment: Alignment.centerLeft, // Align the text to the left
+              child: Text("カレンダーを選択", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            ),
             SizedBox(height: 10),
             Expanded(
               child: ListView(
@@ -142,6 +175,7 @@ class _CreateMyContentsState extends State<CreateMyContents> {
                 },
                 child: Text('作成', style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: GlobalColor.MainCol,
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

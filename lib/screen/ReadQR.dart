@@ -168,11 +168,11 @@ class _ReadQRState extends State<ReadQR> {
               return true;
             },
             child: AlertDialog(
-              title: const Text('フレンドリクエストを送る'),
               content: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  SizedBox(height: 50),
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.white,
@@ -194,16 +194,18 @@ class _ReadQRState extends State<ReadQR> {
                     ),
                   ),
                   Container(
-                    margin: const EdgeInsets.only(top: 10),
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.only(top: 10, bottom: 10),
                     child: const Text(
-                      'フレンド申請を送信しますか？',
+                      'フレンドリクエストを\n送信しますか？',
+                      textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 20),
                     ),
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
-                      'フレンド申請を送信すると、相手にあなたのカレンダーが公開されます',
+                      '相手がフレンドリクエストを承認すると自動的にフレンドに追加されます。',
                       style: TextStyle(color: Colors.grey, fontSize: 15),
                     ),
                   ),
@@ -219,7 +221,7 @@ class _ReadQRState extends State<ReadQR> {
                 ),
                 TextButton(
                   onPressed: () {
-                    sendFriendRequest(uid, friendUid);
+                    addFriend(uid, friendUid);
                     Navigator.of(context).pop();
                   },
                   child: Text('送信',style: TextStyle(color: GlobalColor.MainCol),),
@@ -234,38 +236,38 @@ class _ReadQRState extends State<ReadQR> {
       if (e.toString() == "Failed to get user: 404") {
         FriendAddSnackBar(context,"ユーザーが見つかりません",const Icon(
           Icons.error,
-          color: Colors.red,
+          color: GlobalColor.SubCol,
         ));
       } else {
         FriendAddSnackBar(context,"エラーが発生しました。",const Icon(
           Icons.error,
-          color: Colors.red,
+          color: GlobalColor.SubCol,
         ));
       }
-      friendAddStatus = false;
       return;
     }
   }
 
-  //フレンドリクエストを送信する
-  void sendFriendRequest(String uid, String friendUid) async {
+
+  void addFriend(String myUid, String friendUid) async{
+    //snackを使用して、フレンドリクエストを送信しましたと表示
     try {
-      await AddFriendRequest().addFriend(uid, friendUid);
-      FriendAddSnackBar(context,"フレンド申請を送信しました",const Icon(
+      await AddFriendRequest().addFriend(myUid, friendUid);
+      FriendAddSnackBar(context,"フレンドリクエストを送信しました",const Icon(
         Icons.check_circle,
-        color: Colors.green,
+        color: GlobalColor.SubCol,
       ));
     } catch (e) {
       print('Error sending friend request: $e');
       if (e.toString() == "Failed to add friend: 404") {
         FriendAddSnackBar(context,"ユーザーが見つかりません",const Icon(
           Icons.error,
-          color: Colors.red,
+          color: GlobalColor.SubCol,
         ));
       } else if (e.toString() == "Failed to add friend: 409") {
-        FriendAddSnackBar(context,"既にフレンド申請を送信しています",const Icon(
+        FriendAddSnackBar(context,"既にフレンドリクエストを送信しています",const Icon(
           Icons.error,
-          color: Colors.red,
+          color: GlobalColor.SubCol,
         ));
       }
       return;

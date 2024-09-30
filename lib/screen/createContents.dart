@@ -128,7 +128,7 @@ class _CreateContentsState extends State<CreateContents> {
         backgroundColor: GlobalColor.AppBarCol,
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(20.0),
@@ -173,18 +173,20 @@ class _CreateContentsState extends State<CreateContents> {
                 SizedBox(width: 20),
                 Expanded(
                   child:
-
                   TextField(
                     controller: _groupTitleController,
+                    maxLength: 15,
                     decoration: InputDecoration(
-                      hintText: 'グループ名を入力...',
-                      hintStyle: TextStyle(color: GlobalColor.SubCol),
+                      labelText: 'グループ名',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(10), // Keep the rounded corners
+                        borderSide: BorderSide.none, // No border for the outer edge
                       ),
                       filled: true,
-                      fillColor: GlobalColor.searchBarCol,
+                      fillColor: Colors.transparent, // Transparent as the Container has color
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 5, horizontal: 10,
+                      ),
                       suffixIcon: title.isNotEmpty
                           ? IconButton(
                         icon: Icon(Icons.clear),
@@ -196,6 +198,13 @@ class _CreateContentsState extends State<CreateContents> {
                         },
                       )
                           : null,
+                      // Add an underline only at the bottom
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: GlobalColor.MainCol, width: 1.0), // Color and thickness of the bottom line
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: GlobalColor.MainCol, width: 2.0), // Color and thickness when focused
+                      ),
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -237,8 +246,9 @@ class _CreateContentsState extends State<CreateContents> {
               },
             ),
           ),
-          if (selectedFriends.isNotEmpty) ...[
-            Padding(
+          Align(
+            alignment: Alignment.centerLeft,
+            child: selectedFriends.isNotEmpty ? Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Wrap(
                 spacing: 8.0,
@@ -246,6 +256,13 @@ class _CreateContentsState extends State<CreateContents> {
                   final friend = friends.firstWhere((f) => f.uid == friendUid);
                   return Chip(
                     label: Text(friend.uname),
+
+                    avatar: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        'https://calendar-files.woody1227.com/user_icon/${friend.uicon}',
+                      ),
+                      radius: 12,
+                    ),
                     onDeleted: () {
                       setState(() {
                         selectedFriends.remove(friendUid);
@@ -254,8 +271,8 @@ class _CreateContentsState extends State<CreateContents> {
                   );
                 }).toList(),
               ),
-            ),
-          ],
+            ): SizedBox.shrink(),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: filteredFriends.length,
@@ -290,6 +307,7 @@ class _CreateContentsState extends State<CreateContents> {
                 child: Text('作成',
                     style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: GlobalColor.MainCol,
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

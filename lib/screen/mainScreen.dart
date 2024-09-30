@@ -13,7 +13,11 @@ import '../services/APIcalls.dart';
 import '../setting/color.dart' as GlobalColor;
 import 'package:badges/badges.dart' as badge;
 
+final GlobalKey<_MainScreenState> mainScreenKey = GlobalKey<_MainScreenState>();
+
 class MainScreen extends StatefulWidget {
+  MainScreen({Key? key}) : super(key: mainScreenKey); // Assign the GlobalKey
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -21,12 +25,20 @@ class MainScreen extends StatefulWidget {
 List<GroupInformation> contents = [];
 List<FriendRequestInformation> friendRequests = [];
 
+
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
   late List<Widget> _children;
   bool _isLoading = true; // Loading state
   int unreadMessages = 0;
   int receivedRequestsCount = 0;
+
+  int _currentIndex = 0;
+  void updateTab(int index) {
+    print('updateTab');
+    setState(() {
+      _currentIndex = index;
+    });
+  }
   @override
   void initState() {
     super.initState();
@@ -39,6 +51,7 @@ class _MainScreenState extends State<MainScreen> {
     ];
     reloading();
   }
+
 
   void reloading() async {
     if (Provider.of<UserData>(context, listen: false).googleUser != null) {
@@ -166,11 +179,14 @@ class _MainScreenState extends State<MainScreen> {
             icon: badge.Badge(
               child: Icon(
                 Icons.home,
-                // Removed color from here to use selected/unselected colors
               ),
               badgeContent: Text(
-                unreadMessages.toString(),
-                style: TextStyle(color: Colors.white),
+                '$unreadMessages',
+                style: TextStyle(color: Colors.white, fontSize: 8),
+              ),
+              badgeStyle: badge.BadgeStyle(
+                padding: EdgeInsets.all(5),
+                borderRadius: BorderRadius.circular(10),
               ),
               showBadge: unreadMessages != 0,
             ),

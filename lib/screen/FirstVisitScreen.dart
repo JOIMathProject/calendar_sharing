@@ -18,6 +18,7 @@ class FirstVisitScreen extends StatefulWidget {
   @override
   _FirstVisitScreenState createState() => _FirstVisitScreenState();
 }
+
 class _FirstVisitScreenState extends State<FirstVisitScreen> {
   MyContentsInformation? selectedContent;
   CalendarInformation? selectedCalendar;
@@ -33,7 +34,8 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
 
   Future<void> _initializeData() async {
     // Fetch data from providers or APIs
-    _MyContents = Provider.of<UserData>(context, listen: false).MyContentsChoice;
+    _MyContents =
+        Provider.of<UserData>(context, listen: false).MyContentsChoice;
     _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
 
     // Fetch the current user's content
@@ -44,16 +46,21 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
 
     // Set the selected content and calendar
     setState(() {
-      selectedContent = _MyContents.contains(usedContent) ? usedContent : (_MyContents.isNotEmpty ? _MyContents[0] : null);
+      selectedContent = _MyContents.contains(usedContent)
+          ? usedContent
+          : (_MyContents.isNotEmpty ? _MyContents[0] : null);
       selectedCalendar = _MyCalendar.isNotEmpty ? _MyCalendar[0] : null;
     });
   }
 
-  Future<MyContentsInformation?> _getCurrentUserContent(String gid, String uid) async {
-    List<ContentsInformation>? contents = await GetContentInGroup().getContentInGroup(gid);
+  Future<MyContentsInformation?> _getCurrentUserContent(
+      String gid, String uid) async {
+    List<ContentsInformation>? contents =
+        await GetContentInGroup().getContentInGroup(gid);
     if (contents?.isNotEmpty == true) {
       return _MyContents.firstWhere(
-            (content) => contents!.any((groupContent) => groupContent.uid == uid && content.cid == groupContent.cid),
+        (content) => contents!.any((groupContent) =>
+            groupContent.uid == uid && content.cid == groupContent.cid),
         orElse: () => _MyContents[0]!,
       );
     }
@@ -66,38 +73,43 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
     // and avoid reassigning them in the build method to prevent inconsistencies
     // _MyCalendar = Provider.of<UserData>(context, listen: false).MyCalendar;
     // _MyContents = Provider.of<UserData>(context, listen: false).MyContentsChoice;
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: GlobalColor.AppBarCol,
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        // Return false to disable the back button
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: GlobalColor.AppBarCol,
+          leading: IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'カレンダーとコンテンツを選択',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'カレンダーとコンテンツを選択',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-                ),
-                SizedBox(height: 32),
-                _buildContentSelection(),
-                SizedBox(height: 32),
-                _buildCalendarSelection(),
-                SizedBox(height: 48),
-                _buildActionButtons(),
-              ],
+                  SizedBox(height: 32),
+                  _buildContentSelection(),
+                  SizedBox(height: 32),
+                  _buildCalendarSelection(),
+                  SizedBox(height: 48),
+                  _buildActionButtons(),
+                ],
+              ),
             ),
           ),
         ),
@@ -121,7 +133,8 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             items: _MyContents.map((MyContentsInformation content) {
               return DropdownMenuItem<MyContentsInformation>(
@@ -157,7 +170,8 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             items: _MyCalendar.map((CalendarInformation calendar) {
               return DropdownMenuItem<CalendarInformation>(
@@ -185,9 +199,11 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
           child: ElevatedButton(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
-              child: Text('登録', style: TextStyle(fontSize: 18, color: GlobalColor.SubCol)),
+              child: Text('登録',
+                  style: TextStyle(fontSize: 18, color: GlobalColor.SubCol)),
             ),
             style: ElevatedButton.styleFrom(
+              backgroundColor: GlobalColor.MainCol,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
