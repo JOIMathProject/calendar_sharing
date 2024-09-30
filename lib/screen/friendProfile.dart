@@ -55,10 +55,17 @@ class _FriendProfileState extends State<FriendProfile> {
                           List<FriendInformation> friends =
                           await GetFriends().getFriends(uid);
                           Provider.of<UserData>(context, listen: false).updateFriends(friends);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: GlobalColor.SnackCol,
+                              content: Text("フレンドを削除しました",
+                                  style: TextStyle(color: GlobalColor.SubCol)),
+                            ),
+                          );
                           Navigator.pop(context);
                           Navigator.pop(context);
                         },
-                        child: Text("削除"),
+                        child: Text("削除", style: TextStyle(color: Colors.red)),
                       ),
                     ],
                   );

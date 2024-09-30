@@ -311,6 +311,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                             receivedRequests[index].uid);
                                     _fetchReceivedRequests();
                                     _fetchFriends();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: GlobalColor.SnackCol,
+                                        content: Text("${receivedRequests[index].uname}とフレンドになりました",
+                                            style: TextStyle(color: GlobalColor.SubCol)),
+                                      ),
+                                    );
                                   },
                                 ),
                                 IconButton(
@@ -320,6 +327,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                         .deleteFriendRequest(userData.uid,
                                             receivedRequests[index].uid);
                                     _fetchReceivedRequests();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: GlobalColor.SnackCol,
+                                        content: Text("フレンド申請を拒否しました",
+                                            style: TextStyle(color: GlobalColor.SubCol)),
+                                      ),
+                                    );
                                   },
                                 ),
                               ],
