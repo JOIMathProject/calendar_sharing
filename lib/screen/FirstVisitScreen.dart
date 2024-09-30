@@ -123,7 +123,7 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "表示コンテンツを選択",
+          "共有するコンテンツを選択",
           style: Theme.of(context).textTheme.titleLarge,
         ),
         SizedBox(height: 16),
