@@ -477,6 +477,10 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                //透明にする
+                side: const BorderSide(
+                  color: Colors.transparent,
+                ),
               ),
               onPressed: () async {
 
