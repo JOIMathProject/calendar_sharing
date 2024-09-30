@@ -431,7 +431,12 @@ class _ContentsSettingState extends State<ContentsSetting> {
                   }
                 },
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: GlobalColor.MainCol),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: GlobalColor.MainCol),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -462,7 +467,12 @@ class _ContentsSettingState extends State<ContentsSetting> {
                   }
                 },
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: GlobalColor.MainCol),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: GlobalColor.MainCol),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -478,9 +488,9 @@ class _ContentsSettingState extends State<ContentsSetting> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 //透明にする
-                // side: const BorderSide(
-                //   color: Colors.transparent,
-                // ),
+                side: const BorderSide(
+                  color: Colors.transparent,
+                ),
               ),
               onPressed: () async {
 
