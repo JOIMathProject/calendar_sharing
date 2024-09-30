@@ -357,7 +357,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
             widget.cid!, summary, description, _startDateTime, _endDateTime);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: GlobalColor.SnackCol,
-            content: Text('イベントがローカルに追加されました',
+            content: Text('予定がローカルに追加されました',
                 style: TextStyle(color: GlobalColor.SubCol))));
       } else {
         // Add event to Google Calendar
@@ -380,7 +380,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: GlobalColor.SnackCol,
-          content: Text('イベントの追加に失敗しました',
+          content: Text('予定の追加に失敗しました',
               style: TextStyle(color: GlobalColor.SubCol))));
     }
     // Optionally, navigate back or clear fields after adding the event
@@ -396,7 +396,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
       ),
       body: Column(
         children: [
-          Text('イベントを追加', style: TextStyle(fontSize: 30)),
+          Text('予定を追加', style: TextStyle(fontSize: 30)),
           Expanded(
             child: ListView(
               padding: EdgeInsets.all(20.0),

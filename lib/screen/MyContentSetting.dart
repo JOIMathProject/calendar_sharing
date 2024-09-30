@@ -96,7 +96,7 @@ class _MyContentSettingState extends State<MyContentSetting> {
               },
             ),
             SizedBox(height: 20),
-            Text('カレンダーの編集', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text('カレンダーを選択', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             Container(
               height: 300, // Adjust the height as needed

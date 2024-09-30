@@ -170,6 +170,13 @@ class _MyContentState extends State<MyContent> {
         .googleEventEdit(uid, calendar_id,event_id,summary,description,startTime,endTime);
     Navigator.pop(context);
     Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: GlobalColor.SnackCol,
+        content: Text("予定の変更を保存しました",
+            style: TextStyle(color: GlobalColor.SubCol)),
+      ),
+    );
     // Optionally, refresh the calendar or show a confirmation message
     await _getCalendar();
   }
@@ -179,6 +186,13 @@ class _MyContentState extends State<MyContent> {
         .localEventEdit(uid, widget.cid,event_id,summary,description,startTime,endTime);
     Navigator.pop(context);
     Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: GlobalColor.SnackCol,
+        content: Text("予定の変更を保存しました",
+            style: TextStyle(color: GlobalColor.SubCol)),
+      ),
+    );
     // Optionally, refresh the calendar or show a confirmation message
     await _getCalendar();
   }
@@ -529,7 +543,7 @@ class _MyContentState extends State<MyContent> {
                                           context: context,
                                           builder: (BuildContext context) {
                                             return AlertDialog(
-                                              title: Text('イベントを削除'),
+                                              title: Text('予定を削除'),
                                               content: Text('本当に削除しますか？'),
                                               actions: [
                                                 TextButton(
@@ -625,7 +639,7 @@ class _MyContentState extends State<MyContent> {
                                                 children: [
                                                   // Title for editing event
                                                   Text(
-                                                    'イベントを編集',
+                                                    'yotei を編集',
                                                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                                   ),
                                                   SizedBox(height: 20),
@@ -898,7 +912,7 @@ class _MyContentState extends State<MyContent> {
                                                                 builder: (BuildContext context) {
                                                                   return AlertDialog(
                                                                     title: Text('エラー'),
-                                                                    content: Text('イベント名を指定してください'),
+                                                                    content: Text('予定名を指定してください'),
                                                                     actions: [
                                                                       TextButton(
                                                                         onPressed: () {
@@ -919,7 +933,7 @@ class _MyContentState extends State<MyContent> {
                                                                 builder: (BuildContext context) {
                                                                   return AlertDialog(
                                                                     title: Text('エラー'),
-                                                                    content: Text('イベントの長さを指定してください'),
+                                                                    content: Text('予定の長さを指定してください'),
                                                                     actions: [
                                                                       TextButton(
                                                                         onPressed: () {

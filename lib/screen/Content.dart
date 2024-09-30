@@ -523,7 +523,7 @@ class _HomeState extends State<Home> {
                     },
                     child:
                         Icon(Icons.autorenew, color: GlobalColor.SubCol, size: 30),
-                    tooltip: 'イベント表示を切り替える',
+                    tooltip: '予定表示を切り替える',
                   ),
                   SizedBox(width: 16), // Spacing between FABs
                   // **Existing Floating Action Button for Search**
