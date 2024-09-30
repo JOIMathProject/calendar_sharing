@@ -405,9 +405,10 @@ class _ContentsSettingState extends State<ContentsSetting> {
                   Text('ユーザーを追加', style: TextStyle(color: GlobalColor.SubCol)),
             ),
             SizedBox(height: 20),
-            Text("コンテンツを選択", style: bigFont),
+            Text("共有するコンテンツを選択", style: bigFont),
+            SizedBox(height: 5),
             if (_MyContents.isNotEmpty)
-              DropdownButton<MyContentsInformation>(
+              DropdownButtonFormField<MyContentsInformation>(
                 value: selectedContent,
                 items: _MyContents.map((MyContentsInformation content) {
                   return DropdownMenuItem<MyContentsInformation>(
@@ -429,11 +430,18 @@ class _ContentsSettingState extends State<ContentsSetting> {
                     }
                   }
                 },
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                ),
               ),
             SizedBox(height: 20),
-            Text("カレンダーを選択", style: bigFont),
+            Text("予定追加先カレンダーを選択", style: bigFont),
+            SizedBox(height: 5),
             if (_MyCalendar.isNotEmpty)
-              DropdownButton<CalendarInformation>(
+              DropdownButtonFormField<CalendarInformation>(
                 value: selectedCalendar,
                 items: _MyCalendar.map((CalendarInformation content) {
                   return DropdownMenuItem<CalendarInformation>(
@@ -453,6 +461,12 @@ class _ContentsSettingState extends State<ContentsSetting> {
                     }
                   }
                 },
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                ),
               ),
             SizedBox(height: 20),
             Row(
