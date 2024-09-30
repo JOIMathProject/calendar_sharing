@@ -473,7 +473,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('開始時間'),
+                          Text('開始時刻'),
                           SizedBox(height: 5),
                           GestureDetector(
                             onTap: _pickStartDateTime,
@@ -497,7 +497,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('終了時間'),
+                          Text('終了時刻'),
                           SizedBox(height: 5),
                           GestureDetector(
                             onTap: _pickEndDateTime,
@@ -524,28 +524,62 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                   children: [
                     Expanded(
                       flex: 2,
-                      child: RadioListTile<bool>(
-                        title: Text('ローカル', style: TextStyle(fontSize: calculatedFontSize)),
-                        value: true,
-                        groupValue: isLocalAdd,
-                        onChanged: (bool? newValue) {
+                      child: GestureDetector(
+                        onTap: () {
                           setState(() {
-                            isLocalAdd = newValue!;
+                            isLocalAdd = true;
                           });
                         },
+                        child: Row(
+                          children: [
+                            Radio<bool>(
+                              value: true,
+                              groupValue: isLocalAdd,
+                              onChanged: (bool? newValue) {
+                                setState(() {
+                                  isLocalAdd = newValue!;
+                                });
+                              },
+                            ),
+                            Flexible(
+                              child: Text(
+                                'ローカル',
+                                style: TextStyle(fontSize: calculatedFontSize),
+                                overflow: TextOverflow.ellipsis, // テキストが長すぎる場合に省略記号を表示
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Expanded(
                       flex: 3,
-                      child: RadioListTile<bool>(
-                        title: Text('Googleカレンダー', style: TextStyle(fontSize: calculatedFontSize)),
-                        value: false,
-                        groupValue: isLocalAdd,
-                        onChanged: (bool? newValue) {
+                      child: GestureDetector(
+                        onTap: () {
                           setState(() {
-                            isLocalAdd = newValue!;
+                            isLocalAdd = false;
                           });
                         },
+                        child: Row(
+                          children: [
+                            Radio<bool>(
+                              value: false,
+                              groupValue: isLocalAdd,
+                              onChanged: (bool? newValue) {
+                                setState(() {
+                                  isLocalAdd = newValue!;
+                                });
+                              },
+                            ),
+                            Flexible(
+                              child: Text(
+                                'Googleカレンダー',
+                                style: TextStyle(fontSize: calculatedFontSize),
+                                overflow: TextOverflow.ellipsis, // テキストが長すぎる場合に省略記号を表示
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

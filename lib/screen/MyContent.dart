@@ -167,6 +167,7 @@ class _MyContentState extends State<MyContent> {
     await GoogleEventEdit()
         .googleEventEdit(uid, calendar_id,event_id,summary,description,startTime,endTime);
     Navigator.pop(context);
+    Navigator.pop(context);
     // Optionally, refresh the calendar or show a confirmation message
     await _getCalendar();
   }
@@ -175,6 +176,7 @@ class _MyContentState extends State<MyContent> {
     await LocalEventEdit()
         .localEventEdit(uid, widget.cid,event_id,summary,description,startTime,endTime);
     Navigator.pop(context);
+    Navigator.pop(context);
     // Optionally, refresh the calendar or show a confirmation message
     await _getCalendar();
   }
@@ -182,7 +184,177 @@ class _MyContentState extends State<MyContent> {
   String title = '';
   TextEditingController summaryController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  Future<void> _pickStartDateTime() async {
+    // Pick the Start Date
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: startDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData(
+            colorScheme: ColorScheme.light(
+              primary:
+              GlobalColor.MainCol, // Header background color (selected day)
+              onPrimary: Colors.black, // Header text color
+              surface: GlobalColor.SubCol, // Dialog background color
+              onSurface: Colors.black, // Body text color (dates)
+            ),
+            dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                backgroundColor: GlobalColor.MainCol,
+                foregroundColor: GlobalColor.SubCol, // Button text color
+                // backgroundColor can be set if needed
+              ),
+            ),
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(color: Colors.black), // Date text color
+              // You can customize other text styles if needed
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedDate != null) {
+      // Pick the Start Time
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(startDate),
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: ThemeData(
+              colorScheme: ColorScheme.light(
+                primary:
+                GlobalColor.timeDateSelectionCol, // Header background color (selected day)
+                onPrimary: Colors.black, // Header text color
+                surface: GlobalColor.SubCol, // Dialog background color
+                onSurface: Colors.black, // Body text color (dates)
+              ),
+              dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  backgroundColor: GlobalColor.timeDateSelectionCol,
+                  foregroundColor: GlobalColor.SubCol, // Button text color
+                  // backgroundColor can be set if needed
+                ),
+              ),
+              textTheme: TextTheme(
+                bodyMedium: TextStyle(color: Colors.black), // Date text color
+                // You can customize other text styles if needed
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+      if (pickedTime != null) {
+        DateTime newStartDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        setState(() {
+          startDate = newStartDateTime;
 
+          // **Updated Logic:** If the new Start DateTime is after or equal to the current End DateTime,
+          // adjust the End DateTime to be one hour after the new Start DateTime
+          if (endDate.isBefore(startDate) ||
+              endDate.isAtSameMomentAs(startDate)) {
+            endDate = startDate.add(Duration(hours: 1));
+          }
+        });
+      }
+    }
+  }
+
+  Future<void> _pickEndDateTime() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate:
+      endDate.isBefore(startDate) ? startDate : endDate,
+      firstDate: startDate, // End date cannot be before Start date
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData(
+            colorScheme: ColorScheme.light(
+              primary:
+              GlobalColor.timeDateSelectionCol, // Header background color (selected day)
+              onPrimary: Colors.black, // Header text color
+              surface: GlobalColor.SubCol, // Dialog background color
+              onSurface: Colors.black, // Body text color (dates)
+            ),
+            dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                backgroundColor: GlobalColor.timeDateSelectionCol,
+                foregroundColor: GlobalColor.SubCol, // Button text color
+                // backgroundColor can be set if needed
+              ),
+            ),
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(color: Colors.black), // Date text color
+              // You can customize other text styles if needed
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+        // If the picked date is different from the start date, use standard time picker
+        TimeOfDay? pickedTime = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(endDate),
+          builder: (BuildContext context, Widget? child) {
+            return Theme(
+              data: ThemeData(
+                colorScheme: ColorScheme.light(
+                  primary: GlobalColor
+                      .MainCol, // Header background color (selected day)
+                  onPrimary: Colors.black, // Header text color
+                  surface: GlobalColor.SubCol, // Dialog background color
+                  onSurface: Colors.black, // Body text color (dates)
+                ),
+                dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    backgroundColor: GlobalColor.MainCol,
+                    foregroundColor: GlobalColor.SubCol, // Button text color
+                    // backgroundColor can be set if needed
+                  ),
+                ),
+                textTheme: TextTheme(
+                  bodyMedium: TextStyle(color: Colors.black), // Time text color
+                  // You can customize other text styles if needed
+                ),
+              ),
+              child: child!,
+            );
+          },
+        );
+
+        if (pickedTime != null) {
+          DateTime selectedDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+
+          setState(() {
+            endDate = selectedDateTime;
+          });
+        }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     GoogleSignIn? gUser = Provider.of<UserData>(context).googleUser;
@@ -344,11 +516,34 @@ class _MyContentState extends State<MyContent> {
                                       style: TextStyle(color: Colors.red),
                                     ),
                                     onPressed: () {
-                                      if (parsedNotes.isLocal) {
-                                        _deleteLocalEvents(parsedNotes.eventId);
-                                      } else {
-                                        _deleteEvent(parsedNotes.calendarId, parsedNotes.eventId);
-                                      }
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('イベントを削除'),
+                                            content: Text('本当に削除しますか？'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(); // Close the dialog
+                                                },
+                                                child: Text('キャンセル'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  if (parsedNotes.isLocal) {
+                                                    _deleteLocalEvents(parsedNotes.eventId);
+                                                  } else {
+                                                    _deleteEvent(parsedNotes.calendarId, parsedNotes.eventId);
+                                                  }
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('削除', style: TextStyle(color: Colors.red)),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
                                     },
                                   ),
 
@@ -401,9 +596,6 @@ class _MyContentState extends State<MyContent> {
                                     DateTime endTime = appointment.endTime;
 
                                     Duration eventDuration = endTime.difference(startTime);
-
-                                    int selectedHours = eventDuration.inHours;
-                                    int selectedMinutes = eventDuration.inMinutes.remainder(60);
 
                                     return StatefulBuilder(
                                       builder: (BuildContext context, StateSetter setState) {
@@ -471,53 +663,10 @@ class _MyContentState extends State<MyContent> {
                                               // Start Time Picker
                                               Row(
                                                 children: [
-                                                  Text('開始時間: '),
+                                                  Text('開始時刻: '),
                                                   Spacer(),
                                                   GestureDetector(
-                                                    onTap: () async {
-                                                      final picked = await showTimePicker(
-                                                        context: context,
-                                                        initialTime: TimeOfDay.fromDateTime(startTime),
-                                                        builder: (BuildContext context, Widget? child) {
-                                                          return Theme(
-                                                            data: ThemeData(
-                                                              colorScheme: ColorScheme.light(
-                                                                primary:
-                                                                GlobalColor.timeDateSelectionCol, // Header background color (selected day)
-                                                                onPrimary: Colors.black, // Header text color
-                                                                surface: GlobalColor.SubCol, // Dialog background color
-                                                                onSurface: Colors.black, // Body text color (dates)
-                                                              ),
-                                                              dialogBackgroundColor: GlobalColor.SubCol, // Dialog background
-                                                              textButtonTheme: TextButtonThemeData(
-                                                                style: TextButton.styleFrom(
-                                                                  backgroundColor: GlobalColor.timeDateSelectionCol,
-                                                                  foregroundColor: GlobalColor.SubCol, // Button text color
-                                                                  // backgroundColor can be set if needed
-                                                                ),
-                                                              ),
-                                                              textTheme: TextTheme(
-                                                                bodyMedium: TextStyle(color: Colors.black), // Date text color
-                                                                // You can customize other text styles if needed
-                                                              ),
-                                                            ),
-                                                            child: child!,
-                                                          );
-                                                        },
-                                                      );
-                                                      if (picked != null) {
-                                                        setState(() {
-                                                          startTime = DateTime(
-                                                            startTime.year,
-                                                            startTime.month,
-                                                            startTime.day,
-                                                            picked.hour,
-                                                            picked.minute,
-                                                          );
-                                                          endTime = startTime.add(eventDuration); // Update endTime
-                                                        });
-                                                      }
-                                                    },
+                                                    onTap: _pickStartDateTime,
                                                     child:
                                                     Container(
                                                       padding: EdgeInsets.symmetric(
@@ -526,7 +675,9 @@ class _MyContentState extends State<MyContent> {
                                                         border: Border.all(color: Colors.grey),
                                                         borderRadius: BorderRadius.circular(5),
                                                       ),
-                                                      child: Text("${TimeOfDay.fromDateTime(startTime).format(context)}",
+
+                                                      child: Text(
+                                                        '${DateFormat('yyyy/MM/dd hh:mm').format(startTime)}',
                                                         style: TextStyle(
                                                             color: Colors.black87, fontSize: 16),
                                                       ),
@@ -535,77 +686,22 @@ class _MyContentState extends State<MyContent> {
                                                 ],
                                               ),
                                               SizedBox(height: 10),
-
-                                              // Event Duration Picker (Hours and Minutes)
                                               Row(
                                                 children: [
-                                                  Text('イベント長さ: '),
+                                                  Text('終了時刻: '),
                                                   Spacer(),
                                                   GestureDetector(
-                                                    onTap: () {
-                                                      showModalBottomSheet(
-                                                        context: context,
-                                                        builder: (BuildContext context) {
-                                                          return Container(
-                                                            height: 250,
-                                                            child: Row(
-                                                              mainAxisAlignment: MainAxisAlignment.center,
-                                                              children: [
-                                                                Expanded(
-                                                                  child: CupertinoPicker(
-                                                                    itemExtent: 32.0,
-                                                                    onSelectedItemChanged: (int index) {
-                                                                      setState(() {
-                                                                        selectedHours = index;
-                                                                        eventDuration = Duration(hours: selectedHours, minutes: selectedMinutes);
-                                                                        endTime = startTime.add(eventDuration); // Update endTime
-                                                                      });
-                                                                    },
-                                                                    children: List<Widget>.generate(24, (int index) {
-                                                                      return Center(
-                                                                        child: Text("$index 時間"),
-                                                                      );
-                                                                    }),
-                                                                    scrollController: FixedExtentScrollController(
-                                                                      initialItem: selectedHours,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Expanded(
-                                                                  child: CupertinoPicker(
-                                                                    itemExtent: 32.0,
-                                                                    onSelectedItemChanged: (int index) {
-                                                                      setState(() {
-                                                                        selectedMinutes = index;
-                                                                        eventDuration = Duration(hours: selectedHours, minutes: selectedMinutes);
-                                                                        endTime = startTime.add(eventDuration); // Update endTime
-                                                                      });
-                                                                    },
-                                                                    children: List<Widget>.generate(60, (int index) {
-                                                                      return Center(
-                                                                        child: Text("$index 分"),
-                                                                      );
-                                                                    }),
-                                                                    scrollController: FixedExtentScrollController(
-                                                                      initialItem: selectedMinutes,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          );
-                                                        },
-                                                      );
-                                                    },
+                                                    onTap: _pickEndDateTime,
                                                     child:
                                                     Container(
                                                       padding: EdgeInsets.symmetric(
-                                                          vertical: 12, horizontal: 10),
+                                                          vertical: 12, horizontal: 20),
                                                       decoration: BoxDecoration(
                                                         border: Border.all(color: Colors.grey),
                                                         borderRadius: BorderRadius.circular(5),
                                                       ),
-                                                      child: Text("$selectedHours 時間 $selectedMinutes 分",
+                                                      child: Text(
+                                                        '${DateFormat('yyyy/MM/dd hh:mm').format(endDate)}',
                                                         style: TextStyle(
                                                             color: Colors.black87, fontSize: 16),
                                                       ),
@@ -614,7 +710,6 @@ class _MyContentState extends State<MyContent> {
                                                 ],
                                               ),
                                               SizedBox(height: 20),
-
                                               // Submit Button
                                               Padding(
                                                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Add your desired padding
