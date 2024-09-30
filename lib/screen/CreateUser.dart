@@ -200,8 +200,10 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                               if (uidController.text.isEmpty ||
                                   usernameController.text.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("すべての項目を入力してください"),
+                                  SnackBar(
+                                    backgroundColor: GlobalColor.SnackCol,
+                                    content: Text("すべての項目を入力してください",
+                                        style: TextStyle(color: GlobalColor.SubCol)),
                                   ),
                                 );
                                 return;
@@ -214,8 +216,9 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                                 // Check if the user ID already exists
                                 await GetUser().getUser(uidController.text);
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("このuidはすでに使われています"),
+                                  SnackBar(
+                                    backgroundColor: GlobalColor.SnackCol,
+                                    content: Text("このuidはすでに使われています",style: TextStyle(color: GlobalColor.SubCol)),
                                   ),
                                 );
                               } catch (e) {
@@ -240,8 +243,9 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                                 } catch (e) {
                                   // Handle any errors during user creation
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("ユーザー登録に失敗しました"),
+                                    SnackBar(
+                                      backgroundColor: GlobalColor.SnackCol,
+                                      content: Text("ユーザー登録に失敗しました",style: TextStyle(color: GlobalColor.SubCol)),
                                     ),
                                   );
                                 }

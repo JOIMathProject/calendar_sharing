@@ -337,6 +337,11 @@ class _ProfileState extends State<Profile> {
                     decoration: InputDecoration(
                       labelText: label,
                       hintText: label,
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey, // 編集時の下線の色
+                        ),
+                      ),
                     ),
                     inputFormatters: restrictInput
                         ? [

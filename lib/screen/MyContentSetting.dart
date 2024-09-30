@@ -240,6 +240,11 @@ Widget buildProfileField(
             controller: controller,
             style: TextStyle(fontSize: 18),
             decoration: InputDecoration(
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.grey, // 編集時の下線の色
+                ),
+              ),
               labelText: label,
               hintText: label,
             ),

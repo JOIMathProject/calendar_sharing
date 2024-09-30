@@ -43,9 +43,11 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
   void dispose() {
     _disconnectFromAllEndpoints(); // Disconnect when disposing
     _stopNearbyServices();
+    discoveredDevices.clear();
     super.dispose();
   }
   bool _isFirstLoad = true;
+  bool allGranted = false;
   Set<String> _previousFriendUids = {};
   Future<void> _updateDiscoveredDevices() async {
     try {
@@ -95,7 +97,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       Permission.bluetoothScan,
     ].request();
 
-    bool allGranted = statuses.values.every((status) => status.isGranted);
+    allGranted = statuses.values.every((status) => status.isGranted);
     if (!allGranted) {
       print("Not all permissions granted.");
     }
@@ -119,7 +121,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
   Future<void> _startAdvertising() async {
     if (isAdvertising) return;
 
-    try {
       bool advertising = await _nearby.startAdvertising(
         widget.myUid,
         strategy,
@@ -128,6 +129,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
           print("Connection result: $id, $status");
         },
         onDisconnected: (id) {
+          discoveredDevices.removeWhere((d) => d.id == id);
           print("Disconnected: $id");
         },
       );
@@ -137,13 +139,8 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
           isAdvertising = true;
         });
         print("Advertising started successfully.");
-      } else {
-        _showErrorSnackBar("Advertising failed to start.");
       }
-    } catch (e) {
-      _showErrorSnackBar("Failed to start advertising: ${e.toString()}");
     }
-  }
 
   Future<void> _startDiscovery() async {
     if (isDiscovering) return;
@@ -185,13 +182,11 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       );
 
       if (!discovering) {
-        _showErrorSnackBar("Discovery failed to start.");
         setState(() {
           isDiscovering = false;
         });
       }
     } catch (e) {
-      _showErrorSnackBar("Discovery failed: ${e.toString()}");
       setState(() {
         isDiscovering = false;
       });
@@ -227,7 +222,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
         isAdvertising = false;
       });
     } catch (e) {
-      _showErrorSnackBar("Failed to stop advertising: ${e.toString()}");
     }
   }
 
@@ -241,7 +235,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
         isDiscovering = false;
       });
     } catch (e) {
-      _showErrorSnackBar("Failed to stop discovery: ${e.toString()}");
     }
   }
 
@@ -297,7 +290,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
           },
         );
     } catch (e) {
-      _showErrorSnackBar("接続が失敗しました: ${e.toString()}");
     }
   }
 
@@ -310,10 +302,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
       setState(() {
         Provider.of<UserData>(context, listen: false).updateFriends(friends);
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('フレンドを追加しました')));
     } catch (e) {
-      _showErrorSnackBar("フレンドの追加に失敗しました: ${e.toString()}");
     }
   }
 
@@ -335,13 +324,16 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
           children: [
             SizedBox(height: 20),
             Text(
-              '近くのデバイスで\nフレンドを追加する',
+              'Bluetoothで\nフレンドを追加する',
               style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center, // Optional: Center the text
             ),
             SizedBox(height: 30),
             ElevatedButton(
-              onPressed: isDiscovering ? _stopNearbyServices : _startNearbyServices,
+              onPressed: allGranted
+                  ? (isDiscovering ? _stopNearbyServices : _startNearbyServices)
+                  : null,
+
               child: Text(
                 isDiscovering ? 'デバイスを探しています...' : 'デバイスを探す',
                 style: TextStyle(color: Colors.white),

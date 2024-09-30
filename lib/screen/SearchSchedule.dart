@@ -778,8 +778,11 @@ class _SearchScheduleState extends State<SearchSchedule> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('終了時間は開始時間より後でなければなりません')),
-      );
+        SnackBar(
+        backgroundColor: GlobalColor.SnackCol,
+      content: Text('終了時間は開始時間より後でなければなりません',
+          style: TextStyle(color: Colors.white)),
+      ));
     }
   }
 
@@ -1259,7 +1262,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                 alignment: Alignment.centerRight, // Still aligns to the right but slightly padded left
                 child: Text(
                   'ヒット件数：${searchResults.length}件', // Displays the count of search results
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ),
             ),
@@ -1756,7 +1759,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
                                   return AlertDialog(
                                     title: Text('エラー'),
                                     content: Text(
-                                        '選択した時間は終了時間を超えています。一部ユーザーが参加できなくなる可能性がありますが続行しますか？'),
+                                        '選択した時間は終了時間を超えています。一部ユーザーが参加できなくなる可能性がありますが、続行しますか？'),
                                     actions: <Widget>[
                                       ElevatedButton(
                                         style: ElevatedButton.styleFrom(

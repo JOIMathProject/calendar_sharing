@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:googleapis/calendar/v3.dart' as ggl;
+import 'package:googleapis/chat/v1.dart' as chat;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:calendar_sharing/services/UserData.dart';
@@ -455,19 +455,48 @@ class _ContentsSettingState extends State<ContentsSetting> {
                 },
               ),
             SizedBox(height: 20),
-            ElevatedButton(
+            Row(
+              children: [
+                Spacer(),
+            OutlinedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: GlobalColor.MainCol,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () async {
-                await _removeUserFromGroup(widget.groupId!, currentUserUid!);
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
+
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('グループから離脱'),
+                      content: Text('本当に離脱しますか？'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: Text('キャンセル'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await _removeUserFromGroup(widget.groupId!, currentUserUid!);
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('離脱', style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child:
-                  Text('グループを離れる', style: TextStyle(color: GlobalColor.SubCol)),
-            ),
-            SizedBox(height: 20),
+                  Text('グループを離れる', style: TextStyle(color: GlobalColor.logOutCol)),
+            ),]),
+            SizedBox(height: 10),
           ],
         ),
       ),
@@ -506,6 +535,11 @@ class _ContentsSettingState extends State<ContentsSetting> {
               controller: controller,
               style: TextStyle(fontSize: 18),
               decoration: InputDecoration(
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.grey, // 編集時の下線の色
+                  ),
+                ),
                 labelText: label,
                 hintText: label,
               ),

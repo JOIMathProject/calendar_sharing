@@ -219,7 +219,7 @@ class _FirstVisitScreenState extends State<FirstVisitScreen> {
             child: OutlinedButton(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
-                child: Text('グループから離脱', style: TextStyle(fontSize: 18)),
+                child: Text('グループから離脱', style: TextStyle(fontSize: 18,color: GlobalColor.logOutCol)),
               ),
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
