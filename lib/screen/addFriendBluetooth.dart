@@ -87,9 +87,7 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     }
   }
   Future<void> _checkPermissionsAndStart() async {
-    if (!await _checkPermissions()) {
-      _showErrorSnackBar("Permissions not granted");
-    }
+    await _checkPermissions();
   }
   Future<bool> _checkPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
@@ -309,12 +307,6 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
     }
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -369,12 +361,58 @@ class _AddFriendNearbyState extends State<AddFriendNearby> {
                       behavior: HitTestBehavior.translucent,
                       onTap: () {
                         if (!isSent) {
+
                           print('sending the request to ${device.name}!!!');
                           if(receivedFriendUid.contains(device.name)){
                             receivedFriendUid.remove(device.name);
                             _addFriend(device.name);
                           }
                           _connectToDevice(device);
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 40,
+                                      backgroundColor: Colors.white,
+                                      backgroundImage: NetworkImage(
+                                        "https://calendar-files.woody1227.com/user_icon/${userInfo.uicon}",
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      userInfo.uname,
+                                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      "@${userInfo.uid}",
+                                      style: TextStyle(fontSize: 17, color: Colors.grey),
+                                    ),
+                                    SizedBox(height: 20),
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 10),
+                                    Text('応答を待っています', style: TextStyle(fontSize: 16)),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    child: Text('キャンセル'),
+                                    onPressed: () {
+                                      _nearby.disconnectFromEndpoint(device.id);
+                                      isSent = false;
+                                      sentFriendUid.remove(device.name);
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
                         }
                       },
                       child: Container(

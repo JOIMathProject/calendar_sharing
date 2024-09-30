@@ -53,7 +53,7 @@ class _CreateContentsState extends State<CreateContents> {
     List<FriendInformation> friends = userData.friends;
     setState(() {
       filteredFriends = friends.where((friend) {
-        return friend.uname.toLowerCase().contains(query.toLowerCase());
+        return friend.uname.toLowerCase().contains(query.toLowerCase()) || friend.uid.toLowerCase().contains(query.toLowerCase());
       }).toList();
     });
   }
@@ -256,7 +256,6 @@ class _CreateContentsState extends State<CreateContents> {
                   final friend = friends.firstWhere((f) => f.uid == friendUid);
                   return Chip(
                     label: Text(friend.uname),
-
                     avatar: CircleAvatar(
                       backgroundImage: NetworkImage(
                         'https://calendar-files.woody1227.com/user_icon/${friend.uicon}',
@@ -268,6 +267,13 @@ class _CreateContentsState extends State<CreateContents> {
                         selectedFriends.remove(friendUid);
                       });
                     },
+                    shape: StadiumBorder(
+                      side: BorderSide(
+                        width: 1,
+                        color: GlobalColor.MainCol,
+                      ),
+                    ),
+                    backgroundColor: Colors.transparent,
                   );
                 }).toList(),
               ),
