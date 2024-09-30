@@ -478,9 +478,9 @@ class _ContentsSettingState extends State<ContentsSetting> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 //透明にする
-                side: const BorderSide(
-                  color: Colors.transparent,
-                ),
+                // side: const BorderSide(
+                //   color: Colors.transparent,
+                // ),
               ),
               onPressed: () async {
 
