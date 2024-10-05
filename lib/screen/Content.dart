@@ -418,6 +418,11 @@ class _HomeState extends State<Home> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                Text(
+                                  "${DateFormat('yyyy/MM/dd HH:mm').format(appointment.startTime)
+                                  }~${DateFormat('yyyy/MM/dd HH:mm').format(appointment.endTime)}",
+                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+                                ),
                                 SizedBox(height: 8),
                                 Text(
                                   (appointment.notes == null || appointment.notes!.isEmpty)
@@ -451,6 +456,11 @@ class _HomeState extends State<Home> {
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,),
+                                  ),
+                                  Text(
+                                    "${DateFormat('yyyy/MM/dd HH:mm').format(appointment.startTime)
+                                    }~${DateFormat('yyyy/MM/dd HH:mm').format(appointment.endTime)}",
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
                                   ),
                                   SizedBox(height: 16),
                                   ...appointment.subject.split('\n').map((line) {

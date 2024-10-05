@@ -484,6 +484,12 @@ class _MyContentState extends State<MyContent> {
                                   appointment.subject,
                                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                 ),
+
+                                Text(
+                                  "${DateFormat('yyyy/MM/dd HH:mm').format(appointment.startTime)
+                                  }~${DateFormat('yyyy/MM/dd HH:mm').format(appointment.endTime)}",
+                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+                                ),
                                 SizedBox(height: 20),
 
                                 // Description Text
@@ -560,6 +566,13 @@ class _MyContentState extends State<MyContent> {
                                                       _deleteEvent(parsedNotes.calendarId, parsedNotes.eventId);
                                                     }
                                                     Navigator.of(context).pop();
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        backgroundColor: GlobalColor.SnackCol,
+                                                        content: Text("予定を削除しました",
+                                                            style: TextStyle(color: GlobalColor.SubCol)),
+                                                      ),
+                                                    );
                                                   },
                                                   child: Text('削除', style: TextStyle(color: Colors.red)),
                                                 ),
@@ -587,6 +600,12 @@ class _MyContentState extends State<MyContent> {
                                             _uploadLocalEvents(
                                               localSelectedCalendar!.calendar_id,
                                               parsedNotes.eventId,
+                                            );ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                backgroundColor: GlobalColor.SnackCol,
+                                                content: Text("予定をGoogleカレンダーに追加しました",
+                                                    style: TextStyle(color: GlobalColor.SubCol)),
+                                              ),
                                             );
                                           } else {
                                             // Show a warning if no calendar is selected
@@ -597,6 +616,7 @@ class _MyContentState extends State<MyContent> {
                                               ),
                                             );
                                           }
+
                                         },
                                       ),
                                   ],

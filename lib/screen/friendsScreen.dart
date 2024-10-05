@@ -415,6 +415,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                             sentRequests[index].uid,
                                             userData.uid);
                                     _fetchReceivedRequests();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: GlobalColor.SnackCol,
+                                        content: Text("フレンド申請を取り消しました",
+                                            style: TextStyle(color: GlobalColor.SubCol)),
+                                      ),
+                                    );
                                   },
                                 ),
                               ],

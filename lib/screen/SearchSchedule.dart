@@ -545,7 +545,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
   String formatDateTime(DateTime dateTime) {
     // Format month and day
-    String monthDay = DateFormat('MM/dd ').format(dateTime);
+    String monthDay = DateFormat('yy/MM/dd ').format(dateTime);
 
     // Format hour
     String hour = DateFormat('HH:mm').format(dateTime);
@@ -1303,7 +1303,7 @@ class _SearchScheduleState extends State<SearchSchedule> {
 
                   return ListTile(
                     title: Text(
-                      '${formatDateTime(searchResults[index].startTime)} ~ \n      ${formatDateTime(searchResults[index].endTime)}',
+                      "'${formatDateTime(searchResults[index].startTime)} ~ \n '${formatDateTime(searchResults[index].endTime)}",
                     ),
                     subtitle: searchResults[index].count != 0
                         ? Text('${searchResults[index].count}人参加できません')

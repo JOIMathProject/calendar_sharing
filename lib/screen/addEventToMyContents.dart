@@ -203,32 +203,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
     );
 
     if (pickedDate != null) {
-      if (_isSameDate(pickedDate, _startDateTime)) {
-        // If the picked date is the same as the start date, use custom time picker
-        // **Updated Logic:** Set minTime to startTime + 1 hour
-        TimeOfDay minSelectableTime =
-            addMinutesToTimeOfDay(TimeOfDay.fromDateTime(_startDateTime), 60);
 
-        TimeOfDay? pickedTime = await _showCustomTimePicker(
-          context,
-          initialTime: TimeOfDay.fromDateTime(_endDateTime),
-          minTime: minSelectableTime,
-        );
-
-        if (pickedTime != null) {
-          DateTime selectedDateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-
-          setState(() {
-            _endDateTime = selectedDateTime;
-          });
-        }
-      } else {
         // If the picked date is different from the start date, use standard time picker
         TimeOfDay? pickedTime = await showTimePicker(
           context: context,
@@ -274,7 +249,6 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
             _endDateTime = selectedDateTime;
           });
         }
-      }
     }
   }
 
@@ -345,7 +319,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
       // but it's kept here for safety.
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: GlobalColor.SnackCol,
-          content: Text('終了時間は開始時間より1分後でなければなりません',
+          content: Text('終了時刻は開始時刻より後でなければなりません',
               style: TextStyle(color: GlobalColor.SubCol))));
       return;
     }
@@ -484,7 +458,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                               child: Text(
-                                '${DateFormat('yyyy/MM/dd hh:mm').format(_startDateTime.toLocal())}'.split('.')[0],
+                                '${DateFormat('yyyy/MM/dd HH:mm').format(_startDateTime)}'.split('.')[0],
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),
@@ -508,7 +482,7 @@ class _AddEventToMyContentsState extends State<AddEventToMyContents> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                               child: Text(
-                                '${DateFormat('yyyy/MM/dd hh:mm').format(_endDateTime.toLocal())}'.split('.')[0],
+                                '${DateFormat('yyyy/MM/dd HH:mm').format(_endDateTime)}'.split('.')[0],
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),

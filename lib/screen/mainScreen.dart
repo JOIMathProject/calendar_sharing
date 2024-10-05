@@ -181,12 +181,8 @@ class _MainScreenState extends State<MainScreen> {
                 Icons.home,
               ),
               badgeContent: Text(
-                '$unreadMessages',
-                style: TextStyle(color: Colors.white, fontSize: 8),
-              ),
-              badgeStyle: badge.BadgeStyle(
-                padding: EdgeInsets.all(5),
-                borderRadius: BorderRadius.circular(10),
+                unreadMessages.toString(),
+                style: TextStyle(color: Colors.white),
               ),
               showBadge: unreadMessages != 0,
             ),

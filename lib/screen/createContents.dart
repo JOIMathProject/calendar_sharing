@@ -309,6 +309,13 @@ class _CreateContentsState extends State<CreateContents> {
                       selectedFriends; // Add selected friends to peoples list
                   _makeGroup(peoples, userData.uid!);
                   Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: GlobalColor.SnackCol,
+                      content: Text("グループを作成しました",
+                          style: TextStyle(color: GlobalColor.SubCol)),
+                    ),
+                  );
                 },
                 child: Text('作成',
                     style: TextStyle(fontSize: 20, color: GlobalColor.SubCol)),
