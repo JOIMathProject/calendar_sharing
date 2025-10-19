@@ -31,31 +31,31 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  google_sign_in: ^6.2.1
+  google_sign_in: ^7.2.0
   provider: ^6.1.2
-  flutter_lints: ^4.0.0
-  syncfusion_flutter_calendar: ^26.1.35
-  intl: ^0.19.0
-  googleapis_auth: ^1.6.0
-  googleapis: ^13.2.0
+  flutter_lints: ^6.0.0
+  syncfusion_flutter_calendar: ^31.2.2
+  intl: ^0.20.2
+  googleapis_auth: ^2.0.0
+  googleapis: ^15.0.0
   url_launcher: ^6.3.0
-  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  extension_google_sign_in_as_googleapis_auth: ^3.0.0
   rrule: ^0.2.16
-  syncfusion_localizations: ^26.1.39
-  flutter_localization: ^0.2.0
+  syncfusion_localizations: ^31.2.2
+  flutter_localization: ^0.3.3
   shared_preferences: ^2.2.3
   image_picker: ^1.1.2
-  flutter_chat_ui: ^1.6.15
+  flutter_chat_ui: ^2.9.1
   google_fonts: ^6.2.1
   badges: ^3.1.2
   image: ^4.2.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
   font_awesome_flutter: ^10.7.0
   qr_code_scanner: ^1.0.1
-  permission_handler: ^11.3.1
+  permission_handler: ^12.0.1
   flutter_datetime_picker: ^1.4.0
-  flutter_speed_dial: ^6.2.0
-  nearby_connections: ^3.2.0
+  flutter_speed_dial: ^7.0.0
+  nearby_connections: ^4.3.0
   qr_flutter: ^4.1.0
 
 flutter_launcher_icons:
