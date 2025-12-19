@@ -1,7 +1,16 @@
 <div align="center">
-  <h1>🥪 Sando</h1>
-  <p><b>ソーシャルカレンダー & スケジュール自動調整アプリ</b></p>
+  
+  <img src="Images/Sando_icon.PNG" width="500" alt="Sando App Icon" />
 
+  <p><b>Social Calendar & Smart Scheduling Application</b></p>
+
+  <p>
+    <img src="https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white">
+    <img src="https://img.shields.io/badge/Dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white">
+    <img src="https://img.shields.io/badge/PHP-%23777BB4.svg?style=for-the-badge&logo=php&logoColor=white">
+    <img src="https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white">
+    <img src="https://img.shields.io/badge/Google_Cloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white">
+  </p>
   <p>
     <a href="README.md" style="text-decoration: none;">
       <img src="https://img.shields.io/badge/🇬🇧_English-Switch-gray?style=for-the-badge&labelColor=white&color=gray" alt="English"/>
@@ -11,8 +20,10 @@
       <img src="https://img.shields.io/badge/🇯🇵_日本語-Active-BE0029?style=for-the-badge&labelColor=white&color=BE0029" alt="Japanese"/>
     </a>
   </p>
+  
 </div>
 <br/>
+
 
 <div id="-日本語-japanese"></div>
 
@@ -45,19 +56,19 @@ Googleアカウントでログインするだけで、既存のGoogleカレン�
   <div align="center">
     <table>
       <tr>
-        <td><b>ログイン画面</b><br/><img src="LINK_IMG_1" width="250"/></td>
-        <td><b>カレンダー表示</b><br/><img src="LINK_IMG_2" width="250"/></td>
-        <td><b>予定の有無表示</b><br/><img src="LINK_IMG_3" width="250"/></td>
+        <td><b>ログイン画面</b><br/><img src="Images/Login.png" width="250"/></td>
+        <td><b>カレンダー表示</b><br/><img src="Images/Calendar.png" width="250"/></td>
+        <td><b>グループチャット</b><br/><img src="Images/Chat.png" width="250"/></td>
       </tr>
       <tr>
-        <td><b>条件検索</b><br/><img src="LINK_IMG_4" width="250"/></td>
-        <td><b>検索結果・提案</b><br/><img src="LINK_IMG_5" width="250"/></td>
-        <td><b>追加リクエスト</b><br/><img src="LINK_IMG_6" width="250"/></td>
+        <td><b>条件検索</b><br/><img src="Images/ScheduleSearch_open.png" width="250"/></td>
+        <td><b>検索結果</b><br/><img src="Images/ScheduleSearchResult.png" width="250"/></td>
+        <td><b>追加リクエスト</b><br/><img src="Images/EventRequest.png" width="250"/></td>
       </tr>
       <tr>
-        <td><b>フレンド管理</b><br/><img src="LINK_IMG_7" width="250"/></td>
-        <td><b>グループチャット</b><br/><img src="LINK_IMG_8" width="250"/></td>
-        <td><b>設定</b><br/><img src="LINK_IMG_9" width="250"/></td>
+        <td><b>フレンド管理</b><br/><img src="Images/FriendList.png" width="250"/></td>
+        <td><b>フレンド追加</b><br/><img src="Images/FriendRequest.png" width="250"/></td>
+        <td><b>プロフィール</b><br/><img src="Images/Profile.png" width="250"/></td>
       </tr>
     </table>
   </div>
@@ -78,6 +89,10 @@ Googleアカウントでログインするだけで、既存のGoogleカレン�
 * **外部データ:** 気象庁 (天気情報)
 
 **特記事項**
-Google Calendar APIのスマートウォッチ機能（Push Notifications）を使用し、カレンダーおよび予定情報をデータベースにリアルタイムで自動同期しています。
+Google Calendar APIのPush Notificationsを使用し、カレンダーおよび予定情報をデータベースにリアルタイムで自動同期しています。
 
 ---
+
+<div align="center">
+  <p>制作者: <b>真鍋 将彰</b>・<b>内田 侑希</b>・<b>鈴木 慎志</b></p>
+</div>
