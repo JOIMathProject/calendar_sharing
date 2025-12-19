@@ -63,7 +63,7 @@ Googleアカウントでログインするだけで、既存のGoogleカレン�
 
 ### 📸 スクリーンショット
 <details>
-  <summary><b>クリックしてアプリ画面を見る（10枚）</b></summary>
+  <summary><b>クリックしてアプリ画面を見る（9枚）</b></summary>
   <br/>
   <div align="center">
     <table>
