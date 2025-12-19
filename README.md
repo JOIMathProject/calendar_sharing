@@ -38,19 +38,19 @@ It balances **convenience** with **privacy**. Users can share their free/busy st
   <div align="center">
     <table>
       <tr>
-        <td><b>Login & Setup</b><br/><img src="LINK_IMG_1" width="250"/></td>
-        <td><b>Calendar View</b><br/><img src="LINK_IMG_2" width="250"/></td>
-        <td><b>Availability Heatmap</b><br/><img src="LINK_IMG_3" width="250"/></td>
+        <td><b>Login & Setup</b><br/><img src="Images/Login.png" width="250"/></td>
+        <td><b>Calendar View</b><br/><img src="Images/Calendar.png" width="250"/></td>
+        <td><b>Profile</b><br/><img src="Images/Profile" width="250"/></td>
       </tr>
       <tr>
-        <td><b>Search Conditions</b><br/><img src="LINK_IMG_4" width="250"/></td>
-        <td><b>Search Results</b><br/><img src="LINK_IMG_5" width="250"/></td>
-        <td><b>Event Request</b><br/><img src="LINK_IMG_6" width="250"/></td>
+        <td><b>Search Conditions</b><br/><img src="Images/ScheduleSearch_open.png" width="250"/></td>
+        <td><b>Search Results</b><br/><img src="Images/ScheduleSearchResult.png" width="250"/></td>
+        <td><b>Event Request</b><br/><img src="Images/EventRequest.png" width="250"/></td>
       </tr>
       <tr>
-        <td><b>Friend List</b><br/><img src="LINK_IMG_7" width="250"/></td>
-        <td><b>Group Chat</b><br/><img src="LINK_IMG_8" width="250"/></td>
-        <td><b>Settings</b><br/><img src="LINK_IMG_9" width="250"/></td>
+        <td><b>Friend List</b><br/><img src="Images/FriendRequest.png" width="250"/></td>
+        <td><b>Group Chat</b><br/><img src="Images/Chat.png" width="250"/></td>
+        <td><b>Settings</b><br/><img src="Images/Profile.png" width="250"/></td>
       </tr>
     </table>
   </div>
