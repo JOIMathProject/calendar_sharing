@@ -77,20 +77,17 @@ Googleアカウントでログインするだけで、既存のGoogleカレン�
 
 ### 💻 技術スタック・開発環境
 
-**制作環境**
-* **IDE:** Android Studio, VS Code
-* **Framework:** Flutter (Dart)
-* **Version Control:** GitHub Desktop
+| カテゴリ | 詳細 |
+| :--- | :--- |
+| **📱 フレームワーク** | Flutter (Dart) |
+| **🛠 開発ツール** | Android Studio, VS Code, GitHub |
+| **⚙️ 実行環境** | CORESERVER V2 CORE-X |
+| **🐘 バックエンド** | PHP 7.4.33 |
+| **🗄 データベース** | MySQL |
+| **☁️ API・外部データ** | Google OAuth 2.0, Google Calendar API, 気象庁 |
 
-**サーバーサイド実装**
-* **実行環境:** CORESERVER V2 CORE-X
-* **言語:** PHP 7.4.33
-* **DB:** MySQL
-* **API:** Google OAuth2.0, Google Calendar API
-* **外部データ:** 気象庁 (天気情報)
-
-**特記事項**
-Google Calendar APIのPush Notificationsを使用し、カレンダーおよび予定情報をデータベースにリアルタイムで自動同期しています。
+> **💡 特記事項**
+> **Google Calendar APIのPush Notifications**を使用し、カレンダーおよび予定情報をデータベースにリアルタイムで自動同期する仕組みを実装しています。
 
 ---
 
