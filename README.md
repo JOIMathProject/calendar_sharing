@@ -79,5 +79,5 @@ It balances **convenience** with **privacy**. Users can share their free/busy st
 ---
 
 <div align="center">
-  <p>Created by <b>Masaaki Manabe</b> <b>Yuuki Uchida</b> <b>Shinji Suzuki<\b></p>
+  <p>Created by <b>Masaaki Manabe</b> <b>Yuuki Uchida</b> <b>Shinji Suzuki</b></p>
 </div>
