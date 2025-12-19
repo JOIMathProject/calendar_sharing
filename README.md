@@ -41,6 +41,17 @@ It balances **convenience** with **privacy**. Users can share their free/busy st
 * **💬 In-App Chat:** Discuss plans directly within the calendar view.
 * **⚡ Seamless Sync:** Accepted events are automatically added to your native Google Calendar.
 
+### 🎥 Demo Video
+<div align="center">
+  <a href="https://youtube.com/shorts/aKfYT-wxx6o?feature=share">
+    <img src="Images/video_thumb.jpg" width="150" alt="Watch the Demo Video">
+  </a>
+  <br/>
+  <i>Click to watch the 1-minute demo</i>
+</div>
+<br/>
+
+
 ### 📸 Gallery
 <details>
   <summary><b>Click to view 10+ Screenshots</b></summary>
