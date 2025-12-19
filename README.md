@@ -40,7 +40,7 @@ It balances **convenience** with **privacy**. Users can share their free/busy st
       <tr>
         <td><b>Login & Setup</b><br/><img src="Images/Login.png" width="250"/></td>
         <td><b>Calendar View</b><br/><img src="Images/Calendar.png" width="250"/></td>
-        <td><b>Profile</b><br/><img src="Images/Profile" width="250"/></td>
+        <td><b>Profile</b><br/><img src="Images/Profile.png" width="250"/></td>
       </tr>
       <tr>
         <td><b>Search Conditions</b><br/><img src="Images/ScheduleSearch_open.png" width="250"/></td>
