@@ -43,7 +43,7 @@ It balances **convenience** with **privacy**. Users can share their free/busy st
 
 ### 🎥 Demo Video
 <div align="center">
-  <a href="https://youtube.com/shorts/aKfYT-wxx6o?feature=share">
+  <a href="https://youtube.com/shorts/vfRHUQe5Vb0?feature=share">
     <img src="Images/video_thumb.jpg" width="150" alt="Watch the Demo Video">
   </a>
   <br/>
