@@ -50,6 +50,17 @@ Googleアカウントでログインするだけで、既存のGoogleカレン�
 5.  **アプリ内チャット**
     * 日程調整の相談から決定まで、アプリ内で完結します。
 
+
+### 🎥 デモ動画
+<div align="center">
+  <a href="https://youtube.com/shorts/vfRHUQe5Vb0?feature=share">
+    <img src="Images/video_thumb.jpg" width="150" alt="Watch the Demo Video">
+  </a>
+  <br/>
+  <i>クリックでデモ動画を再生</i>
+</div>
+<br/>
+
 ### 📸 スクリーンショット
 <details>
   <summary><b>クリックしてアプリ画面を見る（10枚）</b></summary>
