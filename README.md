@@ -54,7 +54,7 @@ It balances **convenience** with **privacy**. Users can share their free/busy st
 
 ### 📸 Gallery
 <details>
-  <summary><b>Click to view 10+ Screenshots</b></summary>
+  <summary><b>Click to view Screenshots</b></summary>
   <br/>
   <div align="center">
     <table>
